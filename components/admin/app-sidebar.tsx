@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, TableProperties, FolderTree, ExternalLink, Ruler } from "lucide-react";
+import { LayoutGrid, TableProperties, FolderTree, ExternalLink, Ruler, Tag } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,7 @@ const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutGrid },
   { name: "Size Charts", href: "/admin/size-charts", icon: TableProperties },
   { name: "Categories", href: "/admin/categories", icon: FolderTree },
+  { name: "Labels", href: "/admin/labels", icon: Tag },
 ];
 
 export function AppSidebar() {

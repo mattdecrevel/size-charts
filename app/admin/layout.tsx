@@ -29,6 +29,8 @@ function getBreadcrumbs(pathname: string) {
       }
     } else if (segments[1] === "categories") {
       breadcrumbs.push({ label: "Categories" });
+    } else if (segments[1] === "labels") {
+      breadcrumbs.push({ label: "Labels" });
     }
   }
 
