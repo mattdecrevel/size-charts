@@ -28,6 +28,8 @@ export interface SelectWithLabelProps {
   error?: string;
 }
 
+const EMPTY_VALUE = "__empty__";
+
 export function SelectWithLabel({
   label,
   options,
@@ -41,14 +43,25 @@ export function SelectWithLabel({
 }: SelectWithLabelProps) {
   const id = React.useId();
 
+  // Convert empty string to special value for internal use
+  const internalValue = value === "" ? EMPTY_VALUE : value;
+
   const handleValueChange = (newValue: string) => {
+    // Convert special value back to empty string
+    const actualValue = newValue === EMPTY_VALUE ? "" : newValue;
     if (onValueChange) {
-      onValueChange(newValue);
+      onValueChange(actualValue);
     }
     if (onChange) {
-      onChange({ target: { value: newValue } });
+      onChange({ target: { value: actualValue } });
     }
   };
+
+  // Filter out empty value options and add them with special value
+  const processedOptions = options.map((option) => ({
+    ...option,
+    value: option.value === "" ? EMPTY_VALUE : option.value,
+  }));
 
   return (
     <div className="space-y-2">
@@ -57,13 +70,13 @@ export function SelectWithLabel({
           {label}
         </Label>
       )}
-      <Select value={value} onValueChange={handleValueChange} disabled={disabled}>
+      <Select value={internalValue} onValueChange={handleValueChange} disabled={disabled}>
         <SelectTrigger id={id} className={cn("w-full", error && "border-destructive", className)}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value || "__empty__"}>
+          {processedOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
               {option.label}
             </SelectItem>
           ))}

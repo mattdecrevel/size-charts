@@ -25,6 +25,8 @@ export interface SimpleSelectProps {
   disabled?: boolean;
 }
 
+const EMPTY_VALUE = "__empty__";
+
 export function SimpleSelect({
   options,
   value,
@@ -34,22 +36,33 @@ export function SimpleSelect({
   className,
   disabled,
 }: SimpleSelectProps) {
+  // Convert empty string to special value for internal use
+  const internalValue = value === "" ? EMPTY_VALUE : value;
+
   const handleValueChange = (newValue: string) => {
+    // Convert special value back to empty string
+    const actualValue = newValue === EMPTY_VALUE ? "" : newValue;
     if (onValueChange) {
-      onValueChange(newValue);
+      onValueChange(actualValue);
     }
     if (onChange) {
-      onChange({ target: { value: newValue } });
+      onChange({ target: { value: actualValue } });
     }
   };
 
+  // Process options to handle empty values
+  const processedOptions = options.map((option) => ({
+    ...option,
+    value: option.value === "" ? EMPTY_VALUE : option.value,
+  }));
+
   return (
-    <Select value={value} onValueChange={handleValueChange} disabled={disabled}>
+    <Select value={internalValue} onValueChange={handleValueChange} disabled={disabled}>
       <SelectTrigger className={cn("w-full", className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
-        {options.map((option) => (
+        {processedOptions.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}
           </SelectItem>

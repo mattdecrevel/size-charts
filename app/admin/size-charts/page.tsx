@@ -161,7 +161,7 @@ function SizeChartsListContent() {
           ]}
           value={selectedCategory}
           onChange={(e) => {
-            setSelectedCategory(e.target.value === "__empty__" ? "" : e.target.value);
+            setSelectedCategory(e.target.value);
             setSelectedSubcategory("");
             setPage(1);
           }}
@@ -175,7 +175,7 @@ function SizeChartsListContent() {
             ]}
             value={selectedSubcategory}
             onChange={(e) => {
-              setSelectedSubcategory(e.target.value === "__empty__" ? "" : e.target.value);
+              setSelectedSubcategory(e.target.value);
               setPage(1);
             }}
             className="w-40"
@@ -189,7 +189,7 @@ function SizeChartsListContent() {
           ]}
           value={publishedFilter}
           onChange={(e) => {
-            setPublishedFilter(e.target.value === "__empty__" ? "" : e.target.value);
+            setPublishedFilter(e.target.value);
             setPage(1);
           }}
           className="w-32"

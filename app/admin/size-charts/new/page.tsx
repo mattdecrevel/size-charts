@@ -167,7 +167,7 @@ export default function NewSizeChartPage() {
               ]}
               value={selectedCategory}
               onChange={(e) => {
-                setSelectedCategory(e.target.value === "__empty__" ? "" : e.target.value);
+                setSelectedCategory(e.target.value);
                 setState({ ...state, subcategoryId: "" });
               }}
               disabled={categoriesLoading}
@@ -179,7 +179,7 @@ export default function NewSizeChartPage() {
                 ...subcategories.map((s) => ({ value: s.id, label: s.name })),
               ]}
               value={state.subcategoryId}
-              onChange={(e) => setState({ ...state, subcategoryId: e.target.value === "__empty__" ? "" : e.target.value })}
+              onChange={(e) => setState({ ...state, subcategoryId: e.target.value })}
               disabled={!selectedCategory}
             />
           </div>
