@@ -75,14 +75,14 @@ export default function ChartPage({ params }: PageProps) {
           href={`/size-guide/${categorySlug}`}
           className="hover:text-zinc-900 dark:hover:text-zinc-50"
         >
-          {chart.subcategory.category.name}
+          {chart.subcategory?.category.name}
         </Link>
         <ChevronRight className="h-4 w-4" />
         <Link
           href={`/size-guide/${categorySlug}/${subcategorySlug}`}
           className="hover:text-zinc-900 dark:hover:text-zinc-50"
         >
-          {chart.subcategory.name}
+          {chart.subcategory?.name}
         </Link>
         <ChevronRight className="h-4 w-4" />
         <span className="text-zinc-900 dark:text-zinc-50">{chart.name}</span>

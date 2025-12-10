@@ -8,16 +8,35 @@ export default async function SizeGuidePage() {
     include: {
       subcategories: {
         orderBy: { displayOrder: "asc" },
-        include: {
-          _count: {
-            select: {
-              sizeCharts: { where: { isPublished: true } },
-            },
-          },
-        },
       },
     },
   });
+
+  // Get count of published size charts per subcategory via many-to-many
+  const subcategoryCounts = await db.sizeChartSubcategory.groupBy({
+    by: ["subcategoryId"],
+    where: {
+      sizeChart: { isPublished: true },
+    },
+    _count: {
+      sizeChartId: true,
+    },
+  });
+
+  const countMap = new Map(
+    subcategoryCounts.map((c) => [c.subcategoryId, c._count.sizeChartId])
+  );
+
+  // Add counts to categories
+  const categoriesWithCounts = categories.map((category) => ({
+    ...category,
+    subcategories: category.subcategories.map((sub) => ({
+      ...sub,
+      _count: {
+        sizeCharts: countMap.get(sub.id) || 0,
+      },
+    })),
+  }));
 
   return (
     <div>
@@ -31,7 +50,7 @@ export default async function SizeGuidePage() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {categories.map((category) => (
+        {categoriesWithCounts.map((category) => (
           <div
             key={category.id}
             className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"

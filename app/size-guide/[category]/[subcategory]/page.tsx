@@ -17,10 +17,6 @@ export default async function SubcategoryPage({ params }: PageProps) {
     },
     include: {
       category: true,
-      sizeCharts: {
-        where: { isPublished: true },
-        orderBy: { displayOrder: "asc" },
-      },
     },
   });
 
@@ -28,9 +24,25 @@ export default async function SubcategoryPage({ params }: PageProps) {
     notFound();
   }
 
+  // Get published size charts for this subcategory via many-to-many
+  const sizeCharts = await db.sizeChart.findMany({
+    where: {
+      isPublished: true,
+      subcategories: {
+        some: { subcategoryId: subcategory.id },
+      },
+    },
+    orderBy: { name: "asc" },
+  });
+
+  const subcategoryWithCharts = {
+    ...subcategory,
+    sizeCharts,
+  };
+
   // If only one chart, redirect directly to it
-  if (subcategory.sizeCharts.length === 1) {
-    redirect(`/size-guide/${categorySlug}/${subcategorySlug}/${subcategory.sizeCharts[0].slug}`);
+  if (subcategoryWithCharts.sizeCharts.length === 1) {
+    redirect(`/size-guide/${categorySlug}/${subcategorySlug}/${subcategoryWithCharts.sizeCharts[0].slug}`);
   }
 
   return (
@@ -44,18 +56,18 @@ export default async function SubcategoryPage({ params }: PageProps) {
           href={`/size-guide/${categorySlug}`}
           className="hover:text-zinc-900 dark:hover:text-zinc-50"
         >
-          {subcategory.category.name}
+          {subcategoryWithCharts.category.name}
         </Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="text-zinc-900 dark:text-zinc-50">{subcategory.name}</span>
+        <span className="text-zinc-900 dark:text-zinc-50">{subcategoryWithCharts.name}</span>
       </nav>
 
       <h1 className="mb-8 text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-        {subcategory.name} Size Charts
+        {subcategoryWithCharts.name} Size Charts
       </h1>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {subcategory.sizeCharts.map((chart) => (
+        {subcategoryWithCharts.sizeCharts.map((chart) => (
           <Link
             key={chart.id}
             href={`/size-guide/${categorySlug}/${subcategorySlug}/${chart.slug}`}
@@ -71,7 +83,7 @@ export default async function SubcategoryPage({ params }: PageProps) {
         ))}
       </div>
 
-      {subcategory.sizeCharts.length === 0 && (
+      {subcategoryWithCharts.sizeCharts.length === 0 && (
         <p className="text-center text-zinc-500">No size charts available yet.</p>
       )}
     </div>
