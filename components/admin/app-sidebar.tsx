@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, TableProperties, FolderTree, ExternalLink, Ruler, Tag } from "lucide-react";
+import { LayoutGrid, TableProperties, FolderTree, ExternalLink, Ruler, Tag, BookOpen, Code, History } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +22,12 @@ const navigation = [
   { name: "Size Charts", href: "/admin/size-charts", icon: TableProperties },
   { name: "Categories", href: "/admin/categories", icon: FolderTree },
   { name: "Labels", href: "/admin/labels", icon: Tag },
+];
+
+const docs = [
+  { name: "Getting Started", href: "/admin/docs/getting-started", icon: BookOpen },
+  { name: "API Reference", href: "/admin/docs/api", icon: Code },
+  { name: "Changelog", href: "/admin/docs/changelog", icon: History },
 ];
 
 export function AppSidebar() {
@@ -57,6 +63,28 @@ export function AppSidebar() {
                   item.href === "/admin"
                     ? pathname === "/admin"
                     : pathname.startsWith(item.href);
+
+                return (
+                  <SidebarMenuItem key={item.name}>
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.name}>
+                      <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Documentation</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {docs.map((item) => {
+                const isActive = pathname.startsWith(item.href);
 
                 return (
                   <SidebarMenuItem key={item.name}>
