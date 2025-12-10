@@ -13,8 +13,12 @@ export default async function AdminDashboard() {
     take: 5,
     orderBy: { updatedAt: "desc" },
     include: {
-      subcategory: {
-        include: { category: true },
+      subcategories: {
+        include: {
+          subcategory: {
+            include: { category: true },
+          },
+        },
       },
     },
   });
@@ -99,7 +103,9 @@ export default async function AdminDashboard() {
                 <div>
                   <p className="font-medium text-zinc-900 dark:text-zinc-50">{chart.name}</p>
                   <p className="text-sm text-zinc-500">
-                    {chart.subcategory.category.name} &rarr; {chart.subcategory.name}
+                    {chart.subcategories.length > 0
+                      ? `${chart.subcategories[0].subcategory.category.name} → ${chart.subcategories[0].subcategory.name}${chart.subcategories.length > 1 ? ` +${chart.subcategories.length - 1} more` : ""}`
+                      : "No category assigned"}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">

@@ -278,7 +278,9 @@ function SizeChartsListContent() {
                         </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {chart.subcategory.category.name} &rarr; {chart.subcategory.name}
+                        {chart.subcategories.length > 0
+                          ? `${chart.subcategories[0].subcategory.category.name} → ${chart.subcategories[0].subcategory.name}${chart.subcategories.length > 1 ? ` +${chart.subcategories.length - 1}` : ""}`
+                          : "—"}
                       </TableCell>
                       <TableCell>
                         <Badge variant={chart.isPublished ? "default" : "secondary"}>

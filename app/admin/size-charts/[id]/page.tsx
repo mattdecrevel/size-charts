@@ -3,13 +3,14 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, InputWithLabel, Badge } from "@/components/ui";
+import { Button, InputWithLabel, Badge, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui";
 import { SizeChartEditor, type EditorState } from "@/components/admin/size-chart-editor";
 import { useSizeChart } from "@/hooks/use-size-charts";
 import { useCategories } from "@/hooks/use-categories";
+import { useLabels } from "@/hooks/use-labels";
 import { useToast } from "@/components/ui/toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Save, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { ArrowLeft, Save, Eye, EyeOff, ExternalLink, Pencil, Check, X } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -22,25 +23,27 @@ export default function EditSizeChartPage({ params }: PageProps) {
 
   const { data: chart, isLoading } = useSizeChart(id);
   const { data: categories } = useCategories();
+  const { data: labels } = useLabels();
 
   const [state, setState] = useState<EditorState | null>(null);
   const [saving, setSaving] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
   const [slug, setSlug] = useState("");
+  const [categoriesDialogOpen, setCategoriesDialogOpen] = useState(false);
+  const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (chart && !state) {
       setState({
         name: chart.name,
         description: chart.description || "",
-        subcategoryId: chart.subcategoryId,
+        subcategoryIds: chart.subcategories.map((sc) => sc.subcategoryId),
         isPublished: chart.isPublished,
         columns: chart.columns.map((col) => ({
           id: col.id,
           name: col.name,
           columnType: col.columnType,
-          unit: col.unit,
           displayOrder: col.displayOrder,
         })),
         rows: chart.rows.map((row) => ({
@@ -53,14 +56,20 @@ export default function EditSizeChartPage({ params }: PageProps) {
               columnId: col.id,
               columnIndex: colIndex,
               valueInches: cell?.valueInches ?? null,
+              valueCm: cell?.valueCm ?? null,
               valueText: cell?.valueText ?? null,
               valueMinInches: cell?.valueMinInches ?? null,
               valueMaxInches: cell?.valueMaxInches ?? null,
+              valueMinCm: cell?.valueMinCm ?? null,
+              valueMaxCm: cell?.valueMaxCm ?? null,
+              labelId: cell?.labelId ?? null,
             };
           }),
         })),
       });
-      setSelectedCategory(chart.subcategory.categoryId);
+      if (chart.subcategories.length > 0) {
+        setSelectedCategory(chart.subcategories[0].subcategory.categoryId);
+      }
       setSlug(chart.slug);
     }
   }, [chart, state]);
@@ -92,11 +101,11 @@ export default function EditSizeChartPage({ params }: PageProps) {
           name: state.name,
           slug: slug,
           description: state.description || null,
+          subcategoryIds: state.subcategoryIds,
           columns: state.columns.map((col, index) => ({
             id: col.id,
             name: col.name,
             columnType: col.columnType,
-            unit: col.unit,
             displayOrder: index,
           })),
           rows: state.rows.map((row, rowIndex) => ({
@@ -107,9 +116,13 @@ export default function EditSizeChartPage({ params }: PageProps) {
               columnId: cell.columnId,
               columnIndex: cellIndex,
               valueInches: cell.valueInches,
+              valueCm: cell.valueCm,
               valueText: cell.valueText,
               valueMinInches: cell.valueMinInches,
               valueMaxInches: cell.valueMaxInches,
+              valueMinCm: cell.valueMinCm,
+              valueMaxCm: cell.valueMaxCm,
+              labelId: cell.labelId,
             })),
           })),
         }),
@@ -192,9 +205,9 @@ export default function EditSizeChartPage({ params }: PageProps) {
             )}
           </div>
           <div className="flex items-center gap-2">
-            {state.isPublished && chart && (
+            {state.isPublished && chart && chart.subcategories.length > 0 && (
               <Link
-                href={`/size-guide/${chart.subcategory.category.slug}/${chart.subcategory.slug}/${chart.slug}`}
+                href={`/size-guide/${chart.subcategories[0].subcategory.category.slug}/${chart.subcategories[0].subcategory.slug}/${chart.slug}`}
                 target="_blank"
               >
                 <Button variant="outline">
@@ -257,15 +270,43 @@ export default function EditSizeChartPage({ params }: PageProps) {
                 placeholder="Brief description of this size chart"
               />
             </div>
-            <div className="text-sm text-muted-foreground">
-              <span className="font-medium">Category:</span>{" "}
-              {chart?.subcategory.category.name} &rarr; {chart?.subcategory.name}
+            <div className="sm:col-span-2">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm font-medium">Categories</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedSubcategoryIds(new Set(state.subcategoryIds));
+                    setCategoriesDialogOpen(true);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edit
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {state.subcategoryIds.length > 0 ? (
+                  categories
+                    ?.flatMap((cat) =>
+                      cat.subcategories
+                        .filter((sub) => state.subcategoryIds.includes(sub.id))
+                        .map((sub) => (
+                          <Badge key={sub.id} variant="secondary">
+                            {cat.name} → {sub.name}
+                          </Badge>
+                        ))
+                    )
+                ) : (
+                  <span className="text-sm text-muted-foreground">No categories assigned</span>
+                )}
+              </div>
             </div>
-            {slug && chart && (
+            {slug && chart && chart.subcategories.length > 0 && (
               <div className="text-sm text-muted-foreground">
                 <span className="font-medium">Public URL:</span>{" "}
                 <code className="bg-muted px-1 py-0.5 rounded text-xs">
-                  /size-guide/{chart.subcategory.category.slug}/{chart.subcategory.slug}/{slug}
+                  /size-guide/{chart.subcategories[0].subcategory.category.slug}/{chart.subcategories[0].subcategory.slug}/{slug}
                 </code>
               </div>
             )}
@@ -280,9 +321,71 @@ export default function EditSizeChartPage({ params }: PageProps) {
             Click on a cell to edit. Use Tab to move to the next cell, Enter to move down.
             Configure columns by clicking the settings icon in the header.
           </p>
-          <SizeChartEditor state={state} onChange={handleStateChange} />
+          <SizeChartEditor state={state} onChange={handleStateChange} labels={labels} />
         </div>
       </div>
+
+      {/* Categories Edit Dialog */}
+      <Dialog open={categoriesDialogOpen} onOpenChange={setCategoriesDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Categories</DialogTitle>
+            <DialogDescription>
+              Select which categories this size chart should appear in. You can select multiple categories.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-96 overflow-y-auto py-4">
+            {categories?.map((category) => (
+              <div key={category.id} className="mb-4">
+                <h3 className="mb-2 font-medium text-sm text-muted-foreground">{category.name}</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {category.subcategories.map((subcategory) => {
+                    const isSelected = selectedSubcategoryIds.has(subcategory.id);
+                    return (
+                      <button
+                        key={subcategory.id}
+                        onClick={() => {
+                          const newSet = new Set(selectedSubcategoryIds);
+                          if (isSelected) {
+                            newSet.delete(subcategory.id);
+                          } else {
+                            newSet.add(subcategory.id);
+                          }
+                          setSelectedSubcategoryIds(newSet);
+                        }}
+                        className={`flex items-center justify-between rounded-md border px-3 py-2 text-sm transition-colors ${
+                          isSelected
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:bg-accent"
+                        }`}
+                      >
+                        <span>{subcategory.name}</span>
+                        {isSelected && <Check className="h-4 w-4" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCategoriesDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                handleStateChange({
+                  ...state,
+                  subcategoryIds: Array.from(selectedSubcategoryIds),
+                });
+                setCategoriesDialogOpen(false);
+              }}
+            >
+              Save Categories
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
