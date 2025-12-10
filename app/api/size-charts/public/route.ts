@@ -19,21 +19,33 @@ export async function GET(request: NextRequest) {
       where: {
         slug: chartSlug,
         isPublished: true,
-        subcategory: {
-          slug: subcategorySlug,
-          category: {
-            slug: categorySlug,
+        subcategories: {
+          some: {
+            subcategory: {
+              slug: subcategorySlug,
+              category: {
+                slug: categorySlug,
+              },
+            },
           },
         },
       },
       include: {
-        subcategory: {
-          include: { category: true },
+        subcategories: {
+          include: {
+            subcategory: {
+              include: { category: true },
+            },
+          },
         },
         columns: { orderBy: { displayOrder: "asc" } },
         rows: {
           orderBy: { displayOrder: "asc" },
-          include: { cells: true },
+          include: {
+            cells: {
+              include: { label: true },
+            },
+          },
         },
       },
     });
@@ -42,7 +54,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Size chart not found" }, { status: 404 });
     }
 
-    return NextResponse.json(chart);
+    // Transform response to match expected format (with singular subcategory for backward compat)
+    const primarySubcategory = chart.subcategories.find(
+      (sc) => sc.subcategory.slug === subcategorySlug && sc.subcategory.category.slug === categorySlug
+    );
+
+    return NextResponse.json({
+      ...chart,
+      subcategory: primarySubcategory?.subcategory || chart.subcategories[0]?.subcategory,
+    });
   } catch (error) {
     console.error("Error fetching public size chart:", error);
     return NextResponse.json({ error: "Failed to fetch size chart" }, { status: 500 });

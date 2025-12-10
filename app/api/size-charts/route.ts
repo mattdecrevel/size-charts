@@ -18,13 +18,25 @@ export async function GET(request: NextRequest) {
       limit: searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : 20,
     });
 
+    // Build where clause for many-to-many relationship
     const where = {
-      ...(filters.categoryId && { subcategory: { categoryId: filters.categoryId } }),
-      ...(filters.subcategoryId && { subcategoryId: filters.subcategoryId }),
+      ...(filters.subcategoryId && {
+        subcategories: {
+          some: { subcategoryId: filters.subcategoryId }
+        }
+      }),
+      ...(filters.categoryId && {
+        subcategories: {
+          some: {
+            subcategory: { categoryId: filters.categoryId }
+          }
+        }
+      }),
       ...(filters.search && {
         OR: [
           { name: { contains: filters.search, mode: "insensitive" as const } },
           { description: { contains: filters.search, mode: "insensitive" as const } },
+          { slug: { contains: filters.search, mode: "insensitive" as const } },
         ]
       }),
       ...(filters.isPublished !== undefined && { isPublished: filters.isPublished }),
@@ -34,15 +46,18 @@ export async function GET(request: NextRequest) {
       db.sizeChart.findMany({
         where,
         include: {
-          subcategory: {
-            include: { category: true },
+          subcategories: {
+            include: {
+              subcategory: {
+                include: { category: true },
+              },
+            },
+            orderBy: { displayOrder: "asc" },
           },
           _count: { select: { rows: true, columns: true } },
         },
         orderBy: [
-          { subcategory: { category: { displayOrder: "asc" } } },
-          { subcategory: { displayOrder: "asc" } },
-          { displayOrder: "asc" },
+          { name: "asc" },
         ],
         skip: (filters.page - 1) * filters.limit,
         take: filters.limit,
@@ -76,19 +91,14 @@ export async function POST(request: NextRequest) {
     // Use user-provided slug or auto-generate from name
     const slug = data.slug || generateSlug(data.name);
 
-    // Check for duplicate slug in same subcategory
+    // Check for duplicate slug (now globally unique)
     const existing = await db.sizeChart.findUnique({
-      where: {
-        subcategoryId_slug: {
-          subcategoryId: data.subcategoryId,
-          slug,
-        },
-      },
+      where: { slug },
     });
 
     if (existing) {
       return NextResponse.json(
-        { error: "A size chart with this name already exists in this subcategory" },
+        { error: "A size chart with this ID/slug already exists" },
         { status: 409 }
       );
     }
@@ -99,19 +109,28 @@ export async function POST(request: NextRequest) {
         name: data.name,
         slug,
         description: data.description,
-        subcategoryId: data.subcategoryId,
         columns: {
           create: data.columns.map((col, index) => ({
             name: col.name,
             columnType: col.columnType,
-            unit: col.unit || "NONE",
             displayOrder: col.displayOrder ?? index,
           })),
         },
+        // Create many-to-many relationships
+        subcategories: data.subcategoryIds ? {
+          create: data.subcategoryIds.map((subcategoryId, index) => ({
+            subcategoryId,
+            displayOrder: index,
+          })),
+        } : undefined,
       },
       include: {
         columns: { orderBy: { displayOrder: "asc" } },
-        subcategory: { include: { category: true } },
+        subcategories: {
+          include: {
+            subcategory: { include: { category: true } },
+          },
+        },
       },
     });
 
@@ -131,9 +150,13 @@ export async function POST(request: NextRequest) {
               rowId: row.id,
               columnId: sizeChart.columns[cell.columnIndex].id,
               valueInches: cell.valueInches ?? null,
+              valueCm: cell.valueCm ?? null,
               valueText: cell.valueText ?? null,
               valueMinInches: cell.valueMinInches ?? null,
               valueMaxInches: cell.valueMaxInches ?? null,
+              valueMinCm: cell.valueMinCm ?? null,
+              valueMaxCm: cell.valueMaxCm ?? null,
+              labelId: cell.labelId ?? null,
             })),
           });
         }
@@ -144,11 +167,19 @@ export async function POST(request: NextRequest) {
     const completeSizeChart = await db.sizeChart.findUnique({
       where: { id: sizeChart.id },
       include: {
-        subcategory: { include: { category: true } },
+        subcategories: {
+          include: {
+            subcategory: { include: { category: true } },
+          },
+        },
         columns: { orderBy: { displayOrder: "asc" } },
         rows: {
           orderBy: { displayOrder: "asc" },
-          include: { cells: true },
+          include: {
+            cells: {
+              include: { label: true },
+            },
+          },
         },
       },
     });

@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
     const original = await db.sizeChart.findUnique({
       where: { id: data.id },
       include: {
+        subcategories: true,
         columns: { orderBy: { displayOrder: "asc" } },
         rows: {
           orderBy: { displayOrder: "asc" },
@@ -30,15 +31,8 @@ export async function POST(request: NextRequest) {
     let slug = generateSlug(newName);
     let counter = 1;
 
-    // Ensure unique slug
-    while (await db.sizeChart.findUnique({
-      where: {
-        subcategoryId_slug: {
-          subcategoryId: original.subcategoryId,
-          slug,
-        },
-      },
-    })) {
+    // Ensure unique slug (globally unique now)
+    while (await db.sizeChart.findUnique({ where: { slug } })) {
       slug = `${generateSlug(newName)}-${counter}`;
       counter++;
     }
@@ -49,14 +43,16 @@ export async function POST(request: NextRequest) {
         name: newName,
         slug,
         description: original.description,
-        subcategoryId: original.subcategoryId,
         isPublished: false, // Always start as draft
-        displayOrder: original.displayOrder + 1,
+        subcategories: {
+          create: original.subcategories.map((sc) => ({
+            subcategoryId: sc.subcategoryId,
+          })),
+        },
         columns: {
           create: original.columns.map((col) => ({
             name: col.name,
             columnType: col.columnType,
-            unit: col.unit,
             displayOrder: col.displayOrder,
           })),
         },
@@ -86,9 +82,13 @@ export async function POST(request: NextRequest) {
           rowId: newRow.id,
           columnId: columnMap.get(cell.columnId)!,
           valueInches: cell.valueInches,
+          valueCm: cell.valueCm,
           valueText: cell.valueText,
           valueMinInches: cell.valueMinInches,
           valueMaxInches: cell.valueMaxInches,
+          valueMinCm: cell.valueMinCm,
+          valueMaxCm: cell.valueMaxCm,
+          labelId: cell.labelId,
         })),
       });
     }
@@ -97,7 +97,13 @@ export async function POST(request: NextRequest) {
     const completeDuplicate = await db.sizeChart.findUnique({
       where: { id: duplicate.id },
       include: {
-        subcategory: { include: { category: true } },
+        subcategories: {
+          include: {
+            subcategory: {
+              include: { category: true },
+            },
+          },
+        },
         columns: { orderBy: { displayOrder: "asc" } },
         rows: {
           orderBy: { displayOrder: "asc" },
