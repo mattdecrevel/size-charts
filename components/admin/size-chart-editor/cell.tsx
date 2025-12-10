@@ -3,44 +3,51 @@
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { formatMeasurement, formatRange } from "@/lib/conversions";
-import type { ColumnType, MeasurementUnit } from "@prisma/client";
+import type { ColumnType, SizeLabel } from "@prisma/client";
 import type { EditorCell } from "./types";
 
 interface CellProps {
   cell: EditorCell;
   columnType: ColumnType;
-  unit: MeasurementUnit;
   isEditing: boolean;
   onStartEdit: () => void;
   onChange: (cell: EditorCell) => void;
   onFinishEdit: () => void;
   onNavigate: (direction: "up" | "down" | "left" | "right") => void;
+  labels?: SizeLabel[];
 }
 
 export function Cell({
   cell,
   columnType,
-  unit,
   isEditing,
   onStartEdit,
   onChange,
   onFinishEdit,
   onNavigate,
+  labels = [],
 }: CellProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const selectRef = useRef<HTMLSelectElement>(null);
   const [localValue, setLocalValue] = useState("");
   const [localMin, setLocalMin] = useState("");
   const [localMax, setLocalMax] = useState("");
 
   const isMeasurement = columnType === "MEASUREMENT";
+  const isSizeLabel = columnType === "SIZE_LABEL";
   const hasRange = cell.valueMinInches !== null && cell.valueMaxInches !== null;
+  const hasLabels = labels.length > 0 && isSizeLabel;
 
   useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
+    if (isEditing) {
+      if (hasLabels && selectRef.current) {
+        selectRef.current.focus();
+      } else if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.select();
+      }
     }
-  }, [isEditing]);
+  }, [isEditing, hasLabels]);
 
   useEffect(() => {
     if (isEditing) {
@@ -118,12 +125,31 @@ export function Cell({
     onFinishEdit();
   };
 
+  const handleLabelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const labelId = e.target.value || null;
+    const label = labels.find((l) => l.id === labelId);
+
+    onChange({
+      ...cell,
+      labelId,
+      valueText: label?.displayValue || null,
+    });
+    onFinishEdit();
+  };
+
   const displayValue = () => {
     if (isMeasurement) {
       if (hasRange) {
         return formatRange(cell.valueMinInches, cell.valueMaxInches, "inches");
       }
       return formatMeasurement(cell.valueInches, "inches");
+    }
+    // For SIZE_LABEL with a linked label, show the display value
+    if (cell.labelId) {
+      const label = labels.find((l) => l.id === cell.labelId);
+      if (label) {
+        return label.displayValue;
+      }
     }
     return cell.valueText || "-";
   };
@@ -140,6 +166,27 @@ export function Cell({
       >
         {displayValue()}
       </div>
+    );
+  }
+
+  // Label dropdown for SIZE_LABEL columns when labels are available
+  if (hasLabels) {
+    return (
+      <select
+        ref={selectRef}
+        value={cell.labelId || ""}
+        onChange={handleLabelChange}
+        onKeyDown={handleKeyDown}
+        onBlur={() => onFinishEdit()}
+        className="h-full w-full border-0 bg-transparent px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-inset focus:ring-zinc-500"
+      >
+        <option value="">— Select —</option>
+        {labels.map((label) => (
+          <option key={label.id} value={label.id}>
+            {label.displayValue} ({label.key})
+          </option>
+        ))}
+      </select>
     );
   }
 

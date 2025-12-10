@@ -5,16 +5,17 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui";
 import { Cell } from "./cell";
 import { ColumnConfig } from "./column-config";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import type { EditorState, EditorColumn, EditorRow, EditorCell, CellPosition } from "./types";
-import type { ColumnType, MeasurementUnit } from "@prisma/client";
+import type { SizeLabel } from "@prisma/client";
 
 interface EditorProps {
   state: EditorState;
   onChange: (state: EditorState) => void;
+  labels?: SizeLabel[];
 }
 
-export function SizeChartEditor({ state, onChange }: EditorProps) {
+export function SizeChartEditor({ state, onChange, labels = [] }: EditorProps) {
   const [editingCell, setEditingCell] = useState<CellPosition | null>(null);
 
   const updateColumn = useCallback(
@@ -49,7 +50,6 @@ export function SizeChartEditor({ state, onChange }: EditorProps) {
     const newColumn: EditorColumn = {
       name: `Column ${state.columns.length + 1}`,
       columnType: "SIZE_LABEL",
-      unit: "NONE",
       displayOrder: state.columns.length,
     };
     const newRows = state.rows.map((row) => ({
@@ -59,9 +59,12 @@ export function SizeChartEditor({ state, onChange }: EditorProps) {
         {
           columnIndex: state.columns.length,
           valueInches: null,
+          valueCm: null,
           valueText: null,
           valueMinInches: null,
           valueMaxInches: null,
+          valueMinCm: null,
+          valueMaxCm: null,
         },
       ],
     }));
@@ -78,9 +81,12 @@ export function SizeChartEditor({ state, onChange }: EditorProps) {
       cells: state.columns.map((_, index) => ({
         columnIndex: index,
         valueInches: null,
+        valueCm: null,
         valueText: null,
         valueMinInches: null,
         valueMaxInches: null,
+        valueMinCm: null,
+        valueMaxCm: null,
       })),
     };
     onChange({ ...state, rows: [...state.rows, newRow] });
@@ -208,12 +214,12 @@ export function SizeChartEditor({ state, onChange }: EditorProps) {
                       <Cell
                         cell={cell}
                         columnType={column.columnType}
-                        unit={column.unit}
                         isEditing={isEditing}
                         onStartEdit={() => setEditingCell({ rowIndex, colIndex })}
                         onChange={(newCell) => updateCell(rowIndex, colIndex, newCell)}
                         onFinishEdit={() => setEditingCell(null)}
                         onNavigate={handleNavigate}
+                        labels={labels}
                       />
                     </td>
                   );

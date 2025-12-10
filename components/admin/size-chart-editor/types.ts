@@ -1,10 +1,9 @@
-import type { ColumnType, MeasurementUnit } from "@prisma/client";
+import type { ColumnType } from "@prisma/client";
 
 export interface EditorColumn {
   id?: string;
   name: string;
   columnType: ColumnType;
-  unit: MeasurementUnit;
   displayOrder: number;
 }
 
@@ -13,9 +12,13 @@ export interface EditorCell {
   columnId?: string;
   columnIndex: number;
   valueInches: number | null;
+  valueCm: number | null;
   valueText: string | null;
   valueMinInches: number | null;
   valueMaxInches: number | null;
+  valueMinCm: number | null;
+  valueMaxCm: number | null;
+  labelId?: string | null;
 }
 
 export interface EditorRow {
@@ -27,7 +30,7 @@ export interface EditorRow {
 export interface EditorState {
   name: string;
   description: string;
-  subcategoryId: string;
+  subcategoryIds: string[];
   isPublished: boolean;
   columns: EditorColumn[];
   rows: EditorRow[];

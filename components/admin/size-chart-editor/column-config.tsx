@@ -11,10 +11,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui";
-import { COLUMN_TYPES, MEASUREMENT_UNITS } from "@/lib/constants";
+import { COLUMN_TYPES } from "@/lib/constants";
 import { Trash2, Settings } from "lucide-react";
 import type { EditorColumn } from "./types";
-import type { ColumnType, MeasurementUnit } from "@prisma/client";
+import type { ColumnType } from "@prisma/client";
 
 interface ColumnConfigProps {
   column: EditorColumn;
@@ -27,14 +27,12 @@ export function ColumnConfig({ column, onUpdate, onDelete, canDelete }: ColumnCo
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState(column.name);
   const [columnType, setColumnType] = useState<ColumnType>(column.columnType);
-  const [unit, setUnit] = useState<MeasurementUnit>(column.unit);
 
   const handleSave = () => {
     onUpdate({
       ...column,
       name,
       columnType,
-      unit: columnType === "MEASUREMENT" ? unit : "NONE",
     });
     setIsOpen(false);
   };
@@ -76,18 +74,6 @@ export function ColumnConfig({ column, onUpdate, onDelete, canDelete }: ColumnCo
               value={columnType}
               onChange={(e) => setColumnType(e.target.value as ColumnType)}
             />
-
-            {columnType === "MEASUREMENT" && (
-              <SelectWithLabel
-                label="Unit"
-                options={MEASUREMENT_UNITS.map((u) => ({
-                  value: u.value,
-                  label: u.label,
-                }))}
-                value={unit}
-                onChange={(e) => setUnit(e.target.value as MeasurementUnit)}
-              />
-            )}
           </div>
 
           <DialogFooter>
