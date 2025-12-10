@@ -73,3 +73,18 @@ export const MEASUREMENT_UNITS = [
   { value: "CM", label: "Centimeters" },
   { value: "NONE", label: "None (text only)" },
 ] as const;
+
+export const LABEL_TYPES = [
+  { value: "ALPHA_SIZE", label: "Alpha Size", description: "Letter sizes (XS, S, M, L, XL, etc.)" },
+  { value: "NUMERIC_SIZE", label: "Numeric Size", description: "Number sizes (0, 2, 4, 6, 8, etc.)" },
+  { value: "YOUTH_SIZE", label: "Youth Size", description: "Youth/kids sizes (YS, YM, YL, etc.)" },
+  { value: "TODDLER_SIZE", label: "Toddler Size", description: "Toddler sizes (2T, 3T, 4T, etc.)" },
+  { value: "INFANT_SIZE", label: "Infant Size", description: "Infant sizes (0-3M, 3-6M, etc.)" },
+  { value: "BAND_SIZE", label: "Band Size", description: "Bra band sizes (30, 32, 34, etc.)" },
+  { value: "CUP_SIZE", label: "Cup Size", description: "Bra cup sizes (A, B, C, D, etc.)" },
+  { value: "SHOE_SIZE_US", label: "US Shoe Size", description: "US shoe sizes" },
+  { value: "SHOE_SIZE_EU", label: "EU Shoe Size", description: "European shoe sizes" },
+  { value: "SHOE_SIZE_UK", label: "UK Shoe Size", description: "UK shoe sizes" },
+  { value: "REGIONAL", label: "Regional", description: "Region-specific sizes" },
+  { value: "CUSTOM", label: "Custom", description: "Custom label type" },
+] as const;
