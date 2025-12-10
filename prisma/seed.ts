@@ -7,8 +7,73 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+// Helper to create a size chart with columns and rows
+async function createSizeChart(
+  name: string,
+  slug: string,
+  description: string,
+  subcategoryId: string,
+  columns: Array<{
+    name: string;
+    columnType: ColumnType;
+    unit: MeasurementUnit;
+  }>,
+  rows: Array<Record<string, { text?: string; value?: number; min?: number; max?: number }>>
+) {
+  const chart = await prisma.sizeChart.create({
+    data: {
+      name,
+      slug,
+      description,
+      subcategoryId,
+      isPublished: true,
+      displayOrder: 0,
+    },
+  });
+
+  const createdColumns = await Promise.all(
+    columns.map((col, index) =>
+      prisma.sizeChartColumn.create({
+        data: {
+          name: col.name,
+          columnType: col.columnType,
+          unit: col.unit,
+          displayOrder: index,
+          sizeChartId: chart.id,
+        },
+      })
+    )
+  );
+
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    const rowData = rows[rowIndex];
+    const row = await prisma.sizeChartRow.create({
+      data: {
+        sizeChartId: chart.id,
+        displayOrder: rowIndex,
+      },
+    });
+
+    const cellData = columns.map((col, colIndex) => {
+      const cellValue = rowData[col.name];
+      return {
+        rowId: row.id,
+        columnId: createdColumns[colIndex].id,
+        valueText: cellValue?.text ?? null,
+        valueInches: cellValue?.value ?? null,
+        valueMinInches: cellValue?.min ?? null,
+        valueMaxInches: cellValue?.max ?? null,
+      };
+    });
+
+    await prisma.sizeChartCell.createMany({ data: cellData });
+  }
+
+  return chart;
+}
+
 async function main() {
-  console.log("Seeding database...");
+  console.log("Seeding database with Under Armour size data...");
 
   // Clear existing data
   await prisma.sizeChartCell.deleteMany();
@@ -18,583 +83,543 @@ async function main() {
   await prisma.subcategory.deleteMany();
   await prisma.category.deleteMany();
 
-  // Create categories
-  const womens = await prisma.category.create({
-    data: {
-      name: "Women's",
-      slug: "womens",
-      displayOrder: 0,
-    },
-  });
-
+  // ============================================
+  // CATEGORIES
+  // ============================================
   const mens = await prisma.category.create({
-    data: {
-      name: "Men's",
-      slug: "mens",
-      displayOrder: 1,
-    },
+    data: { name: "Men's", slug: "mens", displayOrder: 0 },
   });
 
-  const accessories = await prisma.category.create({
-    data: {
-      name: "Accessories",
-      slug: "accessories",
-      displayOrder: 2,
-    },
+  const womens = await prisma.category.create({
+    data: { name: "Women's", slug: "womens", displayOrder: 1 },
+  });
+
+  const boys = await prisma.category.create({
+    data: { name: "Boys", slug: "boys", displayOrder: 2 },
+  });
+
+  const girls = await prisma.category.create({
+    data: { name: "Girls", slug: "girls", displayOrder: 3 },
   });
 
   console.log("Created categories");
 
-  // Create subcategories for Women's
-  const womensBottoms = await prisma.subcategory.create({
-    data: {
-      name: "Bottoms",
-      slug: "bottoms",
-      displayOrder: 0,
-      categoryId: womens.id,
-    },
+  // ============================================
+  // SUBCATEGORIES - MEN'S
+  // ============================================
+  const mensTops = await prisma.subcategory.create({
+    data: { name: "Tops", slug: "tops", displayOrder: 0, categoryId: mens.id },
   });
 
+  const mensBottoms = await prisma.subcategory.create({
+    data: { name: "Bottoms", slug: "bottoms", displayOrder: 1, categoryId: mens.id },
+  });
+
+  const mensFootwear = await prisma.subcategory.create({
+    data: { name: "Footwear", slug: "footwear", displayOrder: 2, categoryId: mens.id },
+  });
+
+  const mensGloves = await prisma.subcategory.create({
+    data: { name: "Gloves", slug: "gloves", displayOrder: 3, categoryId: mens.id },
+  });
+
+  const mensHeadwear = await prisma.subcategory.create({
+    data: { name: "Headwear", slug: "headwear", displayOrder: 4, categoryId: mens.id },
+  });
+
+  const mensSocks = await prisma.subcategory.create({
+    data: { name: "Socks", slug: "socks", displayOrder: 5, categoryId: mens.id },
+  });
+
+  // ============================================
+  // SUBCATEGORIES - WOMEN'S
+  // ============================================
   const womensTops = await prisma.subcategory.create({
-    data: {
-      name: "Tops",
-      slug: "tops",
-      displayOrder: 1,
-      categoryId: womens.id,
-    },
+    data: { name: "Tops", slug: "tops", displayOrder: 0, categoryId: womens.id },
   });
 
   const womensBras = await prisma.subcategory.create({
-    data: {
-      name: "Bras",
-      slug: "bras",
-      displayOrder: 2,
-      categoryId: womens.id,
-    },
+    data: { name: "Bras", slug: "bras", displayOrder: 1, categoryId: womens.id },
   });
 
-  const womensLeggings = await prisma.subcategory.create({
-    data: {
-      name: "Leggings",
-      slug: "leggings",
-      displayOrder: 3,
-      categoryId: womens.id,
-    },
+  const womensBottoms = await prisma.subcategory.create({
+    data: { name: "Bottoms", slug: "bottoms", displayOrder: 2, categoryId: womens.id },
   });
 
-  const womensShoes = await prisma.subcategory.create({
-    data: {
-      name: "Shoes",
-      slug: "shoes",
-      displayOrder: 4,
-      categoryId: womens.id,
-    },
+  const womensFootwear = await prisma.subcategory.create({
+    data: { name: "Footwear", slug: "footwear", displayOrder: 3, categoryId: womens.id },
   });
 
-  // Create subcategories for Men's
-  const mensBottoms = await prisma.subcategory.create({
-    data: {
-      name: "Bottoms",
-      slug: "bottoms",
-      displayOrder: 0,
-      categoryId: mens.id,
-    },
+  const womensGloves = await prisma.subcategory.create({
+    data: { name: "Gloves", slug: "gloves", displayOrder: 4, categoryId: womens.id },
   });
 
-  const mensTops = await prisma.subcategory.create({
-    data: {
-      name: "Tops",
-      slug: "tops",
-      displayOrder: 1,
-      categoryId: mens.id,
-    },
+  const womensHeadwear = await prisma.subcategory.create({
+    data: { name: "Headwear", slug: "headwear", displayOrder: 5, categoryId: womens.id },
   });
 
-  const mensShoes = await prisma.subcategory.create({
-    data: {
-      name: "Shoes",
-      slug: "shoes",
-      displayOrder: 2,
-      categoryId: mens.id,
-    },
+  const womensSocks = await prisma.subcategory.create({
+    data: { name: "Socks", slug: "socks", displayOrder: 6, categoryId: womens.id },
   });
 
-  // Create subcategories for Accessories
-  const hats = await prisma.subcategory.create({
-    data: {
-      name: "Hats",
-      slug: "hats",
-      displayOrder: 0,
-      categoryId: accessories.id,
-    },
+  const womensPlus = await prisma.subcategory.create({
+    data: { name: "Plus Sizes", slug: "plus-sizes", displayOrder: 7, categoryId: womens.id },
   });
 
-  const bags = await prisma.subcategory.create({
-    data: {
-      name: "Bags",
-      slug: "bags",
-      displayOrder: 1,
-      categoryId: accessories.id,
-    },
+  // ============================================
+  // SUBCATEGORIES - BOYS
+  // ============================================
+  const boysClothing = await prisma.subcategory.create({
+    data: { name: "Clothing", slug: "clothing", displayOrder: 0, categoryId: boys.id },
+  });
+
+  const boysFootwear = await prisma.subcategory.create({
+    data: { name: "Footwear", slug: "footwear", displayOrder: 1, categoryId: boys.id },
+  });
+
+  const boysGloves = await prisma.subcategory.create({
+    data: { name: "Gloves", slug: "gloves", displayOrder: 2, categoryId: boys.id },
+  });
+
+  // ============================================
+  // SUBCATEGORIES - GIRLS
+  // ============================================
+  const girlsClothing = await prisma.subcategory.create({
+    data: { name: "Clothing", slug: "clothing", displayOrder: 0, categoryId: girls.id },
+  });
+
+  const girlsFootwear = await prisma.subcategory.create({
+    data: { name: "Footwear", slug: "footwear", displayOrder: 1, categoryId: girls.id },
   });
 
   console.log("Created subcategories");
 
-  // Create a sample Women's Bottoms size chart
-  const womensBottomsChart = await prisma.sizeChart.create({
-    data: {
-      name: "Regular Fit",
-      slug: "regular-fit",
-      description: "Standard fit bottoms including pants, shorts, and skirts",
-      subcategoryId: womensBottoms.id,
-      isPublished: true,
-      displayOrder: 0,
-    },
-  });
+  // ============================================
+  // MEN'S TOPS
+  // ============================================
+  await createSizeChart(
+    "Tops",
+    "tops",
+    "Men's shirts, t-shirts, polos, and jackets",
+    mensTops.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "XS" }, Chest: { min: 31, max: 34 }, Waist: { min: 28, max: 29 } },
+      { Size: { text: "SM" }, Chest: { min: 34, max: 37 }, Waist: { min: 29, max: 31 } },
+      { Size: { text: "MD" }, Chest: { min: 37, max: 41 }, Waist: { min: 31, max: 34 } },
+      { Size: { text: "LG" }, Chest: { min: 41, max: 44 }, Waist: { min: 34, max: 37 } },
+      { Size: { text: "XL" }, Chest: { min: 44, max: 48 }, Waist: { min: 37, max: 41 } },
+      { Size: { text: "XXL" }, Chest: { min: 48, max: 52 }, Waist: { min: 41, max: 45.5 } },
+      { Size: { text: "3XL" }, Chest: { min: 52, max: 56 }, Waist: { min: 45.5, max: 50 } },
+      { Size: { text: "4XL" }, Chest: { min: 56, max: 60 }, Waist: { min: 50, max: 54.5 } },
+      { Size: { text: "5XL" }, Chest: { min: 60, max: 64 }, Waist: { min: 54.5, max: 59 } },
+    ]
+  );
+  console.log("Created Men's Tops");
 
-  // Create columns for Women's Bottoms
-  const sizeCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Size",
-      columnType: ColumnType.SIZE_LABEL,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 0,
-      sizeChartId: womensBottomsChart.id,
-    },
-  });
+  // ============================================
+  // MEN'S BOTTOMS
+  // ============================================
+  await createSizeChart(
+    "Bottoms",
+    "bottoms",
+    "Men's pants, shorts, and joggers",
+    mensBottoms.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "XS" }, Waist: { value: 28 }, Hip: { min: 33, max: 34 } },
+      { Size: { text: "SM" }, Waist: { value: 30 }, Hip: { min: 34, max: 36 } },
+      { Size: { text: "MD" }, Waist: { min: 32, max: 33 }, Hip: { min: 36, max: 39 } },
+      { Size: { text: "LG" }, Waist: { min: 34, max: 36 }, Hip: { min: 39, max: 42 } },
+      { Size: { text: "XL" }, Waist: { min: 38, max: 40 }, Hip: { min: 42, max: 46 } },
+      { Size: { text: "XXL" }, Waist: { min: 42, max: 44 }, Hip: { min: 46, max: 50 } },
+      { Size: { text: "3XL" }, Waist: { min: 46, max: 48 }, Hip: { min: 50, max: 54 } },
+      { Size: { text: "4XL" }, Waist: { min: 50, max: 52 }, Hip: { min: 54, max: 58 } },
+      { Size: { text: "5XL" }, Waist: { min: 54, max: 56 }, Hip: { min: 58, max: 62 } },
+    ]
+  );
+  console.log("Created Men's Bottoms");
 
-  const numericCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Numeric",
-      columnType: ColumnType.SIZE_LABEL,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 1,
-      sizeChartId: womensBottomsChart.id,
-    },
-  });
+  // ============================================
+  // MEN'S FOOTWEAR
+  // ============================================
+  await createSizeChart(
+    "Footwear",
+    "footwear",
+    "Men's athletic shoes and sneakers",
+    mensFootwear.id,
+    [
+      { name: "US", columnType: ColumnType.REGIONAL_SIZE, unit: MeasurementUnit.NONE },
+      { name: "UK", columnType: ColumnType.REGIONAL_SIZE, unit: MeasurementUnit.NONE },
+      { name: "EU", columnType: ColumnType.REGIONAL_SIZE, unit: MeasurementUnit.NONE },
+      { name: "CM", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.CM },
+    ],
+    [
+      { US: { text: "7" }, UK: { text: "6" }, EU: { text: "40" }, CM: { value: 25 } },
+      { US: { text: "7.5" }, UK: { text: "6.5" }, EU: { text: "40.5" }, CM: { value: 25.5 } },
+      { US: { text: "8" }, UK: { text: "7" }, EU: { text: "41" }, CM: { value: 26 } },
+      { US: { text: "8.5" }, UK: { text: "7.5" }, EU: { text: "42" }, CM: { value: 26.5 } },
+      { US: { text: "9" }, UK: { text: "8" }, EU: { text: "42.5" }, CM: { value: 27 } },
+      { US: { text: "9.5" }, UK: { text: "8.5" }, EU: { text: "43" }, CM: { value: 27.5 } },
+      { US: { text: "10" }, UK: { text: "9" }, EU: { text: "44" }, CM: { value: 28 } },
+      { US: { text: "10.5" }, UK: { text: "9.5" }, EU: { text: "44.5" }, CM: { value: 28.5 } },
+      { US: { text: "11" }, UK: { text: "10" }, EU: { text: "45" }, CM: { value: 29 } },
+      { US: { text: "11.5" }, UK: { text: "10.5" }, EU: { text: "45.5" }, CM: { value: 29.5 } },
+      { US: { text: "12" }, UK: { text: "11" }, EU: { text: "46" }, CM: { value: 30 } },
+      { US: { text: "12.5" }, UK: { text: "11.5" }, EU: { text: "47" }, CM: { value: 30.5 } },
+      { US: { text: "13" }, UK: { text: "12" }, EU: { text: "47.5" }, CM: { value: 31 } },
+      { US: { text: "14" }, UK: { text: "13" }, EU: { text: "48.5" }, CM: { value: 32 } },
+      { US: { text: "15" }, UK: { text: "14" }, EU: { text: "49.5" }, CM: { value: 33 } },
+    ]
+  );
+  console.log("Created Men's Footwear");
 
-  const waistCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Waist",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 2,
-      sizeChartId: womensBottomsChart.id,
-    },
-  });
+  // ============================================
+  // MEN'S GLOVES
+  // ============================================
+  await createSizeChart(
+    "Gloves",
+    "gloves",
+    "Men's training and running gloves",
+    mensGloves.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Hand Circumference", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hand Length", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "SM" }, "Hand Circumference": { min: 7, max: 7.5 }, "Hand Length": { min: 6.875, max: 7.125 } },
+      { Size: { text: "MD" }, "Hand Circumference": { min: 7.625, max: 8.125 }, "Hand Length": { min: 7.25, max: 7.5 } },
+      { Size: { text: "LG" }, "Hand Circumference": { min: 8.25, max: 8.75 }, "Hand Length": { min: 7.625, max: 7.875 } },
+      { Size: { text: "XL" }, "Hand Circumference": { min: 8.875, max: 9.375 }, "Hand Length": { min: 8, max: 8.25 } },
+      { Size: { text: "XXL" }, "Hand Circumference": { min: 9.5, max: 10 }, "Hand Length": { min: 8.375, max: 8.625 } },
+    ]
+  );
+  console.log("Created Men's Gloves");
 
-  const hipCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Hip",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 3,
-      sizeChartId: womensBottomsChart.id,
-    },
-  });
+  // ============================================
+  // MEN'S HEADWEAR
+  // ============================================
+  await createSizeChart(
+    "Headwear",
+    "headwear",
+    "Men's caps, beanies, and headbands",
+    mensHeadwear.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Head Circumference", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "OSFM" }, "Head Circumference": { min: 21.625, max: 23.875 } },
+      { Size: { text: "S/M" }, "Head Circumference": { min: 21.25, max: 22.5 } },
+      { Size: { text: "M/L" }, "Head Circumference": { min: 22, max: 23.25 } },
+      { Size: { text: "L/XL" }, "Head Circumference": { min: 22.75, max: 24 } },
+      { Size: { text: "XL/XXL" }, "Head Circumference": { min: 23.5, max: 25 } },
+    ]
+  );
+  console.log("Created Men's Headwear");
 
-  const usCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "US",
-      columnType: ColumnType.REGIONAL_SIZE,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 4,
-      sizeChartId: womensBottomsChart.id,
-    },
-  });
+  // ============================================
+  // MEN'S SOCKS
+  // ============================================
+  await createSizeChart(
+    "Socks",
+    "socks",
+    "Men's athletic and training socks",
+    mensSocks.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "US Shoe Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "SM" }, "US Shoe Size": { text: "4-8.5" } },
+      { Size: { text: "MD" }, "US Shoe Size": { text: "7-8.5" } },
+      { Size: { text: "LG" }, "US Shoe Size": { text: "8.5-13" } },
+      { Size: { text: "XL" }, "US Shoe Size": { text: "13-16" } },
+      { Size: { text: "OSFM" }, "US Shoe Size": { text: "4-12" } },
+    ]
+  );
+  console.log("Created Men's Socks");
 
-  const euCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "EU",
-      columnType: ColumnType.REGIONAL_SIZE,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 5,
-      sizeChartId: womensBottomsChart.id,
-    },
-  });
+  // ============================================
+  // WOMEN'S TOPS
+  // ============================================
+  await createSizeChart(
+    "Tops",
+    "tops",
+    "Women's shirts, tanks, and jackets",
+    womensTops.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Bust", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "XXS" }, Bust: { min: 31, max: 32.5 }, Waist: { min: 24.5, max: 25.5 } },
+      { Size: { text: "XS" }, Bust: { min: 32.5, max: 33.5 }, Waist: { min: 25.5, max: 27 } },
+      { Size: { text: "SM" }, Bust: { min: 33.5, max: 36 }, Waist: { min: 27, max: 29 } },
+      { Size: { text: "MD" }, Bust: { min: 36, max: 38 }, Waist: { min: 29, max: 31 } },
+      { Size: { text: "LG" }, Bust: { min: 38, max: 41 }, Waist: { min: 31, max: 34 } },
+      { Size: { text: "XL" }, Bust: { min: 41, max: 44 }, Waist: { min: 34, max: 37 } },
+      { Size: { text: "XXL" }, Bust: { min: 44, max: 47 }, Waist: { min: 37, max: 40 } },
+    ]
+  );
+  console.log("Created Women's Tops");
 
-  // Sample size data for Women's Bottoms
-  const sizes = [
-    { alpha: "XXS", numeric: "0", waist: 24, hip: 34, us: "0", eu: "32" },
-    { alpha: "XS", numeric: "2", waist: 25, hip: 35, us: "2", eu: "34" },
-    { alpha: "S", numeric: "4", waist: 26, hip: 36, us: "4", eu: "36" },
-    { alpha: "S", numeric: "6", waist: 27, hip: 37, us: "6", eu: "38" },
-    { alpha: "M", numeric: "8", waist: 28, hip: 38, us: "8", eu: "40" },
-    { alpha: "M", numeric: "10", waist: 29, hip: 39, us: "10", eu: "42" },
-    { alpha: "L", numeric: "12", waist: 30.5, hip: 40.5, us: "12", eu: "44" },
-    { alpha: "L", numeric: "14", waist: 32, hip: 42, us: "14", eu: "46" },
-    { alpha: "XL", numeric: "16", waist: 34, hip: 44, us: "16", eu: "48" },
-    { alpha: "XL", numeric: "18", waist: 36, hip: 46, us: "18", eu: "50" },
-    { alpha: "XXL", numeric: "20", waist: 38, hip: 48, us: "20", eu: "52" },
-  ];
+  // ============================================
+  // WOMEN'S BRAS
+  // ============================================
+  await createSizeChart(
+    "Sports Bras",
+    "sports-bras",
+    "Sports bras sized by band and cup",
+    womensBras.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Band Size", columnType: ColumnType.BAND_SIZE, unit: MeasurementUnit.NONE },
+      { name: "Cup Size", columnType: ColumnType.CUP_SIZE, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "XXS" }, "Band Size": { text: "30" }, "Cup Size": { text: "A" } },
+      { Size: { text: "XS" }, "Band Size": { text: "30-32" }, "Cup Size": { text: "A-B" } },
+      { Size: { text: "SM" }, "Band Size": { text: "32-34" }, "Cup Size": { text: "B-C" } },
+      { Size: { text: "MD" }, "Band Size": { text: "34-36" }, "Cup Size": { text: "C-D" } },
+      { Size: { text: "LG" }, "Band Size": { text: "36-38" }, "Cup Size": { text: "D-DD" } },
+      { Size: { text: "XL" }, "Band Size": { text: "38-40" }, "Cup Size": { text: "DD-DDD" } },
+      { Size: { text: "XXL" }, "Band Size": { text: "40-42" }, "Cup Size": { text: "DDD" } },
+      { Size: { text: "1X" }, "Band Size": { text: "40-42" }, "Cup Size": { text: "DDD-G" } },
+      { Size: { text: "2X" }, "Band Size": { text: "42-44" }, "Cup Size": { text: "G-H" } },
+      { Size: { text: "3X" }, "Band Size": { text: "44-46" }, "Cup Size": { text: "H" } },
+    ]
+  );
+  console.log("Created Women's Bras");
 
-  for (let i = 0; i < sizes.length; i++) {
-    const size = sizes[i];
-    const row = await prisma.sizeChartRow.create({
-      data: {
-        sizeChartId: womensBottomsChart.id,
-        displayOrder: i,
-      },
-    });
+  // ============================================
+  // WOMEN'S BOTTOMS
+  // ============================================
+  await createSizeChart(
+    "Bottoms",
+    "bottoms",
+    "Women's pants, shorts, leggings, and skirts",
+    womensBottoms.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "XXS" }, Waist: { min: 24.5, max: 25.5 }, Hip: { min: 33, max: 34.5 } },
+      { Size: { text: "XS" }, Waist: { min: 25.5, max: 27 }, Hip: { min: 34.5, max: 36 } },
+      { Size: { text: "SM" }, Waist: { min: 27, max: 29 }, Hip: { min: 36, max: 38 } },
+      { Size: { text: "MD" }, Waist: { min: 29, max: 31 }, Hip: { min: 38, max: 40 } },
+      { Size: { text: "LG" }, Waist: { min: 31, max: 34 }, Hip: { min: 40, max: 43 } },
+      { Size: { text: "XL" }, Waist: { min: 34, max: 37 }, Hip: { min: 43, max: 46 } },
+      { Size: { text: "XXL" }, Waist: { min: 37, max: 40 }, Hip: { min: 46, max: 49 } },
+    ]
+  );
+  console.log("Created Women's Bottoms");
 
-    await prisma.sizeChartCell.createMany({
-      data: [
-        { rowId: row.id, columnId: sizeCol.id, valueText: size.alpha },
-        { rowId: row.id, columnId: numericCol.id, valueText: size.numeric },
-        { rowId: row.id, columnId: waistCol.id, valueInches: size.waist },
-        { rowId: row.id, columnId: hipCol.id, valueInches: size.hip },
-        { rowId: row.id, columnId: usCol.id, valueText: size.us },
-        { rowId: row.id, columnId: euCol.id, valueText: size.eu },
-      ],
-    });
-  }
+  // ============================================
+  // WOMEN'S PLUS SIZES
+  // ============================================
+  await createSizeChart(
+    "Plus Sizes",
+    "plus-sizes",
+    "Women's plus size tops and bottoms",
+    womensPlus.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Bust", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "1X" }, Bust: { min: 44, max: 47.5 }, Waist: { min: 39, max: 43.5 }, Hip: { min: 47, max: 50.5 } },
+      { Size: { text: "2X" }, Bust: { min: 47.5, max: 51.5 }, Waist: { min: 43.5, max: 48.5 }, Hip: { min: 50.5, max: 54.5 } },
+      { Size: { text: "3X" }, Bust: { min: 51.5, max: 55 }, Waist: { min: 48.5, max: 53 }, Hip: { min: 54.5, max: 58 } },
+    ]
+  );
+  console.log("Created Women's Plus Sizes");
 
-  console.log("Created Women's Bottoms size chart");
+  // ============================================
+  // WOMEN'S FOOTWEAR
+  // ============================================
+  await createSizeChart(
+    "Footwear",
+    "footwear",
+    "Women's athletic shoes and sneakers",
+    womensFootwear.id,
+    [
+      { name: "US", columnType: ColumnType.REGIONAL_SIZE, unit: MeasurementUnit.NONE },
+      { name: "UK", columnType: ColumnType.REGIONAL_SIZE, unit: MeasurementUnit.NONE },
+      { name: "EU", columnType: ColumnType.REGIONAL_SIZE, unit: MeasurementUnit.NONE },
+      { name: "CM", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.CM },
+    ],
+    [
+      { US: { text: "5" }, UK: { text: "2.5" }, EU: { text: "35.5" }, CM: { value: 22 } },
+      { US: { text: "5.5" }, UK: { text: "3" }, EU: { text: "36" }, CM: { value: 22.5 } },
+      { US: { text: "6" }, UK: { text: "3.5" }, EU: { text: "36.5" }, CM: { value: 23 } },
+      { US: { text: "6.5" }, UK: { text: "4" }, EU: { text: "37.5" }, CM: { value: 23.5 } },
+      { US: { text: "7" }, UK: { text: "4.5" }, EU: { text: "38" }, CM: { value: 24 } },
+      { US: { text: "7.5" }, UK: { text: "5" }, EU: { text: "38.5" }, CM: { value: 24.5 } },
+      { US: { text: "8" }, UK: { text: "5.5" }, EU: { text: "39" }, CM: { value: 25 } },
+      { US: { text: "8.5" }, UK: { text: "6" }, EU: { text: "40" }, CM: { value: 25.5 } },
+      { US: { text: "9" }, UK: { text: "6.5" }, EU: { text: "40.5" }, CM: { value: 26 } },
+      { US: { text: "9.5" }, UK: { text: "7" }, EU: { text: "41" }, CM: { value: 26.5 } },
+      { US: { text: "10" }, UK: { text: "7.5" }, EU: { text: "42" }, CM: { value: 27 } },
+      { US: { text: "10.5" }, UK: { text: "8" }, EU: { text: "42.5" }, CM: { value: 27.5 } },
+      { US: { text: "11" }, UK: { text: "8.5" }, EU: { text: "43" }, CM: { value: 28 } },
+      { US: { text: "12" }, UK: { text: "9.5" }, EU: { text: "44" }, CM: { value: 29 } },
+    ]
+  );
+  console.log("Created Women's Footwear");
 
-  // Create Women's Leggings size chart (with range values)
-  const womensLeggingsChart = await prisma.sizeChart.create({
-    data: {
-      name: "Contour Fit",
-      slug: "contour-fit",
-      description: "Compression leggings with contouring seams",
-      subcategoryId: womensLeggings.id,
-      isPublished: true,
-      displayOrder: 0,
-    },
-  });
+  // ============================================
+  // WOMEN'S GLOVES
+  // ============================================
+  await createSizeChart(
+    "Gloves",
+    "gloves",
+    "Women's training and running gloves",
+    womensGloves.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Hand Circumference", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hand Length", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "XS" }, "Hand Circumference": { min: 5.75, max: 6.25 }, "Hand Length": { min: 6, max: 6.25 } },
+      { Size: { text: "SM" }, "Hand Circumference": { min: 6.375, max: 6.875 }, "Hand Length": { min: 6.375, max: 6.625 } },
+      { Size: { text: "MD" }, "Hand Circumference": { min: 7, max: 7.5 }, "Hand Length": { min: 6.75, max: 7 } },
+      { Size: { text: "LG" }, "Hand Circumference": { min: 7.625, max: 8.125 }, "Hand Length": { min: 7.125, max: 7.375 } },
+      { Size: { text: "XL" }, "Hand Circumference": { min: 8.25, max: 8.75 }, "Hand Length": { min: 7.5, max: 7.75 } },
+    ]
+  );
+  console.log("Created Women's Gloves");
 
-  const legSizeCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Size",
-      columnType: ColumnType.SIZE_LABEL,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 0,
-      sizeChartId: womensLeggingsChart.id,
-    },
-  });
+  // ============================================
+  // WOMEN'S HEADWEAR
+  // ============================================
+  await createSizeChart(
+    "Headwear",
+    "headwear",
+    "Women's caps, beanies, and headbands",
+    womensHeadwear.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Head Circumference", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "OSFM" }, "Head Circumference": { min: 20.875, max: 22.125 } },
+      { Size: { text: "S/M" }, "Head Circumference": { min: 21.25, max: 22.5 } },
+      { Size: { text: "M/L" }, "Head Circumference": { min: 22, max: 23.25 } },
+      { Size: { text: "L/XL" }, "Head Circumference": { min: 22.75, max: 24 } },
+    ]
+  );
+  console.log("Created Women's Headwear");
 
-  const legWaistCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Waist",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 1,
-      sizeChartId: womensLeggingsChart.id,
-    },
-  });
+  // ============================================
+  // WOMEN'S SOCKS
+  // ============================================
+  await createSizeChart(
+    "Socks",
+    "socks",
+    "Women's athletic and training socks",
+    womensSocks.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "US Shoe Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "SM" }, "US Shoe Size": { text: "4-6" } },
+      { Size: { text: "MD" }, "US Shoe Size": { text: "6-10" } },
+      { Size: { text: "LG" }, "US Shoe Size": { text: "10-14" } },
+      { Size: { text: "OSFM" }, "US Shoe Size": { text: "5.5-12" } },
+    ]
+  );
+  console.log("Created Women's Socks");
 
-  const legHipCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Hip",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 2,
-      sizeChartId: womensLeggingsChart.id,
-    },
-  });
+  // ============================================
+  // BOYS CLOTHING (Big Kids 8-20)
+  // ============================================
+  await createSizeChart(
+    "Big Kids (8-20)",
+    "big-kids",
+    "Boys clothing for ages 8-20",
+    boysClothing.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Numeric", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "YXS" }, Numeric: { text: "7" }, Chest: { min: 25, max: 26 }, Waist: { min: 23, max: 24 }, Hip: { min: 26, max: 27 }, Height: { min: 47, max: 50.5 } },
+      { Size: { text: "YSM" }, Numeric: { text: "8" }, Chest: { min: 26, max: 27 }, Waist: { min: 24, max: 25 }, Hip: { min: 27, max: 28 }, Height: { min: 50.5, max: 53 } },
+      { Size: { text: "YMD" }, Numeric: { text: "10-12" }, Chest: { min: 27, max: 29 }, Waist: { min: 25, max: 27 }, Hip: { min: 28, max: 31 }, Height: { min: 53, max: 59 } },
+      { Size: { text: "YLG" }, Numeric: { text: "14-16" }, Chest: { min: 29, max: 32.5 }, Waist: { min: 27, max: 30 }, Hip: { min: 31, max: 34 }, Height: { min: 59, max: 65 } },
+      { Size: { text: "YXL" }, Numeric: { text: "18-20" }, Chest: { min: 32.5, max: 35.5 }, Waist: { min: 30, max: 33 }, Hip: { min: 34, max: 37 }, Height: { min: 65, max: 70 } },
+    ]
+  );
+  console.log("Created Boys Big Kids");
 
-  const legInseamCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Inseam",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 3,
-      sizeChartId: womensLeggingsChart.id,
-    },
-  });
+  // ============================================
+  // BOYS GLOVES
+  // ============================================
+  await createSizeChart(
+    "Gloves",
+    "gloves",
+    "Boys training and sport gloves",
+    boysGloves.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Hand Length", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "YSM" }, "Hand Length": { min: 6.25, max: 6.5 } },
+      { Size: { text: "YMD" }, "Hand Length": { min: 6.5, max: 6.75 } },
+      { Size: { text: "YLG" }, "Hand Length": { min: 6.75, max: 7 } },
+    ]
+  );
+  console.log("Created Boys Gloves");
 
-  const leggingSizes = [
-    { size: "XS", waistMin: 24, waistMax: 26, hipMin: 34, hipMax: 36, inseam: 27 },
-    { size: "S", waistMin: 26, waistMax: 28, hipMin: 36, hipMax: 38, inseam: 27.5 },
-    { size: "M", waistMin: 28, waistMax: 30, hipMin: 38, hipMax: 40, inseam: 28 },
-    { size: "L", waistMin: 30, waistMax: 33, hipMin: 40, hipMax: 43, inseam: 28.5 },
-    { size: "XL", waistMin: 33, waistMax: 36, hipMin: 43, hipMax: 46, inseam: 29 },
-  ];
+  // ============================================
+  // GIRLS CLOTHING (Big Kids 8-18)
+  // ============================================
+  await createSizeChart(
+    "Big Kids (8-18)",
+    "big-kids",
+    "Girls clothing for ages 8-18",
+    girlsClothing.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Numeric", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "YXS" }, Numeric: { text: "7" }, Chest: { min: 25, max: 26.5 }, Waist: { min: 23, max: 24 }, Hip: { min: 26, max: 28 }, Height: { min: 47, max: 51 } },
+      { Size: { text: "YSM" }, Numeric: { text: "8" }, Chest: { min: 26.5, max: 27.5 }, Waist: { min: 24, max: 24.5 }, Hip: { min: 28, max: 29 }, Height: { min: 51, max: 53 } },
+      { Size: { text: "YMD" }, Numeric: { text: "10-12" }, Chest: { min: 27.5, max: 30.5 }, Waist: { min: 24.5, max: 26.5 }, Hip: { min: 29, max: 32.5 }, Height: { min: 53, max: 58.5 } },
+      { Size: { text: "YLG" }, Numeric: { text: "14-16" }, Chest: { min: 30.5, max: 34 }, Waist: { min: 26.5, max: 30.5 }, Hip: { min: 32.5, max: 36.5 }, Height: { min: 58.5, max: 63 } },
+      { Size: { text: "YXL" }, Numeric: { text: "18" }, Chest: { min: 34, max: 36 }, Waist: { min: 30.5, max: 32.5 }, Hip: { min: 36.5, max: 38.5 }, Height: { min: 58.5, max: 63 } },
+    ]
+  );
+  console.log("Created Girls Big Kids");
 
-  for (let i = 0; i < leggingSizes.length; i++) {
-    const size = leggingSizes[i];
-    const row = await prisma.sizeChartRow.create({
-      data: {
-        sizeChartId: womensLeggingsChart.id,
-        displayOrder: i,
-      },
-    });
-
-    await prisma.sizeChartCell.createMany({
-      data: [
-        { rowId: row.id, columnId: legSizeCol.id, valueText: size.size },
-        { rowId: row.id, columnId: legWaistCol.id, valueMinInches: size.waistMin, valueMaxInches: size.waistMax },
-        { rowId: row.id, columnId: legHipCol.id, valueMinInches: size.hipMin, valueMaxInches: size.hipMax },
-        { rowId: row.id, columnId: legInseamCol.id, valueInches: size.inseam },
-      ],
-    });
-  }
-
-  console.log("Created Women's Leggings size chart");
-
-  // Create Women's Bras size chart
-  const womensBrasChart = await prisma.sizeChart.create({
-    data: {
-      name: "Sports Bra",
-      slug: "sports-bra",
-      description: "High-support sports bras",
-      subcategoryId: womensBras.id,
-      isPublished: true,
-      displayOrder: 0,
-    },
-  });
-
-  const braSizeCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Size",
-      columnType: ColumnType.SIZE_LABEL,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 0,
-      sizeChartId: womensBrasChart.id,
-    },
-  });
-
-  const bandCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Band",
-      columnType: ColumnType.BAND_SIZE,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 1,
-      sizeChartId: womensBrasChart.id,
-    },
-  });
-
-  const cupCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Cup",
-      columnType: ColumnType.CUP_SIZE,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 2,
-      sizeChartId: womensBrasChart.id,
-    },
-  });
-
-  const underBustCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Under Bust",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 3,
-      sizeChartId: womensBrasChart.id,
-    },
-  });
-
-  const bustCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Bust",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 4,
-      sizeChartId: womensBrasChart.id,
-    },
-  });
-
-  const braSizes = [
-    { size: "XS", band: "30-32", cup: "A-B", underBustMin: 26, underBustMax: 28, bustMin: 30, bustMax: 33 },
-    { size: "S", band: "32-34", cup: "B-C", underBustMin: 28, underBustMax: 30, bustMin: 33, bustMax: 36 },
-    { size: "M", band: "34-36", cup: "C-D", underBustMin: 30, underBustMax: 32, bustMin: 36, bustMax: 39 },
-    { size: "L", band: "36-38", cup: "D-DD", underBustMin: 32, underBustMax: 35, bustMin: 39, bustMax: 42 },
-    { size: "XL", band: "38-40", cup: "DD-DDD", underBustMin: 35, underBustMax: 38, bustMin: 42, bustMax: 46 },
-  ];
-
-  for (let i = 0; i < braSizes.length; i++) {
-    const size = braSizes[i];
-    const row = await prisma.sizeChartRow.create({
-      data: {
-        sizeChartId: womensBrasChart.id,
-        displayOrder: i,
-      },
-    });
-
-    await prisma.sizeChartCell.createMany({
-      data: [
-        { rowId: row.id, columnId: braSizeCol.id, valueText: size.size },
-        { rowId: row.id, columnId: bandCol.id, valueText: size.band },
-        { rowId: row.id, columnId: cupCol.id, valueText: size.cup },
-        { rowId: row.id, columnId: underBustCol.id, valueMinInches: size.underBustMin, valueMaxInches: size.underBustMax },
-        { rowId: row.id, columnId: bustCol.id, valueMinInches: size.bustMin, valueMaxInches: size.bustMax },
-      ],
-    });
-  }
-
-  console.log("Created Women's Bras size chart");
-
-  // Create Men's Tops size chart
-  const mensTopsChart = await prisma.sizeChart.create({
-    data: {
-      name: "T-Shirts",
-      slug: "t-shirts",
-      description: "Regular fit t-shirts and casual tops",
-      subcategoryId: mensTops.id,
-      isPublished: true,
-      displayOrder: 0,
-    },
-  });
-
-  const mensSizeCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Size",
-      columnType: ColumnType.SIZE_LABEL,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 0,
-      sizeChartId: mensTopsChart.id,
-    },
-  });
-
-  const mensChestCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Chest",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 1,
-      sizeChartId: mensTopsChart.id,
-    },
-  });
-
-  const mensWaistCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Waist",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 2,
-      sizeChartId: mensTopsChart.id,
-    },
-  });
-
-  const mensLengthCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Body Length",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 3,
-      sizeChartId: mensTopsChart.id,
-    },
-  });
-
-  const mensTopsData = [
-    { size: "S", chestMin: 34, chestMax: 37, waistMin: 28, waistMax: 31, length: 27 },
-    { size: "M", chestMin: 38, chestMax: 41, waistMin: 32, waistMax: 35, length: 28 },
-    { size: "L", chestMin: 42, chestMax: 45, waistMin: 36, waistMax: 39, length: 29 },
-    { size: "XL", chestMin: 46, chestMax: 49, waistMin: 40, waistMax: 43, length: 30 },
-    { size: "XXL", chestMin: 50, chestMax: 53, waistMin: 44, waistMax: 47, length: 31 },
-  ];
-
-  for (let i = 0; i < mensTopsData.length; i++) {
-    const size = mensTopsData[i];
-    const row = await prisma.sizeChartRow.create({
-      data: {
-        sizeChartId: mensTopsChart.id,
-        displayOrder: i,
-      },
-    });
-
-    await prisma.sizeChartCell.createMany({
-      data: [
-        { rowId: row.id, columnId: mensSizeCol.id, valueText: size.size },
-        { rowId: row.id, columnId: mensChestCol.id, valueMinInches: size.chestMin, valueMaxInches: size.chestMax },
-        { rowId: row.id, columnId: mensWaistCol.id, valueMinInches: size.waistMin, valueMaxInches: size.waistMax },
-        { rowId: row.id, columnId: mensLengthCol.id, valueInches: size.length },
-      ],
-    });
-  }
-
-  console.log("Created Men's Tops size chart");
-
-  // Create Women's Shoes size chart
-  const womensShoesChart = await prisma.sizeChart.create({
-    data: {
-      name: "Running Shoes",
-      slug: "running-shoes",
-      description: "Athletic running shoes",
-      subcategoryId: womensShoes.id,
-      isPublished: true,
-      displayOrder: 0,
-    },
-  });
-
-  const usWomensSizeCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "US Women's",
-      columnType: ColumnType.REGIONAL_SIZE,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 0,
-      sizeChartId: womensShoesChart.id,
-    },
-  });
-
-  const ukWomensSizeCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "UK",
-      columnType: ColumnType.REGIONAL_SIZE,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 1,
-      sizeChartId: womensShoesChart.id,
-    },
-  });
-
-  const euWomensSizeCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "EU",
-      columnType: ColumnType.REGIONAL_SIZE,
-      unit: MeasurementUnit.NONE,
-      displayOrder: 2,
-      sizeChartId: womensShoesChart.id,
-    },
-  });
-
-  const footLengthCol = await prisma.sizeChartColumn.create({
-    data: {
-      name: "Foot Length",
-      columnType: ColumnType.MEASUREMENT,
-      unit: MeasurementUnit.INCHES,
-      displayOrder: 3,
-      sizeChartId: womensShoesChart.id,
-    },
-  });
-
-  const shoeSizes = [
-    { us: "5", uk: "2.5", eu: "35", footLength: 8.5 },
-    { us: "5.5", uk: "3", eu: "35.5", footLength: 8.625 },
-    { us: "6", uk: "3.5", eu: "36", footLength: 8.75 },
-    { us: "6.5", uk: "4", eu: "36.5", footLength: 8.875 },
-    { us: "7", uk: "4.5", eu: "37.5", footLength: 9 },
-    { us: "7.5", uk: "5", eu: "38", footLength: 9.125 },
-    { us: "8", uk: "5.5", eu: "38.5", footLength: 9.25 },
-    { us: "8.5", uk: "6", eu: "39", footLength: 9.375 },
-    { us: "9", uk: "6.5", eu: "40", footLength: 9.5 },
-    { us: "9.5", uk: "7", eu: "40.5", footLength: 9.625 },
-    { us: "10", uk: "7.5", eu: "41", footLength: 9.75 },
-    { us: "10.5", uk: "8", eu: "42", footLength: 9.875 },
-    { us: "11", uk: "8.5", eu: "42.5", footLength: 10 },
-  ];
-
-  for (let i = 0; i < shoeSizes.length; i++) {
-    const size = shoeSizes[i];
-    const row = await prisma.sizeChartRow.create({
-      data: {
-        sizeChartId: womensShoesChart.id,
-        displayOrder: i,
-      },
-    });
-
-    await prisma.sizeChartCell.createMany({
-      data: [
-        { rowId: row.id, columnId: usWomensSizeCol.id, valueText: size.us },
-        { rowId: row.id, columnId: ukWomensSizeCol.id, valueText: size.uk },
-        { rowId: row.id, columnId: euWomensSizeCol.id, valueText: size.eu },
-        { rowId: row.id, columnId: footLengthCol.id, valueInches: size.footLength },
-      ],
-    });
-  }
-
-  console.log("Created Women's Shoes size chart");
-
-  console.log("Database seeding completed!");
+  console.log("\n✅ Database seeding completed with Under Armour size data!");
 }
 
 main()
