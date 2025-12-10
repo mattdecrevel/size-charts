@@ -6,9 +6,24 @@ export const columnTypeEnum = z.enum([
   "REGIONAL_SIZE",
   "BAND_SIZE",
   "CUP_SIZE",
+  "SHOE_SIZE",
+  "TEXT",
 ]);
 
-export const measurementUnitEnum = z.enum(["INCHES", "CM", "NONE"]);
+export const labelTypeEnum = z.enum([
+  "ALPHA_SIZE",
+  "NUMERIC_SIZE",
+  "YOUTH_SIZE",
+  "TODDLER_SIZE",
+  "INFANT_SIZE",
+  "BAND_SIZE",
+  "CUP_SIZE",
+  "SHOE_SIZE_US",
+  "SHOE_SIZE_EU",
+  "SHOE_SIZE_UK",
+  "REGIONAL",
+  "CUSTOM",
+]);
 
 export const createCategorySchema = z.object({
   name: z.string().min(1, "Name is required").max(50),
@@ -27,19 +42,33 @@ export const createSubcategorySchema = z.object({
 
 export const updateSubcategorySchema = createSubcategorySchema.partial();
 
+// Size Label schemas
+export const createSizeLabelSchema = z.object({
+  key: z.string().min(1, "Key is required").max(50).regex(/^[A-Z0-9_]+$/, "Key must be uppercase with underscores"),
+  displayValue: z.string().min(1, "Display value is required").max(50),
+  labelType: labelTypeEnum,
+  sortOrder: z.number().int().min(0).optional(),
+  description: z.string().max(200).nullable().optional(),
+});
+
+export const updateSizeLabelSchema = createSizeLabelSchema.partial();
+
 export const columnSchema = z.object({
   name: z.string().min(1, "Column name is required").max(100),
   columnType: columnTypeEnum,
-  unit: measurementUnitEnum.optional().default("NONE"),
   displayOrder: z.number().int().min(0),
 });
 
 export const cellSchema = z.object({
   columnIndex: z.number().int().min(0),
   valueInches: z.number().nullable().optional(),
+  valueCm: z.number().nullable().optional(),
   valueText: z.string().nullable().optional(),
   valueMinInches: z.number().nullable().optional(),
   valueMaxInches: z.number().nullable().optional(),
+  valueMinCm: z.number().nullable().optional(),
+  valueMaxCm: z.number().nullable().optional(),
+  labelId: z.string().cuid().nullable().optional(),
 });
 
 export const rowSchema = z.object({
@@ -56,7 +85,7 @@ export const slugSchema = z
 export const createSizeChartSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   slug: slugSchema.optional(),
-  subcategoryId: z.string().cuid("Invalid subcategory"),
+  subcategoryIds: z.array(z.string().cuid()).optional(), // Many-to-many
   description: z.string().max(500).optional(),
   columns: z.array(columnSchema).min(1, "At least one column is required"),
   rows: z.array(rowSchema).optional().default([]),
@@ -67,13 +96,12 @@ export const updateSizeChartSchema = z.object({
   slug: slugSchema.optional(),
   description: z.string().max(500).nullable().optional(),
   isPublished: z.boolean().optional(),
-  displayOrder: z.number().int().min(0).optional(),
+  subcategoryIds: z.array(z.string().cuid()).optional(), // Update many-to-many
   columns: z.array(
     z.object({
       id: z.string().cuid().optional(),
       name: z.string().min(1).max(100),
       columnType: columnTypeEnum,
-      unit: measurementUnitEnum.optional().default("NONE"),
       displayOrder: z.number().int().min(0),
     })
   ).optional(),
@@ -87,9 +115,13 @@ export const updateSizeChartSchema = z.object({
           columnId: z.string().cuid().optional(),
           columnIndex: z.number().int().min(0).optional(),
           valueInches: z.number().nullable().optional(),
+          valueCm: z.number().nullable().optional(),
           valueText: z.string().nullable().optional(),
           valueMinInches: z.number().nullable().optional(),
           valueMaxInches: z.number().nullable().optional(),
+          valueMinCm: z.number().nullable().optional(),
+          valueMaxCm: z.number().nullable().optional(),
+          labelId: z.string().cuid().nullable().optional(),
         })
       ),
     })
@@ -119,6 +151,8 @@ export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 export type CreateSubcategoryInput = z.infer<typeof createSubcategorySchema>;
 export type UpdateSubcategoryInput = z.infer<typeof updateSubcategorySchema>;
+export type CreateSizeLabelInput = z.infer<typeof createSizeLabelSchema>;
+export type UpdateSizeLabelInput = z.infer<typeof updateSizeLabelSchema>;
 export type CreateSizeChartInput = z.infer<typeof createSizeChartSchema>;
 export type UpdateSizeChartInput = z.infer<typeof updateSizeChartSchema>;
 export type BulkOperationInput = z.infer<typeof bulkOperationSchema>;

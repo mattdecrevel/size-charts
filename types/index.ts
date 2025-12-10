@@ -5,11 +5,24 @@ import type {
   SizeChartColumn,
   SizeChartRow,
   SizeChartCell,
+  SizeChartSubcategory,
+  SizeLabel,
   ColumnType,
-  MeasurementUnit,
+  LabelType,
 } from "@prisma/client";
 
-export type { Category, Subcategory, SizeChart, SizeChartColumn, SizeChartRow, SizeChartCell, ColumnType, MeasurementUnit };
+export type {
+  Category,
+  Subcategory,
+  SizeChart,
+  SizeChartColumn,
+  SizeChartRow,
+  SizeChartCell,
+  SizeChartSubcategory,
+  SizeLabel,
+  ColumnType,
+  LabelType,
+};
 
 export type UnitPreference = "inches" | "cm";
 
@@ -21,25 +34,19 @@ export interface SubcategoryWithCategory extends Subcategory {
   category: Category;
 }
 
+export interface SizeChartSubcategoryWithDetails extends SizeChartSubcategory {
+  subcategory: SubcategoryWithCategory;
+}
+
 export interface SizeChartSummary {
   id: string;
   name: string;
   slug: string;
   description: string | null;
   isPublished: boolean;
-  displayOrder: number;
   createdAt: Date;
   updatedAt: Date;
-  subcategory: {
-    id: string;
-    name: string;
-    slug: string;
-    category: {
-      id: string;
-      name: string;
-      slug: string;
-    };
-  };
+  subcategories: SizeChartSubcategoryWithDetails[];
   _count: {
     rows: number;
     columns: number;
@@ -47,10 +54,12 @@ export interface SizeChartSummary {
 }
 
 export interface SizeChartFull extends SizeChart {
-  subcategory: SubcategoryWithCategory;
+  subcategories: SizeChartSubcategoryWithDetails[];
+  // For backward compatibility with public pages
+  subcategory?: SubcategoryWithCategory;
   columns: SizeChartColumn[];
   rows: (SizeChartRow & {
-    cells: SizeChartCell[];
+    cells: (SizeChartCell & { label?: SizeLabel | null })[];
   })[];
 }
 
@@ -67,16 +76,19 @@ export interface CellValue {
   columnId?: string;
   columnIndex?: number;
   valueInches: number | null;
+  valueCm: number | null;
   valueText: string | null;
   valueMinInches: number | null;
   valueMaxInches: number | null;
+  valueMinCm: number | null;
+  valueMaxCm: number | null;
+  labelId?: string | null;
 }
 
 export interface EditorColumn {
   id?: string;
   name: string;
   columnType: ColumnType;
-  unit: MeasurementUnit;
   displayOrder: number;
 }
 
@@ -89,7 +101,7 @@ export interface EditorRow {
 export interface EditorState {
   name: string;
   description: string | null;
-  subcategoryId: string;
+  subcategoryIds: string[];
   columns: EditorColumn[];
   rows: EditorRow[];
 }
