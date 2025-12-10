@@ -576,53 +576,204 @@ async function main() {
   console.log("Created Women's Socks");
 
   // ============================================
-  // BOYS TOPS
+  // BOYS TOPS - Big Kids (8-20)
   // ============================================
   await createSizeChart(
-    "Tops",
-    "tops",
-    "Boys shirts, t-shirts, and jackets",
+    "Big Kids (8-20)",
+    "big-kids",
+    "Boys tops for ages 8-20",
     boysTops.id,
     [
       { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
-      { name: "Numeric", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
       { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
-      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
-    ],
-    [
-      { Size: { text: "YXS" }, Numeric: { text: "7" }, Chest: { min: 25, max: 26 }, Height: { min: 47, max: 50.5 } },
-      { Size: { text: "YSM" }, Numeric: { text: "8" }, Chest: { min: 26, max: 27 }, Height: { min: 50.5, max: 53 } },
-      { Size: { text: "YMD" }, Numeric: { text: "10-12" }, Chest: { min: 27, max: 29 }, Height: { min: 53, max: 59 } },
-      { Size: { text: "YLG" }, Numeric: { text: "14-16" }, Chest: { min: 29, max: 32.5 }, Height: { min: 59, max: 65 } },
-      { Size: { text: "YXL" }, Numeric: { text: "18-20" }, Chest: { min: 32.5, max: 35.5 }, Height: { min: 65, max: 70 } },
-    ]
-  );
-  console.log("Created Boys Tops");
-
-  // ============================================
-  // BOYS BOTTOMS
-  // ============================================
-  await createSizeChart(
-    "Bottoms",
-    "bottoms",
-    "Boys pants, shorts, and joggers",
-    boysBottoms.id,
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
-      { name: "Numeric", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
       { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
       { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
       { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
     ],
     [
-      { Size: { text: "YXS" }, Numeric: { text: "7" }, Waist: { min: 23, max: 24 }, Hip: { min: 26, max: 27 }, Height: { min: 47, max: 50.5 } },
-      { Size: { text: "YSM" }, Numeric: { text: "8" }, Waist: { min: 24, max: 25 }, Hip: { min: 27, max: 28 }, Height: { min: 50.5, max: 53 } },
-      { Size: { text: "YMD" }, Numeric: { text: "10-12" }, Waist: { min: 25, max: 27 }, Hip: { min: 28, max: 31 }, Height: { min: 53, max: 59 } },
-      { Size: { text: "YLG" }, Numeric: { text: "14-16" }, Waist: { min: 27, max: 30 }, Hip: { min: 31, max: 34 }, Height: { min: 59, max: 65 } },
-      { Size: { text: "YXL" }, Numeric: { text: "18-20" }, Waist: { min: 30, max: 33 }, Hip: { min: 34, max: 37 }, Height: { min: 65, max: 70 } },
+      { Size: { text: "YXS (7)" }, Chest: { min: 25, max: 26 }, Waist: { min: 23, max: 24 }, Hip: { min: 26, max: 27 }, Height: { min: 47, max: 50.5 } },
+      { Size: { text: "YSM (8)" }, Chest: { min: 26, max: 27 }, Waist: { min: 24, max: 25 }, Hip: { min: 27, max: 28 }, Height: { min: 50.5, max: 53 } },
+      { Size: { text: "YSM+ (8+)" }, Chest: { min: 27.5, max: 29 }, Waist: { min: 27, max: 28 }, Hip: { min: 29, max: 30.5 }, Height: { min: 50.5, max: 53 } },
+      { Size: { text: "YMD (10-12)" }, Chest: { min: 27, max: 29 }, Waist: { min: 25, max: 27 }, Hip: { min: 28, max: 31 }, Height: { min: 53, max: 59 } },
+      { Size: { text: "YMD+ (10+/12+)" }, Chest: { min: 29, max: 31 }, Waist: { min: 28, max: 31 }, Hip: { min: 30.5, max: 33.5 }, Height: { min: 53, max: 59 } },
+      { Size: { text: "YLG (14-16)" }, Chest: { min: 29, max: 32.5 }, Waist: { min: 27, max: 30 }, Hip: { min: 31, max: 34 }, Height: { min: 59, max: 65 } },
+      { Size: { text: "YLG+ (14+/16+)" }, Chest: { min: 31, max: 34.5 }, Waist: { min: 31, max: 34 }, Hip: { min: 33.5, max: 36.5 }, Height: { min: 59, max: 65 } },
+      { Size: { text: "YXL (18-20)" }, Chest: { min: 32.5, max: 35.5 }, Waist: { min: 30, max: 33 }, Hip: { min: 34, max: 37 }, Height: { min: 65, max: 70 } },
+      { Size: { text: "YXL+ (18+/20+)" }, Chest: { min: 34.5, max: 37.5 }, Waist: { min: 34, max: 37 }, Hip: { min: 36.5, max: 39.5 }, Height: { min: 65, max: 70 } },
     ]
   );
-  console.log("Created Boys Bottoms");
+  console.log("Created Boys Tops - Big Kids");
+
+  // ============================================
+  // BOYS TOPS - Little Kids (4-7)
+  // ============================================
+  await createSizeChart(
+    "Little Kids (4-7)",
+    "little-kids",
+    "Boys tops for ages 4-7",
+    boysTops.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "4" }, Chest: { min: 21.5, max: 22.5 }, Waist: { min: 21.5, max: 22.5 }, Hip: { min: 22.5, max: 23.5 }, Height: { min: 38, max: 41 } },
+      { Size: { text: "5" }, Chest: { min: 22.5, max: 23.5 }, Waist: { min: 22, max: 23 }, Hip: { min: 23.5, max: 24.5 }, Height: { min: 41, max: 44 } },
+      { Size: { text: "6" }, Chest: { min: 22.5, max: 24.5 }, Waist: { min: 22.5, max: 23.5 }, Hip: { min: 24.5, max: 25.5 }, Height: { min: 44, max: 46.5 } },
+      { Size: { text: "7" }, Chest: { min: 24.5, max: 26 }, Waist: { min: 23, max: 24 }, Hip: { min: 25.5, max: 26.5 }, Height: { min: 46.5, max: 50 } },
+    ]
+  );
+  console.log("Created Boys Tops - Little Kids");
+
+  // ============================================
+  // BOYS TOPS - Toddler (2T-5)
+  // ============================================
+  await createSizeChart(
+    "Toddler (2T-5)",
+    "toddler",
+    "Boys tops for toddlers",
+    boysTops.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Weight (lbs)", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "2T" }, Chest: { min: 20, max: 21 }, Waist: { min: 20.5, max: 21.5 }, Height: { min: 33, max: 35 }, "Weight (lbs)": { min: 29, max: 33 } },
+      { Size: { text: "3T" }, Chest: { min: 20.5, max: 21.5 }, Waist: { min: 21, max: 22 }, Height: { min: 35, max: 38 }, "Weight (lbs)": { min: 32, max: 36 } },
+      { Size: { text: "4T" }, Chest: { min: 21.5, max: 22.5 }, Waist: { min: 21.5, max: 22.5 }, Height: { min: 38, max: 41 }, "Weight (lbs)": { min: 35, max: 39 } },
+      { Size: { text: "5" }, Chest: { min: 22.5, max: 23.5 }, Waist: { min: 22, max: 23 }, Height: { min: 41, max: 44 }, "Weight (lbs)": { min: 38, max: 42 } },
+    ]
+  );
+  console.log("Created Boys Tops - Toddler");
+
+  // ============================================
+  // BOYS TOPS - Infant (0-24M)
+  // ============================================
+  await createSizeChart(
+    "Infant (0-24M)",
+    "infant",
+    "Boys tops for infants",
+    boysTops.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Weight (lbs)", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "0-3M" }, Chest: { min: 15.5, max: 17 }, Height: { min: 20.5, max: 24 }, "Weight (lbs)": { min: 8, max: 12 } },
+      { Size: { text: "3-6M" }, Chest: { min: 17, max: 18 }, Height: { min: 24, max: 27 }, "Weight (lbs)": { min: 12, max: 16 } },
+      { Size: { text: "6-9M" }, Chest: { min: 18, max: 18.5 }, Height: { min: 27, max: 29 }, "Weight (lbs)": { min: 16, max: 20 } },
+      { Size: { text: "12M" }, Chest: { min: 18.5, max: 19 }, Height: { min: 29, max: 30 }, "Weight (lbs)": { min: 18, max: 22 } },
+      { Size: { text: "18M" }, Chest: { min: 19, max: 20 }, Height: { min: 30.5, max: 33 }, "Weight (lbs)": { min: 22, max: 26 } },
+      { Size: { text: "24M" }, Chest: { min: 20, max: 21 }, Height: { min: 33, max: 35 }, "Weight (lbs)": { min: 26, max: 30 } },
+    ]
+  );
+  console.log("Created Boys Tops - Infant");
+
+  // ============================================
+  // BOYS BOTTOMS - Big Kids (8-20)
+  // ============================================
+  await createSizeChart(
+    "Big Kids (8-20)",
+    "big-kids",
+    "Boys bottoms for ages 8-20",
+    boysBottoms.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "YXS (7)" }, Waist: { min: 23, max: 24 }, Hip: { min: 26, max: 27 }, Height: { min: 47, max: 50.5 } },
+      { Size: { text: "YSM (8)" }, Waist: { min: 24, max: 25 }, Hip: { min: 27, max: 28 }, Height: { min: 50.5, max: 53 } },
+      { Size: { text: "YSM+ (8+)" }, Waist: { min: 27, max: 28 }, Hip: { min: 29, max: 30.5 }, Height: { min: 50.5, max: 53 } },
+      { Size: { text: "YMD (10-12)" }, Waist: { min: 25, max: 27 }, Hip: { min: 28, max: 31 }, Height: { min: 53, max: 59 } },
+      { Size: { text: "YMD+ (10+/12+)" }, Waist: { min: 28, max: 31 }, Hip: { min: 30.5, max: 33.5 }, Height: { min: 53, max: 59 } },
+      { Size: { text: "YLG (14-16)" }, Waist: { min: 27, max: 30 }, Hip: { min: 31, max: 34 }, Height: { min: 59, max: 65 } },
+      { Size: { text: "YLG+ (14+/16+)" }, Waist: { min: 31, max: 34 }, Hip: { min: 33.5, max: 36.5 }, Height: { min: 59, max: 65 } },
+      { Size: { text: "YXL (18-20)" }, Waist: { min: 30, max: 33 }, Hip: { min: 34, max: 37 }, Height: { min: 65, max: 70 } },
+      { Size: { text: "YXL+ (18+/20+)" }, Waist: { min: 34, max: 37 }, Hip: { min: 36.5, max: 39.5 }, Height: { min: 65, max: 70 } },
+    ]
+  );
+  console.log("Created Boys Bottoms - Big Kids");
+
+  // ============================================
+  // BOYS BOTTOMS - Little Kids (4-7)
+  // ============================================
+  await createSizeChart(
+    "Little Kids (4-7)",
+    "little-kids",
+    "Boys bottoms for ages 4-7",
+    boysBottoms.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "4" }, Waist: { min: 21.5, max: 22.5 }, Hip: { min: 22.5, max: 23.5 }, Height: { min: 38, max: 41 } },
+      { Size: { text: "5" }, Waist: { min: 22, max: 23 }, Hip: { min: 23.5, max: 24.5 }, Height: { min: 41, max: 44 } },
+      { Size: { text: "6" }, Waist: { min: 22.5, max: 23.5 }, Hip: { min: 24.5, max: 25.5 }, Height: { min: 44, max: 46.5 } },
+      { Size: { text: "7" }, Waist: { min: 23, max: 24 }, Hip: { min: 25.5, max: 26.5 }, Height: { min: 46.5, max: 50 } },
+    ]
+  );
+  console.log("Created Boys Bottoms - Little Kids");
+
+  // ============================================
+  // BOYS BOTTOMS - Toddler (2T-5)
+  // ============================================
+  await createSizeChart(
+    "Toddler (2T-5)",
+    "toddler",
+    "Boys bottoms for toddlers",
+    boysBottoms.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Weight (lbs)", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "2T" }, Waist: { min: 20.5, max: 21.5 }, Height: { min: 33, max: 35 }, "Weight (lbs)": { min: 29, max: 33 } },
+      { Size: { text: "3T" }, Waist: { min: 21, max: 22 }, Height: { min: 35, max: 38 }, "Weight (lbs)": { min: 32, max: 36 } },
+      { Size: { text: "4T" }, Waist: { min: 21.5, max: 22.5 }, Height: { min: 38, max: 41 }, "Weight (lbs)": { min: 35, max: 39 } },
+      { Size: { text: "5" }, Waist: { min: 22, max: 23 }, Height: { min: 41, max: 44 }, "Weight (lbs)": { min: 38, max: 42 } },
+    ]
+  );
+  console.log("Created Boys Bottoms - Toddler");
+
+  // ============================================
+  // BOYS BOTTOMS - Infant (0-24M)
+  // ============================================
+  await createSizeChart(
+    "Infant (0-24M)",
+    "infant",
+    "Boys bottoms for infants",
+    boysBottoms.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Weight (lbs)", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "0-3M" }, Height: { min: 20.5, max: 24 }, "Weight (lbs)": { min: 8, max: 12 } },
+      { Size: { text: "3-6M" }, Height: { min: 24, max: 27 }, "Weight (lbs)": { min: 12, max: 16 } },
+      { Size: { text: "6-9M" }, Height: { min: 27, max: 29 }, "Weight (lbs)": { min: 16, max: 20 } },
+      { Size: { text: "12M" }, Height: { min: 29, max: 30 }, "Weight (lbs)": { min: 18, max: 22 } },
+      { Size: { text: "18M" }, Height: { min: 30.5, max: 33 }, "Weight (lbs)": { min: 22, max: 26 } },
+      { Size: { text: "24M" }, Height: { min: 33, max: 35 }, "Weight (lbs)": { min: 26, max: 30 } },
+    ]
+  );
+  console.log("Created Boys Bottoms - Infant");
 
   // ============================================
   // BOYS FOOTWEAR
@@ -712,53 +863,204 @@ async function main() {
   console.log("Created Boys Socks");
 
   // ============================================
-  // GIRLS TOPS
+  // GIRLS TOPS - Big Kids (8-20)
   // ============================================
   await createSizeChart(
-    "Tops",
-    "tops",
-    "Girls shirts, tanks, and jackets",
+    "Big Kids (8-20)",
+    "big-kids",
+    "Girls tops for ages 8-20",
     girlsTops.id,
     [
       { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
-      { name: "Numeric", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
       { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
-      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
-    ],
-    [
-      { Size: { text: "YXS" }, Numeric: { text: "7" }, Chest: { min: 25, max: 26.5 }, Height: { min: 47, max: 51 } },
-      { Size: { text: "YSM" }, Numeric: { text: "8" }, Chest: { min: 26.5, max: 27.5 }, Height: { min: 51, max: 53 } },
-      { Size: { text: "YMD" }, Numeric: { text: "10-12" }, Chest: { min: 27.5, max: 30.5 }, Height: { min: 53, max: 58.5 } },
-      { Size: { text: "YLG" }, Numeric: { text: "14-16" }, Chest: { min: 30.5, max: 34 }, Height: { min: 58.5, max: 63 } },
-      { Size: { text: "YXL" }, Numeric: { text: "18" }, Chest: { min: 34, max: 36 }, Height: { min: 58.5, max: 63 } },
-    ]
-  );
-  console.log("Created Girls Tops");
-
-  // ============================================
-  // GIRLS BOTTOMS
-  // ============================================
-  await createSizeChart(
-    "Bottoms",
-    "bottoms",
-    "Girls pants, shorts, leggings, and skirts",
-    girlsBottoms.id,
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
-      { name: "Numeric", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
       { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
       { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
       { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
     ],
     [
-      { Size: { text: "YXS" }, Numeric: { text: "7" }, Waist: { min: 23, max: 24 }, Hip: { min: 26, max: 28 }, Height: { min: 47, max: 51 } },
-      { Size: { text: "YSM" }, Numeric: { text: "8" }, Waist: { min: 24, max: 24.5 }, Hip: { min: 28, max: 29 }, Height: { min: 51, max: 53 } },
-      { Size: { text: "YMD" }, Numeric: { text: "10-12" }, Waist: { min: 24.5, max: 26.5 }, Hip: { min: 29, max: 32.5 }, Height: { min: 53, max: 58.5 } },
-      { Size: { text: "YLG" }, Numeric: { text: "14-16" }, Waist: { min: 26.5, max: 30.5 }, Hip: { min: 32.5, max: 36.5 }, Height: { min: 58.5, max: 63 } },
-      { Size: { text: "YXL" }, Numeric: { text: "18" }, Waist: { min: 30.5, max: 32.5 }, Hip: { min: 36.5, max: 38.5 }, Height: { min: 58.5, max: 63 } },
+      { Size: { text: "YXS (7)" }, Chest: { min: 25, max: 26.5 }, Waist: { min: 23, max: 24 }, Hip: { min: 26, max: 28 }, Height: { min: 47, max: 51 } },
+      { Size: { text: "YSM (8)" }, Chest: { min: 26.5, max: 27.5 }, Waist: { min: 24, max: 24.5 }, Hip: { min: 28, max: 29 }, Height: { min: 51, max: 53 } },
+      { Size: { text: "YSM+ (8+)" }, Chest: { min: 28.5, max: 29 }, Waist: { min: 27, max: 28 }, Hip: { min: 31, max: 32 }, Height: { min: 51, max: 53 } },
+      { Size: { text: "YMD (10-12)" }, Chest: { min: 27.5, max: 30.5 }, Waist: { min: 24.5, max: 26.5 }, Hip: { min: 29, max: 32.5 }, Height: { min: 53, max: 58.5 } },
+      { Size: { text: "YMD+ (10+/12+)" }, Chest: { min: 29, max: 32.5 }, Waist: { min: 28, max: 31 }, Hip: { min: 32, max: 34.5 }, Height: { min: 53, max: 58.5 } },
+      { Size: { text: "YLG (14-16)" }, Chest: { min: 30.5, max: 34 }, Waist: { min: 26.5, max: 30.5 }, Hip: { min: 32.5, max: 36.5 }, Height: { min: 58.5, max: 63 } },
+      { Size: { text: "YLG+ (14+/16+)" }, Chest: { min: 32.5, max: 35 }, Waist: { min: 31, max: 34.5 }, Hip: { min: 34.5, max: 38 }, Height: { min: 58.5, max: 63 } },
+      { Size: { text: "YXL (18)" }, Chest: { min: 34, max: 36 }, Waist: { min: 30.5, max: 32.5 }, Hip: { min: 36.5, max: 38.5 }, Height: { min: 58.5, max: 63 } },
+      { Size: { text: "YXL+ (18+)" }, Chest: { min: 35, max: 37 }, Waist: { min: 34.5, max: 36 }, Hip: { min: 38, max: 39.5 }, Height: { min: 58.5, max: 63 } },
     ]
   );
-  console.log("Created Girls Bottoms");
+  console.log("Created Girls Tops - Big Kids");
+
+  // ============================================
+  // GIRLS TOPS - Little Kids (4-7)
+  // ============================================
+  await createSizeChart(
+    "Little Kids (4-7)",
+    "little-kids",
+    "Girls tops for ages 4-7",
+    girlsTops.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "4" }, Chest: { min: 21.5, max: 22.5 }, Waist: { min: 21.5, max: 22.5 }, Hip: { min: 22.5, max: 23.5 }, Height: { min: 38, max: 41 } },
+      { Size: { text: "5" }, Chest: { min: 22.5, max: 23.5 }, Waist: { min: 22, max: 23 }, Hip: { min: 23.5, max: 24.5 }, Height: { min: 41, max: 44 } },
+      { Size: { text: "6" }, Chest: { min: 23.5, max: 24.5 }, Waist: { min: 22.5, max: 23.5 }, Hip: { min: 24.5, max: 25.5 }, Height: { min: 44, max: 46 } },
+      { Size: { text: "6x" }, Chest: { min: 24.5, max: 25 }, Waist: { min: 23, max: 23.5 }, Hip: { min: 25.5, max: 26 }, Height: { min: 46.5, max: 48.5 } },
+    ]
+  );
+  console.log("Created Girls Tops - Little Kids");
+
+  // ============================================
+  // GIRLS TOPS - Toddler (2T-5)
+  // ============================================
+  await createSizeChart(
+    "Toddler (2T-5)",
+    "toddler",
+    "Girls tops for toddlers",
+    girlsTops.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Weight (lbs)", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "2T" }, Chest: { min: 20, max: 21 }, Waist: { min: 20.5, max: 21.5 }, Height: { min: 33, max: 35 }, "Weight (lbs)": { min: 29, max: 33 } },
+      { Size: { text: "3T" }, Chest: { min: 20.5, max: 21.5 }, Waist: { min: 21, max: 22 }, Height: { min: 35, max: 38 }, "Weight (lbs)": { min: 32, max: 36 } },
+      { Size: { text: "4T" }, Chest: { min: 21.5, max: 22.5 }, Waist: { min: 21.5, max: 22.5 }, Height: { min: 38, max: 41 }, "Weight (lbs)": { min: 35, max: 39 } },
+      { Size: { text: "5" }, Chest: { min: 22.5, max: 23.5 }, Waist: { min: 22, max: 23 }, Height: { min: 41, max: 44 }, "Weight (lbs)": { min: 38, max: 42 } },
+    ]
+  );
+  console.log("Created Girls Tops - Toddler");
+
+  // ============================================
+  // GIRLS TOPS - Infant (0-24M)
+  // ============================================
+  await createSizeChart(
+    "Infant (0-24M)",
+    "infant",
+    "Girls tops for infants",
+    girlsTops.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Chest", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Weight (lbs)", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "0-3M" }, Chest: { min: 15.5, max: 17 }, Height: { min: 20.5, max: 24 }, "Weight (lbs)": { min: 8, max: 12 } },
+      { Size: { text: "3-6M" }, Chest: { min: 17, max: 18 }, Height: { min: 24, max: 27 }, "Weight (lbs)": { min: 12, max: 16 } },
+      { Size: { text: "6-9M" }, Chest: { min: 18, max: 18.5 }, Height: { min: 27, max: 29 }, "Weight (lbs)": { min: 16, max: 20 } },
+      { Size: { text: "12M" }, Chest: { min: 18.5, max: 19 }, Height: { min: 29, max: 30 }, "Weight (lbs)": { min: 18, max: 22 } },
+      { Size: { text: "18M" }, Chest: { min: 19, max: 20 }, Height: { min: 30.5, max: 33 }, "Weight (lbs)": { min: 22, max: 26 } },
+      { Size: { text: "24M" }, Chest: { min: 20, max: 21 }, Height: { min: 33, max: 35 }, "Weight (lbs)": { min: 26, max: 30 } },
+    ]
+  );
+  console.log("Created Girls Tops - Infant");
+
+  // ============================================
+  // GIRLS BOTTOMS - Big Kids (8-20)
+  // ============================================
+  await createSizeChart(
+    "Big Kids (8-20)",
+    "big-kids",
+    "Girls bottoms for ages 8-20",
+    girlsBottoms.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "YXS (7)" }, Waist: { min: 23, max: 24 }, Hip: { min: 26, max: 28 }, Height: { min: 47, max: 51 } },
+      { Size: { text: "YSM (8)" }, Waist: { min: 24, max: 24.5 }, Hip: { min: 28, max: 29 }, Height: { min: 51, max: 53 } },
+      { Size: { text: "YSM+ (8+)" }, Waist: { min: 27, max: 28 }, Hip: { min: 31, max: 32 }, Height: { min: 51, max: 53 } },
+      { Size: { text: "YMD (10-12)" }, Waist: { min: 24.5, max: 26.5 }, Hip: { min: 29, max: 32.5 }, Height: { min: 53, max: 58.5 } },
+      { Size: { text: "YMD+ (10+/12+)" }, Waist: { min: 28, max: 31 }, Hip: { min: 32, max: 34.5 }, Height: { min: 53, max: 58.5 } },
+      { Size: { text: "YLG (14-16)" }, Waist: { min: 26.5, max: 30.5 }, Hip: { min: 32.5, max: 36.5 }, Height: { min: 58.5, max: 63 } },
+      { Size: { text: "YLG+ (14+/16+)" }, Waist: { min: 31, max: 34.5 }, Hip: { min: 34.5, max: 38 }, Height: { min: 58.5, max: 63 } },
+      { Size: { text: "YXL (18)" }, Waist: { min: 30.5, max: 32.5 }, Hip: { min: 36.5, max: 38.5 }, Height: { min: 58.5, max: 63 } },
+      { Size: { text: "YXL+ (18+)" }, Waist: { min: 34.5, max: 36 }, Hip: { min: 38, max: 39.5 }, Height: { min: 58.5, max: 63 } },
+    ]
+  );
+  console.log("Created Girls Bottoms - Big Kids");
+
+  // ============================================
+  // GIRLS BOTTOMS - Little Kids (4-7)
+  // ============================================
+  await createSizeChart(
+    "Little Kids (4-7)",
+    "little-kids",
+    "Girls bottoms for ages 4-7",
+    girlsBottoms.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Hip", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+    ],
+    [
+      { Size: { text: "4" }, Waist: { min: 21.5, max: 22.5 }, Hip: { min: 22.5, max: 23.5 }, Height: { min: 38, max: 41 } },
+      { Size: { text: "5" }, Waist: { min: 22, max: 23 }, Hip: { min: 23.5, max: 24.5 }, Height: { min: 41, max: 44 } },
+      { Size: { text: "6" }, Waist: { min: 22.5, max: 23.5 }, Hip: { min: 24.5, max: 25.5 }, Height: { min: 44, max: 46 } },
+      { Size: { text: "6x" }, Waist: { min: 23, max: 23.5 }, Hip: { min: 25.5, max: 26 }, Height: { min: 46.5, max: 48.5 } },
+    ]
+  );
+  console.log("Created Girls Bottoms - Little Kids");
+
+  // ============================================
+  // GIRLS BOTTOMS - Toddler (2T-5)
+  // ============================================
+  await createSizeChart(
+    "Toddler (2T-5)",
+    "toddler",
+    "Girls bottoms for toddlers",
+    girlsBottoms.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Waist", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Weight (lbs)", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "2T" }, Waist: { min: 20.5, max: 21.5 }, Height: { min: 33, max: 35 }, "Weight (lbs)": { min: 29, max: 33 } },
+      { Size: { text: "3T" }, Waist: { min: 21, max: 22 }, Height: { min: 35, max: 38 }, "Weight (lbs)": { min: 32, max: 36 } },
+      { Size: { text: "4T" }, Waist: { min: 21.5, max: 22.5 }, Height: { min: 38, max: 41 }, "Weight (lbs)": { min: 35, max: 39 } },
+      { Size: { text: "5" }, Waist: { min: 22, max: 23 }, Height: { min: 41, max: 44 }, "Weight (lbs)": { min: 38, max: 42 } },
+    ]
+  );
+  console.log("Created Girls Bottoms - Toddler");
+
+  // ============================================
+  // GIRLS BOTTOMS - Infant (0-24M)
+  // ============================================
+  await createSizeChart(
+    "Infant (0-24M)",
+    "infant",
+    "Girls bottoms for infants",
+    girlsBottoms.id,
+    [
+      { name: "Size", columnType: ColumnType.SIZE_LABEL, unit: MeasurementUnit.NONE },
+      { name: "Height", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.INCHES },
+      { name: "Weight (lbs)", columnType: ColumnType.MEASUREMENT, unit: MeasurementUnit.NONE },
+    ],
+    [
+      { Size: { text: "0-3M" }, Height: { min: 20.5, max: 24 }, "Weight (lbs)": { min: 8, max: 12 } },
+      { Size: { text: "3-6M" }, Height: { min: 24, max: 27 }, "Weight (lbs)": { min: 12, max: 16 } },
+      { Size: { text: "6-9M" }, Height: { min: 27, max: 29 }, "Weight (lbs)": { min: 16, max: 20 } },
+      { Size: { text: "12M" }, Height: { min: 29, max: 30 }, "Weight (lbs)": { min: 18, max: 22 } },
+      { Size: { text: "18M" }, Height: { min: 30.5, max: 33 }, "Weight (lbs)": { min: 22, max: 26 } },
+      { Size: { text: "24M" }, Height: { min: 33, max: 35 }, "Weight (lbs)": { min: 26, max: 30 } },
+    ]
+  );
+  console.log("Created Girls Bottoms - Infant");
 
   // ============================================
   // GIRLS FOOTWEAR
