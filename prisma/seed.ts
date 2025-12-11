@@ -13,7 +13,7 @@ function inToCm(inches: number): number {
 }
 
 // Helper to create a size chart with columns and rows
-// Now supports many-to-many subcategory relationships
+// Now supports many-to-many subcategory relationships and measurement instructions
 async function createSizeChart(
   name: string,
   slug: string,
@@ -23,7 +23,8 @@ async function createSizeChart(
     name: string;
     columnType: ColumnType;
   }>,
-  rows: Array<Record<string, { text?: string; value?: number; min?: number; max?: number; labelId?: string }>>
+  rows: Array<Record<string, { text?: string; value?: number; min?: number; max?: number; labelId?: string }>>,
+  instructionIds?: string[] // Optional array of measurement instruction IDs
 ) {
   const chart = await prisma.sizeChart.create({
     data: {
@@ -89,6 +90,21 @@ async function createSizeChart(
     await prisma.sizeChartCell.createMany({ data: cellData });
   }
 
+  // Create measurement instruction links if provided
+  if (instructionIds && instructionIds.length > 0) {
+    await Promise.all(
+      instructionIds.map((instructionId, index) =>
+        prisma.sizeChartMeasurementInstruction.create({
+          data: {
+            sizeChartId: chart.id,
+            instructionId,
+            displayOrder: index,
+          },
+        })
+      )
+    );
+  }
+
   return chart;
 }
 
@@ -96,6 +112,7 @@ async function main() {
   console.log("Seeding database with consolidated size data...\n");
 
   // Clear existing data
+  await prisma.sizeChartMeasurementInstruction.deleteMany();
   await prisma.sizeChartCell.deleteMany();
   await prisma.sizeChartRow.deleteMany();
   await prisma.sizeChartColumn.deleteMany();
@@ -104,6 +121,109 @@ async function main() {
   await prisma.subcategory.deleteMany();
   await prisma.category.deleteMany();
   await prisma.sizeLabel.deleteMany();
+  await prisma.measurementInstruction.deleteMany();
+
+  // ============================================
+  // MEASUREMENT INSTRUCTIONS - How to measure guides
+  // ============================================
+  console.log("Creating measurement instructions...");
+
+  const measurementInstructions = await Promise.all([
+    prisma.measurementInstruction.create({
+      data: {
+        key: "chest",
+        name: "Chest/Bust",
+        instruction: "Measure around the fullest part of your chest, keeping the tape parallel to the floor.",
+        sortOrder: 0,
+      },
+    }),
+    prisma.measurementInstruction.create({
+      data: {
+        key: "waist",
+        name: "Waist",
+        instruction: "Measure around the narrowest part of your natural waistline, typically just above the belly button.",
+        sortOrder: 1,
+      },
+    }),
+    prisma.measurementInstruction.create({
+      data: {
+        key: "hip",
+        name: "Hip",
+        instruction: "Measure around the fullest part of your hips, about 8 inches below your waist.",
+        sortOrder: 2,
+      },
+    }),
+    prisma.measurementInstruction.create({
+      data: {
+        key: "inseam",
+        name: "Inseam",
+        instruction: "Measure from the crotch seam to the bottom of the leg along the inner leg.",
+        sortOrder: 3,
+      },
+    }),
+    prisma.measurementInstruction.create({
+      data: {
+        key: "height",
+        name: "Height",
+        instruction: "Measure from the top of your head to the floor while standing straight without shoes.",
+        sortOrder: 4,
+      },
+    }),
+    prisma.measurementInstruction.create({
+      data: {
+        key: "foot_length",
+        name: "Foot Length",
+        instruction: "Stand on a piece of paper and trace your foot. Measure from heel to longest toe.",
+        sortOrder: 5,
+      },
+    }),
+    prisma.measurementInstruction.create({
+      data: {
+        key: "hand_circumference",
+        name: "Hand Circumference",
+        instruction: "Measure around your palm at the widest point, excluding the thumb.",
+        sortOrder: 6,
+      },
+    }),
+    prisma.measurementInstruction.create({
+      data: {
+        key: "hand_length",
+        name: "Hand Length",
+        instruction: "Measure from the base of your palm to the tip of your middle finger.",
+        sortOrder: 7,
+      },
+    }),
+    prisma.measurementInstruction.create({
+      data: {
+        key: "head_circumference",
+        name: "Head Circumference",
+        instruction: "Measure around the largest part of your head, about 1 inch above your eyebrows.",
+        sortOrder: 8,
+      },
+    }),
+    prisma.measurementInstruction.create({
+      data: {
+        key: "band_size",
+        name: "Band Size",
+        instruction: "Measure snugly around your ribcage, directly under your bust. Round to nearest even number.",
+        sortOrder: 9,
+      },
+    }),
+    prisma.measurementInstruction.create({
+      data: {
+        key: "cup_size",
+        name: "Cup Size",
+        instruction: "Measure around the fullest part of your bust. Subtract band size to determine cup.",
+        sortOrder: 10,
+      },
+    }),
+  ]);
+
+  // Create a lookup object for measurement instructions
+  const instructions: Record<string, string> = {};
+  measurementInstructions.forEach((inst) => {
+    instructions[inst.key] = inst.id;
+  });
 
   // ============================================
   // SIZE LABELS - User-defined translation keys
@@ -274,7 +394,8 @@ async function main() {
       { Size: { text: "3XL" }, Chest: { min: 52, max: 56 }, Waist: { min: 45.5, max: 50 } },
       { Size: { text: "4XL" }, Chest: { min: 56, max: 60 }, Waist: { min: 50, max: 54.5 } },
       { Size: { text: "5XL" }, Chest: { min: 60, max: 64 }, Waist: { min: 54.5, max: 59 } },
-    ]
+    ],
+    [instructions.chest, instructions.waist]
   );
   console.log("Created Men's Tops");
 
@@ -299,7 +420,8 @@ async function main() {
       { Size: { text: "3XL" }, Waist: { min: 46, max: 48 }, Hip: { min: 50, max: 54 } },
       { Size: { text: "4XL" }, Waist: { min: 50, max: 52 }, Hip: { min: 54, max: 58 } },
       { Size: { text: "5XL" }, Waist: { min: 54, max: 56 }, Hip: { min: 58, max: 62 } },
-    ]
+    ],
+    [instructions.waist, instructions.hip]
   );
   console.log("Created Men's Bottoms");
 
@@ -328,7 +450,8 @@ async function main() {
       { US: { text: "12" }, UK: { text: "11" }, EU: { text: "46" }, CM: { value: 30 } },
       { US: { text: "13" }, UK: { text: "12" }, EU: { text: "47.5" }, CM: { value: 31 } },
       { US: { text: "14" }, UK: { text: "13" }, EU: { text: "48.5" }, CM: { value: 32 } },
-    ]
+    ],
+    [instructions.foot_length]
   );
   console.log("Created Men's Footwear");
 
@@ -349,7 +472,8 @@ async function main() {
       { Size: { text: "LG" }, "Hand Circumference": { min: 8.25, max: 8.75 }, "Hand Length": { min: 7.625, max: 7.875 } },
       { Size: { text: "XL" }, "Hand Circumference": { min: 8.875, max: 9.375 }, "Hand Length": { min: 8, max: 8.25 } },
       { Size: { text: "XXL" }, "Hand Circumference": { min: 9.5, max: 10 }, "Hand Length": { min: 8.375, max: 8.625 } },
-    ]
+    ],
+    [instructions.hand_circumference, instructions.hand_length]
   );
   console.log("Created Men's Gloves");
 
@@ -369,7 +493,8 @@ async function main() {
       { Size: { text: "M/L" }, "Head Circumference": { min: 22, max: 23.25 } },
       { Size: { text: "L/XL" }, "Head Circumference": { min: 22.75, max: 24 } },
       { Size: { text: "XL/XXL" }, "Head Circumference": { min: 23.5, max: 25 } },
-    ]
+    ],
+    [instructions.head_circumference]
   );
   console.log("Created Men's Headwear");
 
@@ -411,7 +536,8 @@ async function main() {
       { Size: { text: "LG" }, Bust: { min: 38, max: 41 }, Waist: { min: 31, max: 34 } },
       { Size: { text: "XL" }, Bust: { min: 41, max: 44 }, Waist: { min: 34, max: 37 } },
       { Size: { text: "XXL" }, Bust: { min: 44, max: 47 }, Waist: { min: 37, max: 40 } },
-    ]
+    ],
+    [instructions.chest, instructions.waist]
   );
   console.log("Created Women's Tops");
 
@@ -437,7 +563,8 @@ async function main() {
       { Size: { text: "1X" }, "Band Size": { text: "40-42" }, "Cup Size": { text: "DDD-G" } },
       { Size: { text: "2X" }, "Band Size": { text: "42-44" }, "Cup Size": { text: "G-H" } },
       { Size: { text: "3X" }, "Band Size": { text: "44-46" }, "Cup Size": { text: "H" } },
-    ]
+    ],
+    [instructions.band_size, instructions.cup_size]
   );
   console.log("Created Women's Bras");
 
@@ -460,7 +587,8 @@ async function main() {
       { Size: { text: "LG" }, Waist: { min: 31, max: 34 }, Hip: { min: 40, max: 43 } },
       { Size: { text: "XL" }, Waist: { min: 34, max: 37 }, Hip: { min: 43, max: 46 } },
       { Size: { text: "XXL" }, Waist: { min: 37, max: 40 }, Hip: { min: 46, max: 49 } },
-    ]
+    ],
+    [instructions.waist, instructions.hip]
   );
   console.log("Created Women's Bottoms");
 
