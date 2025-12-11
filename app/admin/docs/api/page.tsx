@@ -426,34 +426,43 @@ chart.rows.forEach(row => {
             </pre>
           </div>
 
-          <div className="rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-medium">React Component</h3>
-            <pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
+          {/* React Component with Live Preview */}
+          <div className="rounded-lg border bg-card overflow-hidden">
+            <div className="border-b bg-muted/50 px-4 py-3">
+              <h3 className="font-medium">React Component with Live Preview</h3>
+            </div>
+            <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x">
+              {/* Code */}
+              <div className="p-4">
+                <p className="text-xs text-muted-foreground mb-2">Code</p>
+                <pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
 {`function SizeChart({ slug, unit = 'inches' }) {
   const [chart, setChart] = useState(null);
 
   useEffect(() => {
-    fetch(\`${baseUrl}/api/v1/size-charts?slug=\${slug}\`)
+    fetch(\`/api/v1/size-charts?slug=\${slug}\`)
       .then(res => res.json())
       .then(setChart);
   }, [slug]);
 
-  if (!chart) return <div>Loading...</div>;
+  if (!chart) return <Skeleton />;
 
   return (
-    <table>
+    <table className="w-full text-sm">
       <thead>
-        <tr>
+        <tr className="border-b bg-muted/50">
           {chart.columns.map(col => (
-            <th key={col.id}>{col.name}</th>
+            <th key={col.id} className="px-3 py-2 text-left">
+              {col.name}
+            </th>
           ))}
         </tr>
       </thead>
       <tbody>
         {chart.rows.map(row => (
-          <tr key={row.id}>
+          <tr key={row.id} className="border-b">
             {row.cells.map((cell, i) => (
-              <td key={i}>
+              <td key={i} className="px-3 py-2">
                 {cell.type === 'range'
                   ? \`\${cell[unit].min} - \${cell[unit].max}\`
                   : cell.value}
@@ -465,7 +474,157 @@ chart.rows.forEach(row => {
     </table>
   );
 }`}
+                </pre>
+              </div>
+
+              {/* Preview */}
+              <div className="p-4">
+                <p className="text-xs text-muted-foreground mb-2">Rendered Output</p>
+                <div className="rounded border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-muted/50">
+                        <th className="px-3 py-2 text-left font-medium">Size</th>
+                        <th className="px-3 py-2 text-left font-medium">Chest</th>
+                        <th className="px-3 py-2 text-left font-medium">Waist</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b">
+                        <td className="px-3 py-2">XS</td>
+                        <td className="px-3 py-2">31&quot; - 34&quot;</td>
+                        <td className="px-3 py-2">28&quot; - 29&quot;</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="px-3 py-2">SM</td>
+                        <td className="px-3 py-2">34&quot; - 37&quot;</td>
+                        <td className="px-3 py-2">29&quot; - 31&quot;</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="px-3 py-2">MD</td>
+                        <td className="px-3 py-2">37&quot; - 40&quot;</td>
+                        <td className="px-3 py-2">31&quot; - 33&quot;</td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2">LG</td>
+                        <td className="px-3 py-2">40&quot; - 44&quot;</td>
+                        <td className="px-3 py-2">33&quot; - 35&quot;</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Using Labels for Translation */}
+      <div className="mb-8">
+        <h2 className="mb-4 text-lg font-semibold">Using Labels for Translation</h2>
+        <div className="rounded-lg border bg-amber-500/5 border-amber-500/20 p-4 mb-4">
+          <p className="text-sm text-muted-foreground">
+            Size labels use standardized keys (e.g., <code className="bg-muted px-1 rounded">SIZE_SM</code>)
+            that you can use for translation in your application. The API returns both the key and the
+            default display value.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-lg border bg-card p-4">
+            <h3 className="mb-2 font-medium">Translation Map Example</h3>
+            <pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
+{`// Define translations per locale
+const translations = {
+  'en-US': {
+    SIZE_XXS: 'XXS',
+    SIZE_XS: 'XS',
+    SIZE_SM: 'S',
+    SIZE_MD: 'M',
+    SIZE_LG: 'L',
+    SIZE_XL: 'XL',
+    SIZE_XXL: 'XXL',
+  },
+  'fr-CA': {
+    SIZE_XXS: 'TTP',  // Très très petit
+    SIZE_XS: 'TP',    // Très petit
+    SIZE_SM: 'P',     // Petit
+    SIZE_MD: 'M',     // Moyen
+    SIZE_LG: 'G',     // Grand
+    SIZE_XL: 'TG',    // Très grand
+    SIZE_XXL: 'TTG',  // Très très grand
+  },
+  'es-ES': {
+    SIZE_XXS: 'XXP',
+    SIZE_XS: 'XP',
+    SIZE_SM: 'P',
+    SIZE_MD: 'M',
+    SIZE_LG: 'G',
+    SIZE_XL: 'XG',
+    SIZE_XXL: 'XXG',
+  },
+};`}
             </pre>
+          </div>
+
+          <div className="rounded-lg border bg-card p-4">
+            <h3 className="mb-2 font-medium">React Translation Hook</h3>
+            <pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
+{`function useSizeTranslation(locale) {
+  const t = useCallback((key, fallback) => {
+    return translations[locale]?.[key] || fallback || key;
+  }, [locale]);
+
+  return t;
+}
+
+// Usage in component
+function SizeChartCell({ cell, locale }) {
+  const t = useSizeTranslation(locale);
+
+  if (cell.type === 'label') {
+    // Use the key for translation, fallback to API value
+    return <td>{t(cell.key, cell.value)}</td>;
+  }
+
+  return <td>{cell.value}</td>;
+}`}
+            </pre>
+          </div>
+
+          <div className="rounded-lg border bg-card overflow-hidden">
+            <div className="border-b bg-muted/50 px-4 py-3">
+              <h3 className="font-medium">Translation Example Preview</h3>
+            </div>
+            <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x">
+              <div className="p-4">
+                <p className="text-xs text-muted-foreground mb-2">English (en-US)</p>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between"><span>XS</span><span className="text-muted-foreground">31&quot; - 34&quot;</span></div>
+                  <div className="flex justify-between"><span>S</span><span className="text-muted-foreground">34&quot; - 37&quot;</span></div>
+                  <div className="flex justify-between"><span>M</span><span className="text-muted-foreground">37&quot; - 40&quot;</span></div>
+                  <div className="flex justify-between"><span>L</span><span className="text-muted-foreground">40&quot; - 44&quot;</span></div>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="text-xs text-muted-foreground mb-2">French Canada (fr-CA)</p>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between"><span>TP</span><span className="text-muted-foreground">79 - 86 cm</span></div>
+                  <div className="flex justify-between"><span>P</span><span className="text-muted-foreground">86 - 94 cm</span></div>
+                  <div className="flex justify-between"><span>M</span><span className="text-muted-foreground">94 - 102 cm</span></div>
+                  <div className="flex justify-between"><span>G</span><span className="text-muted-foreground">102 - 112 cm</span></div>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="text-xs text-muted-foreground mb-2">Spanish (es-ES)</p>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between"><span>XP</span><span className="text-muted-foreground">79 - 86 cm</span></div>
+                  <div className="flex justify-between"><span>P</span><span className="text-muted-foreground">86 - 94 cm</span></div>
+                  <div className="flex justify-between"><span>M</span><span className="text-muted-foreground">94 - 102 cm</span></div>
+                  <div className="flex justify-between"><span>G</span><span className="text-muted-foreground">102 - 112 cm</span></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

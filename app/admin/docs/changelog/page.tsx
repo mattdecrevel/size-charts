@@ -221,10 +221,9 @@ export default function ChangelogPage() {
               />
               <RoadmapItem
                 icon={Globe}
-                title="Label Translations"
-                description="Locale-specific display values for labels (e.g., SM → T for French Canada)."
-                status="planned"
-                priority="high"
+                title="Label Translation Support"
+                description="Use standardized label keys (SIZE_SM, etc.) with your own translation system. See API docs for examples."
+                status="done"
               />
               <RoadmapItem
                 icon={Zap}
