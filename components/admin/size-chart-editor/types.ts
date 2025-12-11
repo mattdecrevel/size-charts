@@ -1,9 +1,10 @@
-import type { ColumnType } from "@prisma/client";
+import type { ColumnType, LabelType } from "@prisma/client";
 
 export interface EditorColumn {
   id?: string;
   name: string;
   columnType: ColumnType;
+  labelType?: LabelType | null;
   displayOrder: number;
 }
 

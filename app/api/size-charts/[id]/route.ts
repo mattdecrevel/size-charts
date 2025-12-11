@@ -133,6 +133,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             data: {
               name: col.name,
               columnType: col.columnType,
+              labelType: col.labelType ?? null,
               displayOrder: col.displayOrder,
             },
           });
@@ -142,6 +143,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
               sizeChartId: id,
               name: col.name,
               columnType: col.columnType,
+              labelType: col.labelType ?? null,
               displayOrder: col.displayOrder,
             },
           });

@@ -214,6 +214,7 @@ export function SizeChartEditor({ state, onChange, labels = [] }: EditorProps) {
                       <Cell
                         cell={cell}
                         columnType={column.columnType}
+                        labelType={column.labelType}
                         isEditing={isEditing}
                         onStartEdit={() => setEditingCell({ rowIndex, colIndex })}
                         onChange={(newCell) => updateCell(rowIndex, colIndex, newCell)}

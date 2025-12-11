@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   InputWithLabel,
@@ -11,10 +11,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui";
-import { COLUMN_TYPES } from "@/lib/constants";
+import { COLUMN_TYPES, LABEL_TYPES } from "@/lib/constants";
 import { Trash2, Settings } from "lucide-react";
 import type { EditorColumn } from "./types";
-import type { ColumnType } from "@prisma/client";
+import type { ColumnType, LabelType } from "@prisma/client";
 
 interface ColumnConfigProps {
   column: EditorColumn;
@@ -27,25 +27,52 @@ export function ColumnConfig({ column, onUpdate, onDelete, canDelete }: ColumnCo
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState(column.name);
   const [columnType, setColumnType] = useState<ColumnType>(column.columnType);
+  const [labelType, setLabelType] = useState<LabelType | "">(column.labelType || "");
+
+  // Reset labelType when column type changes away from SIZE_LABEL
+  useEffect(() => {
+    if (columnType !== "SIZE_LABEL") {
+      setLabelType("");
+    }
+  }, [columnType]);
+
+  // Sync state when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setName(column.name);
+      setColumnType(column.columnType);
+      setLabelType(column.labelType || "");
+    }
+  }, [isOpen, column]);
 
   const handleSave = () => {
     onUpdate({
       ...column,
       name,
       columnType,
+      labelType: columnType === "SIZE_LABEL" && labelType ? labelType : null,
     });
     setIsOpen(false);
   };
 
+  const showsLabelType = columnType === "SIZE_LABEL";
+
   return (
     <>
       <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/50">
-        <span className="font-medium text-sm truncate">
-          {column.name}
-        </span>
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium text-sm truncate">
+            {column.name}
+          </span>
+          {column.labelType && (
+            <span className="text-xs text-muted-foreground truncate">
+              {LABEL_TYPES.find(lt => lt.value === column.labelType)?.label || column.labelType}
+            </span>
+          )}
+        </div>
         <button
           onClick={() => setIsOpen(true)}
-          className="p-1 rounded hover:bg-accent"
+          className="p-1 rounded hover:bg-accent flex-shrink-0"
           title="Configure column"
         >
           <Settings className="h-3.5 w-3.5 text-muted-foreground" />
@@ -74,6 +101,26 @@ export function ColumnConfig({ column, onUpdate, onDelete, canDelete }: ColumnCo
               value={columnType}
               onChange={(e) => setColumnType(e.target.value as ColumnType)}
             />
+
+            {showsLabelType && (
+              <SelectWithLabel
+                label="Label Type"
+                options={[
+                  { value: "", label: "All Labels (no filter)" },
+                  ...LABEL_TYPES.map((lt) => ({
+                    value: lt.value,
+                    label: `${lt.label} - ${lt.description}`,
+                  })),
+                ]}
+                value={labelType}
+                onChange={(e) => setLabelType(e.target.value as LabelType | "")}
+              />
+            )}
+            {showsLabelType && (
+              <p className="text-xs text-muted-foreground">
+                Selecting a label type will filter the dropdown options when editing cells in this column.
+              </p>
+            )}
           </div>
 
           <DialogFooter>

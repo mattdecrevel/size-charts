@@ -117,6 +117,7 @@ model SizeChartColumn {
   sizeChart    SizeChart       @relation(fields: [sizeChartId], references: [id], onDelete: Cascade)
   name         String
   columnType   ColumnType
+  labelType    LabelType?      // Optional: filter labels in SIZE_LABEL columns
   displayOrder Int             @default(0)
   cells        SizeChartCell[]
   createdAt    DateTime        @default(now())

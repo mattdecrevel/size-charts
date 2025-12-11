@@ -56,6 +56,7 @@ export const updateSizeLabelSchema = createSizeLabelSchema.partial();
 export const columnSchema = z.object({
   name: z.string().min(1, "Column name is required").max(100),
   columnType: columnTypeEnum,
+  labelType: labelTypeEnum.nullable().optional(),
   displayOrder: z.number().int().min(0),
 });
 
@@ -102,6 +103,7 @@ export const updateSizeChartSchema = z.object({
       id: z.string().cuid().optional(),
       name: z.string().min(1).max(100),
       columnType: columnTypeEnum,
+      labelType: labelTypeEnum.nullable().optional(),
       displayOrder: z.number().int().min(0),
     })
   ).optional(),
