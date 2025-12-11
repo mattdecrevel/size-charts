@@ -1,8 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const includeCharts = searchParams.get("includeCharts") === "true";
+
     const categories = await db.category.findMany({
       orderBy: { displayOrder: "asc" },
       include: {
@@ -10,6 +13,23 @@ export async function GET() {
           orderBy: { displayOrder: "asc" },
           include: {
             _count: { select: { sizeCharts: true } },
+            ...(includeCharts
+              ? {
+                  sizeCharts: {
+                    orderBy: { displayOrder: "asc" },
+                    include: {
+                      sizeChart: {
+                        select: {
+                          id: true,
+                          name: true,
+                          slug: true,
+                          isPublished: true,
+                        },
+                      },
+                    },
+                  },
+                }
+              : {}),
           },
         },
       },

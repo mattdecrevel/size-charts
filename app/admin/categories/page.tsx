@@ -1,25 +1,70 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Skeleton } from "@/components/ui";
+import Link from "next/link";
+import { Button, Input, Skeleton, Badge } from "@/components/ui";
 import { useCategories } from "@/hooks/use-categories";
 import { useToast } from "@/components/ui/toast";
-import { Plus, ChevronRight, FolderTree, TableProperties } from "lucide-react";
+import { Plus, ChevronRight, ChevronDown, FolderTree, TableProperties, FileText, ExternalLink } from "lucide-react";
 import type { CategoryTree } from "@/types";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+
+interface SizeChartSummary {
+  id: string;
+  name: string;
+  slug: string;
+  isPublished: boolean;
+}
+
+interface SubcategoryWithCharts {
+  id: string;
+  name: string;
+  slug: string;
+  _count: { sizeCharts: number };
+  sizeCharts?: { sizeChart: SizeChartSummary }[];
+}
+
+interface CategoryWithCharts {
+  id: string;
+  name: string;
+  slug: string;
+  subcategories: SubcategoryWithCharts[];
+}
 
 export default function CategoriesPage() {
-  const { data: categories, isLoading } = useCategories();
   const { addToast } = useToast();
   const queryClient = useQueryClient();
 
+  // Fetch categories with charts included
+  const { data: categories, isLoading } = useQuery<CategoryWithCharts[]>({
+    queryKey: ["categories", "with-charts"],
+    queryFn: async () => {
+      const res = await fetch("/api/size-charts/categories?includeCharts=true");
+      if (!res.ok) throw new Error("Failed to fetch categories");
+      return res.json();
+    },
+  });
+
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set());
   const [newSubcategoryName, setNewSubcategoryName] = useState("");
   const [addingSubcategoryTo, setAddingSubcategoryTo] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const toggleExpand = (id: string) => {
     setExpandedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSubcategoryExpand = (id: string) => {
+    setExpandedSubcategories((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
@@ -54,7 +99,7 @@ export default function CategoriesPage() {
       addToast("Subcategory created successfully", "success");
       setNewSubcategoryName("");
       setAddingSubcategoryTo(null);
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["categories", "with-charts"] });
     } catch {
       addToast("Failed to create subcategory", "error");
     } finally {
@@ -123,22 +168,65 @@ export default function CategoriesPage() {
                     </div>
                   ) : (
                     <div className="divide-y">
-                      {category.subcategories.map((subcategory) => (
-                        <div
-                          key={subcategory.id}
-                          className="flex items-center justify-between px-12 py-3 hover:bg-accent/50"
-                        >
-                          <div className="flex items-center gap-3">
-                            <TableProperties className="h-4 w-4 text-muted-foreground" />
-                            <span>
-                              {subcategory.name}
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              ({subcategory._count.sizeCharts} charts)
-                            </span>
+                      {category.subcategories.map((subcategory) => {
+                        const isSubExpanded = expandedSubcategories.has(subcategory.id);
+                        const charts = subcategory.sizeCharts || [];
+                        const hasCharts = charts.length > 0;
+
+                        return (
+                          <div key={subcategory.id}>
+                            <div
+                              className="flex items-center justify-between px-8 py-3 hover:bg-accent/50 cursor-pointer"
+                              onClick={() => hasCharts && toggleSubcategoryExpand(subcategory.id)}
+                            >
+                              <div className="flex items-center gap-3">
+                                {hasCharts ? (
+                                  isSubExpanded ? (
+                                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                  ) : (
+                                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                  )
+                                ) : (
+                                  <div className="w-4" />
+                                )}
+                                <TableProperties className="h-4 w-4 text-muted-foreground" />
+                                <span>{subcategory.name}</span>
+                                <Badge variant="secondary" className="text-xs">
+                                  {subcategory._count.sizeCharts} charts
+                                </Badge>
+                              </div>
+                            </div>
+
+                            {isSubExpanded && hasCharts && (
+                              <div className="border-t bg-muted/30">
+                                {charts.map(({ sizeChart }) => (
+                                  <div
+                                    key={sizeChart.id}
+                                    className="flex items-center justify-between px-16 py-2 hover:bg-accent/50"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <span className="text-sm">{sizeChart.name}</span>
+                                      {sizeChart.isPublished ? (
+                                        <Badge variant="default" className="text-xs">Published</Badge>
+                                      ) : (
+                                        <Badge variant="outline" className="text-xs">Draft</Badge>
+                                      )}
+                                    </div>
+                                    <Link
+                                      href={`/admin/size-charts/${sizeChart.id}`}
+                                      className="text-xs text-primary hover:underline flex items-center gap-1"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      Edit <ExternalLink className="h-3 w-3" />
+                                    </Link>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
 
