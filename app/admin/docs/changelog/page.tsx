@@ -19,6 +19,20 @@ import {
   Languages,
   Ruler,
   Key,
+  Lock,
+  Container,
+  Gauge,
+  FileCode,
+  ScrollText,
+  Code2,
+  FileUp,
+  Bell,
+  HardDrive,
+  Calculator,
+  BarChart3,
+  Building2,
+  History,
+  Puzzle,
 } from "lucide-react";
 
 interface ChangelogEntryProps {
@@ -130,11 +144,11 @@ export default function ChangelogPage() {
       </div>
 
       {/* Current Status */}
-      <div className="mb-8 rounded-lg border bg-emerald-500/5 border-emerald-500/20 p-6">
-        <h2 className="mb-2 text-lg font-semibold text-emerald-600">Current Status: Open Source Ready</h2>
+      <div className="mb-8 rounded-lg border bg-blue-500/5 border-blue-500/20 p-6">
+        <h2 className="mb-2 text-lg font-semibold text-blue-600">Current Status: v0.6.0 In Progress</h2>
         <p className="text-sm text-muted-foreground">
-          The core size chart system is complete and ready for open source contribution. Full CRUD operations,
-          REST API, Docker support, and comprehensive documentation are available.
+          Working on production-ready features: admin authentication, Docker support, rate limiting,
+          and structured logging. The goal is a secure, self-hostable size chart microservice.
         </p>
         <div className="mt-4 grid gap-2 md:grid-cols-4">
           <div className="rounded border bg-background p-3 text-center">
@@ -260,23 +274,118 @@ export default function ChangelogPage() {
             </div>
           </div>
 
-          {/* Planned */}
+          {/* In Progress - v0.6.0 */}
           <div>
             <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              Planned
+              In Progress — v0.6.0 (Production Ready)
             </h3>
             <div className="space-y-3">
               <RoadmapItem
-                icon={Zap}
+                icon={Lock}
+                title="Admin Authentication"
+                description="Environment-based username/password protection for admin dashboard."
+                status="in-progress"
+                priority="high"
+              />
+              <RoadmapItem
+                icon={Container}
+                title="Docker Support"
+                description="Dockerfile and docker-compose for easy self-hosting deployment."
+                status="in-progress"
+                priority="high"
+              />
+              <RoadmapItem
+                icon={Gauge}
+                title="Rate Limiting"
+                description="Prevent API abuse with configurable request limits per API key."
+                status="in-progress"
+                priority="high"
+              />
+              <RoadmapItem
+                icon={FileCode}
+                title="Environment Configuration"
+                description="Complete .env.example with validation on startup."
+                status="in-progress"
+                priority="high"
+              />
+              <RoadmapItem
+                icon={ScrollText}
+                title="Structured Logging"
+                description="JSON logging with levels (error, warn, info, debug) for production."
+                status="in-progress"
+                priority="medium"
+              />
+            </div>
+          </div>
+
+          {/* Planned - v1.0 */}
+          <div>
+            <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              Planned — v1.0 (Integration Ready)
+            </h3>
+            <div className="space-y-3">
+              <RoadmapItem
+                icon={Code2}
+                title="Embeddable Widget/SDK"
+                description="JavaScript snippet to embed size charts in any website with theming support."
+                status="planned"
+                priority="high"
+              />
+              <RoadmapItem
+                icon={FileUp}
+                title="Import/Export"
+                description="CSV/JSON import and export for bulk data operations."
+                status="planned"
+                priority="high"
+              />
+              <RoadmapItem
+                icon={Bell}
                 title="Webhooks"
                 description="Notify external systems when charts are created/updated/published."
                 status="planned"
                 priority="medium"
               />
               <RoadmapItem
-                icon={Wrench}
-                title="Bulk Import/Export"
-                description="Import size chart data from CSV/Excel files."
+                icon={HardDrive}
+                title="Redis Caching"
+                description="Optional Redis integration for high-performance API responses."
+                status="planned"
+                priority="medium"
+              />
+            </div>
+          </div>
+
+          {/* Planned - v2.0 */}
+          <div>
+            <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              Planned — v2.0 (Differentiation)
+            </h3>
+            <div className="space-y-3">
+              <RoadmapItem
+                icon={Calculator}
+                title="Fit Recommendation API"
+                description="'Find my size' endpoint that recommends sizes based on user measurements."
+                status="planned"
+                priority="high"
+              />
+              <RoadmapItem
+                icon={BarChart3}
+                title="Analytics Dashboard"
+                description="Track which charts are viewed most and identify usage patterns."
+                status="planned"
+                priority="medium"
+              />
+              <RoadmapItem
+                icon={Building2}
+                title="Multi-Tenancy"
+                description="Support multiple brands/stores with isolated data."
+                status="planned"
+                priority="medium"
+              />
+              <RoadmapItem
+                icon={Languages}
+                title="Full i18n Support"
+                description="Multi-language label translations with locale selection."
                 status="planned"
                 priority="medium"
               />
@@ -290,13 +399,15 @@ export default function ChangelogPage() {
             </h3>
             <div className="space-y-3">
               <RoadmapItem
+                icon={History}
                 title="Version History"
-                description="Track changes and allow reverting to previous versions."
+                description="Track changes to charts and allow reverting to previous versions."
                 status="considering"
               />
               <RoadmapItem
-                title="Size Recommendation Engine"
-                description="'Find my size' calculator based on user measurements."
+                icon={Puzzle}
+                title="Shopify/WooCommerce Apps"
+                description="Native plugins for popular e-commerce platforms."
                 status="considering"
               />
               <RoadmapItem
@@ -307,6 +418,11 @@ export default function ChangelogPage() {
               <RoadmapItem
                 title="Print Styles"
                 description="Optimized print stylesheet for end-user printing."
+                status="considering"
+              />
+              <RoadmapItem
+                title="GraphQL API"
+                description="Alternative to REST for more flexible queries."
                 status="considering"
               />
             </div>

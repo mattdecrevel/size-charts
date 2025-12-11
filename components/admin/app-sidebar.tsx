@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutGrid, TableProperties, FolderTree, ExternalLink, Ruler, Tag, BookOpen, Code, History, KeyRound } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LayoutGrid, TableProperties, FolderTree, ExternalLink, Ruler, Tag, BookOpen, Code, History, KeyRound, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -33,6 +34,27 @@ const docs = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [authEnabled, setAuthEnabled] = useState(false);
+
+  useEffect(() => {
+    // Check if auth is enabled
+    fetch("/api/admin/auth")
+      .then((res) => res.json())
+      .then((data) => setAuthEnabled(data.authEnabled))
+      .catch(() => setAuthEnabled(false));
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/auth", { method: "DELETE" });
+      router.push("/admin/login");
+      router.refresh();
+    } catch {
+      // Ignore errors, just redirect
+      router.push("/admin/login");
+    }
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -113,6 +135,14 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {authEnabled && (
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleLogout} tooltip="Sign Out">
+                <LogOut />
+                <span>Sign Out</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarFooter>
 
