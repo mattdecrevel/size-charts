@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { formatMeasurement, formatRange } from "@/lib/conversions";
-import type { ColumnType, SizeLabel } from "@prisma/client";
+import type { ColumnType, LabelType, SizeLabel } from "@prisma/client";
 import type { EditorCell } from "./types";
 
 interface CellProps {
   cell: EditorCell;
   columnType: ColumnType;
+  labelType?: LabelType | null;
   isEditing: boolean;
   onStartEdit: () => void;
   onChange: (cell: EditorCell) => void;
@@ -20,6 +21,7 @@ interface CellProps {
 export function Cell({
   cell,
   columnType,
+  labelType,
   isEditing,
   onStartEdit,
   onChange,
@@ -36,7 +38,15 @@ export function Cell({
   const isMeasurement = columnType === "MEASUREMENT";
   const isSizeLabel = columnType === "SIZE_LABEL";
   const hasRange = cell.valueMinInches !== null && cell.valueMaxInches !== null;
-  const hasLabels = labels.length > 0 && isSizeLabel;
+
+  // Filter labels based on column's labelType if specified
+  const filteredLabels = useMemo(() => {
+    if (!isSizeLabel) return [];
+    if (!labelType) return labels; // No filter, show all
+    return labels.filter((l) => l.labelType === labelType);
+  }, [labels, labelType, isSizeLabel]);
+
+  const hasLabels = filteredLabels.length > 0 && isSizeLabel;
 
   useEffect(() => {
     if (isEditing) {
@@ -127,7 +137,7 @@ export function Cell({
 
   const handleLabelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const labelId = e.target.value || null;
-    const label = labels.find((l) => l.id === labelId);
+    const label = filteredLabels.find((l) => l.id === labelId);
 
     onChange({
       ...cell,
@@ -145,6 +155,7 @@ export function Cell({
       return formatMeasurement(cell.valueInches, "inches");
     }
     // For SIZE_LABEL with a linked label, show the display value
+    // Check all labels (not just filtered) in case the label was set before filter changed
     if (cell.labelId) {
       const label = labels.find((l) => l.id === cell.labelId);
       if (label) {
@@ -181,7 +192,7 @@ export function Cell({
         className="h-full w-full border-0 bg-transparent px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-inset focus:ring-zinc-500"
       >
         <option value="">— Select —</option>
-        {labels.map((label) => (
+        {filteredLabels.map((label) => (
           <option key={label.id} value={label.id}>
             {label.displayValue} ({label.key})
           </option>

@@ -31,6 +31,8 @@ function getBreadcrumbs(pathname: string) {
       breadcrumbs.push({ label: "Categories" });
     } else if (segments[1] === "labels") {
       breadcrumbs.push({ label: "Labels" });
+    } else if (segments[1] === "api-keys") {
+      breadcrumbs.push({ label: "API Keys" });
     }
   }
 

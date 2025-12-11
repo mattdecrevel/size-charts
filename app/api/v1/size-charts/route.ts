@@ -1,10 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { extractApiKey, validateApiKey, hasScope, applyRateLimit, getRateLimitIdentifier } from "@/lib/api-auth";
+import { withCors, handleCorsOptions } from "@/lib/cors";
+
+// Handle CORS preflight
+export async function OPTIONS(request: Request) {
+	return handleCorsOptions(request);
+}
 
 /**
  * GET /api/v1/size-charts
  *
  * Public API endpoint for retrieving size charts.
+ * Requires API key authentication when API_AUTH_REQUIRED=true
+ *
+ * Headers:
+ * - Authorization: Bearer <api_key>
+ * - X-API-Key: <api_key>
  *
  * Query params:
  * - id: Fetch a specific chart by ID (e.g., ?id=cuid123)
@@ -16,6 +28,38 @@ import { db } from "@/lib/db";
  * Returns: Array of size charts with full data (columns, rows, cells with both units)
  */
 export async function GET(request: NextRequest) {
+	// Check if API auth is required
+	const authRequired = process.env.API_AUTH_REQUIRED === "true";
+	let apiKeyId: string | undefined;
+
+	if (authRequired) {
+		const apiKey = extractApiKey(request);
+		const validation = await validateApiKey(apiKey);
+
+		if (!validation.valid) {
+			return withCors(
+				NextResponse.json({ error: validation.error }, { status: 401 }),
+				request
+			);
+		}
+
+		if (!hasScope(validation.key!.scopes, "read:size-charts")) {
+			return withCors(
+				NextResponse.json({ error: "Insufficient permissions" }, { status: 403 }),
+				request
+			);
+		}
+
+		apiKeyId = validation.key!.id;
+	}
+
+	// Apply rate limiting
+	const rateLimitId = getRateLimitIdentifier(request, apiKeyId);
+	const rateLimitResponse = applyRateLimit(rateLimitId);
+	if (rateLimitResponse) {
+		return withCors(rateLimitResponse, request);
+	}
+
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
@@ -49,10 +93,10 @@ export async function GET(request: NextRequest) {
       });
 
       if (!chart || (!includeUnpublished && !chart.isPublished)) {
-        return NextResponse.json({ error: "Size chart not found" }, { status: 404 });
+        return withCors(NextResponse.json({ error: "Size chart not found" }, { status: 404 }), request);
       }
 
-      return NextResponse.json(transformChart(chart));
+      return withCors(NextResponse.json(transformChart(chart)), request);
     }
 
     // Fetch by slug
@@ -80,10 +124,10 @@ export async function GET(request: NextRequest) {
       });
 
       if (!chart || (!includeUnpublished && !chart.isPublished)) {
-        return NextResponse.json({ error: "Size chart not found" }, { status: 404 });
+        return withCors(NextResponse.json({ error: "Size chart not found" }, { status: 404 }), request);
       }
 
-      return NextResponse.json(transformChart(chart));
+      return withCors(NextResponse.json(transformChart(chart)), request);
     }
 
     // Build filter for list queries
@@ -110,7 +154,7 @@ export async function GET(request: NextRequest) {
           subWhere.subcategoryId = sub.id;
         } else {
           // No matching subcategory, return empty
-          return NextResponse.json([]);
+          return withCors(NextResponse.json([]), request);
         }
       } else if (category) {
         // Filter by category
@@ -122,7 +166,7 @@ export async function GET(request: NextRequest) {
         if (cat) {
           subWhere.subcategoryId = { in: cat.subcategories.map((s) => s.id) };
         } else {
-          return NextResponse.json([]);
+          return withCors(NextResponse.json([]), request);
         }
       }
 
@@ -152,10 +196,10 @@ export async function GET(request: NextRequest) {
       orderBy: { name: "asc" },
     });
 
-    return NextResponse.json(charts.map(transformChart));
+    return withCors(NextResponse.json(charts.map(transformChart)), request);
   } catch (error) {
     console.error("Error fetching size charts:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return withCors(NextResponse.json({ error: "Internal server error" }, { status: 500 }), request);
   }
 }
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, InputWithLabel, SelectWithLabel } from "@/components/ui";
-import { SizeChartEditor, type EditorState } from "@/components/admin/size-chart-editor";
+import { SizeChartEditor, MeasurementInstructionsSelector, type EditorState } from "@/components/admin/size-chart-editor";
 import { useCategories } from "@/hooks/use-categories";
 import { useLabels } from "@/hooks/use-labels";
 import { useToast } from "@/components/ui/toast";
@@ -14,6 +14,7 @@ const initialState: EditorState = {
   name: "",
   description: "",
   subcategoryIds: [],
+  measurementInstructionIds: [],
   isPublished: false,
   columns: [
     { name: "Size", columnType: "SIZE_LABEL", displayOrder: 0 },
@@ -188,6 +189,19 @@ export default function NewSizeChartPage() {
               disabled={!selectedCategory}
             />
           </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold">
+            Measurement Instructions
+          </h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Select which measurement instructions to display on this chart&apos;s public page.
+          </p>
+          <MeasurementInstructionsSelector
+            selectedIds={state.measurementInstructionIds}
+            onChange={(ids) => setState({ ...state, measurementInstructionIds: ids })}
+          />
         </div>
 
         <div className="rounded-lg border bg-card p-6">

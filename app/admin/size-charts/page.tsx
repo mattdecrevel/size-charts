@@ -25,7 +25,7 @@ import {
 import { useSizeCharts, useDeleteSizeChart, useDuplicateSizeChart, useTogglePublish, useBulkOperation } from "@/hooks/use-size-charts";
 import { useCategories } from "@/hooks/use-categories";
 import { useToast } from "@/components/ui/toast";
-import { Plus, Search, Trash2, Copy, Eye, EyeOff, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Search, Trash2, Copy, Eye, EyeOff, Pencil, ChevronLeft, ChevronRight, Download, Upload } from "lucide-react";
 import type { SizeChartSummary } from "@/types";
 
 function SizeChartsListContent() {
@@ -41,6 +41,14 @@ function SizeChartsListContent() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [chartToDelete, setChartToDelete] = useState<string | null>(null);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importMode, setImportMode] = useState<"create" | "upsert" | "skip">("create");
+  const [isImporting, setIsImporting] = useState(false);
+  const [importResult, setImportResult] = useState<{
+    success: boolean;
+    summary: { created: number; updated: number; skipped: number; errors: number };
+  } | null>(null);
 
   const { data: categories } = useCategories();
   const { data, isLoading, refetch } = useSizeCharts({
@@ -128,6 +136,52 @@ function SizeChartsListContent() {
     }
   };
 
+  const handleExport = () => {
+    const url = new URL("/api/size-charts/export", window.location.origin);
+    if (selectedCategory) url.searchParams.set("category", categories?.find(c => c.id === selectedCategory)?.slug || "");
+    if (selectedSubcategory) {
+      const sub = categories?.find(c => c.id === selectedCategory)?.subcategories.find(s => s.id === selectedSubcategory);
+      if (sub) url.searchParams.set("subcategory", sub.slug);
+    }
+    window.location.href = url.toString();
+  };
+
+  const handleImport = async () => {
+    if (!importFile) return;
+
+    setIsImporting(true);
+    setImportResult(null);
+
+    try {
+      const content = await importFile.text();
+      const data = JSON.parse(content);
+
+      const response = await fetch(`/api/size-charts/import?mode=${importMode}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setImportResult(result);
+        if (result.success) {
+          addToast(`Imported: ${result.summary.created} created, ${result.summary.updated} updated`, "success");
+          refetch();
+        } else {
+          addToast(`Import completed with ${result.summary.errors} error(s)`, "error");
+        }
+      } else {
+        addToast(result.error || "Import failed", "error");
+      }
+    } catch (error) {
+      addToast(`Invalid JSON file: ${error instanceof Error ? error.message : "Unknown error"}`, "error");
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
@@ -137,12 +191,22 @@ function SizeChartsListContent() {
             Manage your size charts
           </p>
         </div>
-        <Link href="/admin/size-charts/new">
-          <Button>
-            <Plus className="h-4 w-4" />
-            New Size Chart
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="h-4 w-4" />
+            Export
           </Button>
-        </Link>
+          <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+            <Upload className="h-4 w-4" />
+            Import
+          </Button>
+          <Link href="/admin/size-charts/new">
+            <Button>
+              <Plus className="h-4 w-4" />
+              New Size Chart
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -388,6 +452,89 @@ function SizeChartsListContent() {
             >
               Delete
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={importDialogOpen} onOpenChange={(open) => {
+        setImportDialogOpen(open);
+        if (!open) {
+          setImportFile(null);
+          setImportResult(null);
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import Size Charts</DialogTitle>
+            <DialogDescription>
+              Upload a JSON file exported from this system. Choose how to handle existing charts.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium">File</label>
+              <input
+                type="file"
+                accept=".json"
+                onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                className="mt-1.5 block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Import Mode</label>
+              <SimpleSelect
+                options={[
+                  { value: "create", label: "Create only (skip existing)" },
+                  { value: "upsert", label: "Update existing, create new" },
+                  { value: "skip", label: "Skip existing charts" },
+                ]}
+                value={importMode}
+                onChange={(e) => setImportMode(e.target.value as "create" | "upsert" | "skip")}
+                className="mt-1.5"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {importMode === "create" && "Fails if a chart with the same slug already exists."}
+                {importMode === "upsert" && "Updates existing charts with matching slugs."}
+                {importMode === "skip" && "Skips charts that already exist, creates new ones."}
+              </p>
+            </div>
+
+            {importResult && (
+              <div className={`rounded-lg p-3 text-sm ${importResult.success ? "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300" : "bg-yellow-50 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"}`}>
+                <p className="font-medium mb-1">
+                  {importResult.success ? "Import Complete" : "Import Completed with Errors"}
+                </p>
+                <ul className="text-xs space-y-0.5">
+                  {importResult.summary.created > 0 && <li>{importResult.summary.created} created</li>}
+                  {importResult.summary.updated > 0 && <li>{importResult.summary.updated} updated</li>}
+                  {importResult.summary.skipped > 0 && <li>{importResult.summary.skipped} skipped</li>}
+                  {importResult.summary.errors > 0 && <li>{importResult.summary.errors} errors</li>}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setImportDialogOpen(false);
+                setImportFile(null);
+                setImportResult(null);
+              }}
+            >
+              {importResult ? "Close" : "Cancel"}
+            </Button>
+            {!importResult && (
+              <Button
+                disabled={!importFile || isImporting}
+                onClick={handleImport}
+              >
+                {isImporting ? "Importing..." : "Import"}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

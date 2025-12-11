@@ -9,6 +9,8 @@ import type {
   SizeLabel,
   ColumnType,
   LabelType,
+  MeasurementInstruction,
+  SizeChartMeasurementInstruction,
 } from "@prisma/client";
 
 export type {
@@ -22,6 +24,8 @@ export type {
   SizeLabel,
   ColumnType,
   LabelType,
+  MeasurementInstruction,
+  SizeChartMeasurementInstruction,
 };
 
 export type UnitPreference = "inches" | "cm";
@@ -53,6 +57,10 @@ export interface SizeChartSummary {
   };
 }
 
+export interface MeasurementInstructionWithDetails extends SizeChartMeasurementInstruction {
+  instruction: MeasurementInstruction;
+}
+
 export interface SizeChartFull extends SizeChart {
   subcategories: SizeChartSubcategoryWithDetails[];
   // For backward compatibility with public pages
@@ -61,6 +69,7 @@ export interface SizeChartFull extends SizeChart {
   rows: (SizeChartRow & {
     cells: (SizeChartCell & { label?: SizeLabel | null })[];
   })[];
+  measurementInstructions?: MeasurementInstructionWithDetails[];
 }
 
 export interface ColumnWithCells extends SizeChartColumn {

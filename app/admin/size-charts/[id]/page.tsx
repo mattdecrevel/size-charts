@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, InputWithLabel, Badge, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui";
-import { SizeChartEditor, type EditorState } from "@/components/admin/size-chart-editor";
+import { SizeChartEditor, MeasurementInstructionsSelector, type EditorState } from "@/components/admin/size-chart-editor";
 import { useSizeChart } from "@/hooks/use-size-charts";
 import { useCategories } from "@/hooks/use-categories";
 import { useLabels } from "@/hooks/use-labels";
@@ -39,6 +39,7 @@ export default function EditSizeChartPage({ params }: PageProps) {
         name: chart.name,
         description: chart.description || "",
         subcategoryIds: chart.subcategories.map((sc) => sc.subcategoryId),
+        measurementInstructionIds: chart.measurementInstructions?.map((mi: { instructionId: string }) => mi.instructionId) || [],
         isPublished: chart.isPublished,
         columns: chart.columns.map((col) => ({
           id: col.id,
@@ -102,6 +103,7 @@ export default function EditSizeChartPage({ params }: PageProps) {
           slug: slug,
           description: state.description || null,
           subcategoryIds: state.subcategoryIds,
+          measurementInstructionIds: state.measurementInstructionIds,
           columns: state.columns.map((col, index) => ({
             id: col.id,
             name: col.name,
@@ -311,6 +313,19 @@ export default function EditSizeChartPage({ params }: PageProps) {
               </div>
             )}
           </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold">
+            Measurement Instructions
+          </h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Select which measurement instructions to display on this chart&apos;s public page.
+          </p>
+          <MeasurementInstructionsSelector
+            selectedIds={state.measurementInstructionIds}
+            onChange={(ids) => handleStateChange({ ...state, measurementInstructionIds: ids })}
+          />
         </div>
 
         <div className="rounded-lg border bg-card p-6">

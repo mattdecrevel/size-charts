@@ -12,6 +12,27 @@ import {
   Zap,
   Globe,
   FileText,
+  Package,
+  Server,
+  Database,
+  Settings,
+  Languages,
+  Ruler,
+  Key,
+  Lock,
+  Container,
+  Gauge,
+  FileCode,
+  ScrollText,
+  Code2,
+  FileUp,
+  Bell,
+  HardDrive,
+  Calculator,
+  BarChart3,
+  Building2,
+  History,
+  Puzzle,
 } from "lucide-react";
 
 interface ChangelogEntryProps {
@@ -124,10 +145,10 @@ export default function ChangelogPage() {
 
       {/* Current Status */}
       <div className="mb-8 rounded-lg border bg-emerald-500/5 border-emerald-500/20 p-6">
-        <h2 className="mb-2 text-lg font-semibold text-emerald-600">Current Status: MVP Complete</h2>
+        <h2 className="mb-2 text-lg font-semibold text-emerald-600">Current Status: v0.6.0 Production Ready</h2>
         <p className="text-sm text-muted-foreground">
-          The core size chart CRUD system is functional. You can create categories, labels, and size charts,
-          then consume them via the v1 API.
+          Production-ready with admin authentication, rate limiting, Docker support, and structured logging.
+          A secure, self-hostable size chart microservice ready for integration.
         </p>
         <div className="mt-4 grid gap-2 md:grid-cols-4">
           <div className="rounded border bg-background p-3 text-center">
@@ -143,7 +164,7 @@ export default function ChangelogPage() {
             <div className="text-xs text-muted-foreground">Labels</div>
           </div>
           <div className="rounded border bg-background p-3 text-center">
-            <div className="text-2xl font-bold">3</div>
+            <div className="text-2xl font-bold">4</div>
             <div className="text-xs text-muted-foreground">API Endpoints</div>
           </div>
         </div>
@@ -196,47 +217,159 @@ export default function ChangelogPage() {
                 description="API docs, getting started guide, and changelog."
                 status="done"
               />
-            </div>
-          </div>
-
-          {/* Planned */}
-          <div>
-            <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              Planned
-            </h3>
-            <div className="space-y-3">
               <RoadmapItem
-                icon={Shield}
-                title="API Authentication"
-                description="API key-based authentication for v1 endpoints."
-                status="planned"
-                priority="high"
+                icon={Settings}
+                title="Label Type Configuration"
+                description="Customize display names for label types (rename Alpha Size to General Size, etc.)."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Database}
+                title="Full Category CRUD"
+                description="Create, edit, and delete categories and subcategories with delete protection."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Package}
+                title="Open Source Ready"
+                description="README, LICENSE (MIT), Docker, contributing guidelines, and GitHub templates."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Server}
+                title="Health Check Endpoint"
+                description="GET /api/health for monitoring database connectivity and uptime."
+                status="done"
+              />
+              <RoadmapItem
+                icon={FileText}
+                title="OpenAPI/Swagger Documentation"
+                description="Interactive API explorer at /api/docs with full schema documentation."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Languages}
+                title="Label Translation Support"
+                description="Standardized label keys (SIZE_SM, etc.) for i18n. See API docs for translation examples."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Key}
+                title="API Key Authentication"
+                description="SHA256-hashed API keys with scopes (read/write) for v1 endpoints."
+                status="done"
               />
               <RoadmapItem
                 icon={Globe}
                 title="CORS Configuration"
-                description="Configurable allowed origins for API consumers."
-                status="planned"
-                priority="high"
+                description="Environment-based allowed origins with preflight support."
+                status="done"
               />
               <RoadmapItem
-                icon={Globe}
-                title="Label Translations"
-                description="Locale-specific display values for labels (e.g., SM → T for French Canada)."
-                status="planned"
-                priority="high"
+                icon={Ruler}
+                title="Measurement Instructions"
+                description="Dynamic how-to-measure content per chart, editable in admin."
+                status="done"
               />
               <RoadmapItem
-                icon={Zap}
+                icon={Lock}
+                title="Admin Authentication"
+                description="Environment-based username/password protection for admin dashboard."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Container}
+                title="Docker Support"
+                description="Dockerfile and docker-compose for easy self-hosting deployment."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Gauge}
+                title="Rate Limiting"
+                description="Configurable request limits per API key/IP with 429 responses."
+                status="done"
+              />
+              <RoadmapItem
+                icon={FileCode}
+                title="Environment Configuration"
+                description="Complete .env.example with all configuration options documented."
+                status="done"
+              />
+              <RoadmapItem
+                icon={ScrollText}
+                title="Structured Logging"
+                description="JSON/pretty logging with levels (error, warn, info, debug)."
+                status="done"
+              />
+              <RoadmapItem
+                icon={FileUp}
+                title="Import/Export"
+                description="JSON import and export for bulk data operations with multiple modes."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Code2}
+                title="Embeddable Widget/SDK"
+                description="JavaScript widget to embed size charts in any website with theming support."
+                status="done"
+              />
+            </div>
+          </div>
+
+          {/* Planned - v1.0 */}
+          <div>
+            <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              Planned — v1.0 (Integration Ready)
+            </h3>
+            <div className="space-y-3">
+              <RoadmapItem
+                icon={Bell}
                 title="Webhooks"
                 description="Notify external systems when charts are created/updated/published."
                 status="planned"
                 priority="medium"
               />
               <RoadmapItem
-                icon={Wrench}
-                title="Bulk Import/Export"
-                description="Import size chart data from CSV/Excel files."
+                icon={HardDrive}
+                title="Redis Caching"
+                description="Optional Redis integration for high-performance API responses."
+                status="planned"
+                priority="medium"
+              />
+            </div>
+          </div>
+
+          {/* Planned - v2.0 */}
+          <div>
+            <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              Planned — v2.0 (Differentiation)
+            </h3>
+            <div className="space-y-3">
+              <RoadmapItem
+                icon={Calculator}
+                title="Fit Recommendation API"
+                description="'Find my size' endpoint that recommends sizes based on user measurements."
+                status="planned"
+                priority="high"
+              />
+              <RoadmapItem
+                icon={BarChart3}
+                title="Analytics Dashboard"
+                description="Track which charts are viewed most and identify usage patterns."
+                status="planned"
+                priority="medium"
+              />
+              <RoadmapItem
+                icon={Building2}
+                title="Multi-Tenancy"
+                description="Support multiple brands/stores with isolated data."
+                status="planned"
+                priority="medium"
+              />
+              <RoadmapItem
+                icon={Languages}
+                title="Full i18n Support"
+                description="Multi-language label translations with locale selection."
                 status="planned"
                 priority="medium"
               />
@@ -250,13 +383,15 @@ export default function ChangelogPage() {
             </h3>
             <div className="space-y-3">
               <RoadmapItem
+                icon={History}
                 title="Version History"
-                description="Track changes and allow reverting to previous versions."
+                description="Track changes to charts and allow reverting to previous versions."
                 status="considering"
               />
               <RoadmapItem
-                title="Size Recommendation Engine"
-                description="'Find my size' calculator based on user measurements."
+                icon={Puzzle}
+                title="Shopify/WooCommerce Apps"
+                description="Native plugins for popular e-commerce platforms."
                 status="considering"
               />
               <RoadmapItem
@@ -265,13 +400,13 @@ export default function ChangelogPage() {
                 status="considering"
               />
               <RoadmapItem
-                title="Measurement Instructions"
-                description="How-to-measure guidance content for each measurement type."
+                title="Print Styles"
+                description="Optimized print stylesheet for end-user printing."
                 status="considering"
               />
               <RoadmapItem
-                title="Print Styles"
-                description="Optimized print stylesheet for end-user printing."
+                title="GraphQL API"
+                description="Alternative to REST for more flexible queries."
                 status="considering"
               />
             </div>
@@ -284,6 +419,52 @@ export default function ChangelogPage() {
         <h2 className="mb-4 text-lg font-semibold">Changelog</h2>
 
         <div className="rounded-lg border bg-card p-6">
+          <ChangelogEntry
+            version="0.6.0"
+            date="December 11, 2024"
+            changes={[
+              { type: "feature", description: "Admin authentication with environment-based username/password" },
+              { type: "feature", description: "Rate limiting for v1 API endpoints (100 req/min default, configurable)" },
+              { type: "feature", description: "Structured logging with JSON/pretty formats and log levels" },
+              { type: "feature", description: "Login page at /admin/login with session-based auth (24h expiry)" },
+              { type: "feature", description: "Logout button in admin sidebar when auth is enabled" },
+              { type: "improvement", description: "Docker Compose updated with admin auth environment variables" },
+              { type: "improvement", description: "Complete .env.example with all configuration options" },
+              { type: "improvement", description: "Rate limit headers (X-RateLimit-*) on API responses" },
+            ]}
+          />
+
+          <ChangelogEntry
+            version="0.5.0"
+            date="December 11, 2024"
+            changes={[
+              { type: "feature", description: "API key authentication with SHA256 hashing, scopes (read/write), and Bearer token support" },
+              { type: "feature", description: "CORS configuration with environment-based allowed origins and preflight support" },
+              { type: "feature", description: "Measurement Instructions - dynamic how-to-measure content assignable per chart" },
+              { type: "feature", description: "Measurement Instructions admin UI - selector component in chart editor" },
+              { type: "feature", description: "API Key management UI - create, view, revoke API keys in admin" },
+              { type: "feature", description: "Public chart pages now display chart-specific measurement instructions" },
+              { type: "improvement", description: "Updated v1 API routes with authentication middleware" },
+              { type: "improvement", description: "Seed data includes 11 measurement instructions linked to charts" },
+            ]}
+          />
+
+          <ChangelogEntry
+            version="0.4.0"
+            date="December 11, 2024"
+            changes={[
+              { type: "feature", description: "Open source preparation: README, LICENSE (MIT), CONTRIBUTING, SECURITY docs" },
+              { type: "feature", description: "Docker Compose setup with PostgreSQL, dev, and production profiles" },
+              { type: "feature", description: "Health check endpoint at GET /api/health with database connectivity status" },
+              { type: "feature", description: "OpenAPI/Swagger documentation at /api/docs with interactive explorer" },
+              { type: "feature", description: "GitHub issue and PR templates" },
+              { type: "feature", description: "Full category CRUD with create, edit, delete for categories and subcategories" },
+              { type: "feature", description: "Label type configuration - customize display names for label types" },
+              { type: "improvement", description: "Enabled standalone output in Next.js config for Docker deployments" },
+              { type: "fix", description: "Fixed breadcrumb duplication when chart name matches subcategory name" },
+            ]}
+          />
+
           <ChangelogEntry
             version="0.3.0"
             date="December 10, 2024"
@@ -330,29 +511,9 @@ export default function ChangelogPage() {
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
             <div>
-              <p className="font-medium">No API authentication</p>
-              <p className="text-sm text-muted-foreground">
-                v1 API endpoints are currently open. Need to implement API key auth before production use.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
-            <div>
               <p className="font-medium">CM values not auto-computed on API write</p>
               <p className="text-sm text-muted-foreground">
                 If updating via API, you must provide both inch and cm values. Consider auto-computing cm from inches.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
-            <div>
-              <p className="font-medium">No rate limiting</p>
-              <p className="text-sm text-muted-foreground">
-                API has no protection against abuse. Consider adding rate limiting middleware.
               </p>
             </div>
           </div>
@@ -363,6 +524,16 @@ export default function ChangelogPage() {
               <p className="font-medium">No error tracking</p>
               <p className="text-sm text-muted-foreground">
                 No Sentry or similar integration for production error monitoring.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
+            <div>
+              <p className="font-medium">In-memory session storage</p>
+              <p className="text-sm text-muted-foreground">
+                Admin sessions and rate limits are stored in memory. For multi-instance deployments, consider Redis.
               </p>
             </div>
           </div>

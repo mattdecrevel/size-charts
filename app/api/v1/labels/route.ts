@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { extractApiKey, validateApiKey, hasScope, applyRateLimit, getRateLimitIdentifier } from "@/lib/api-auth";
+import { withCors, handleCorsOptions } from "@/lib/cors";
+
+// Handle CORS preflight
+export async function OPTIONS(request: Request) {
+	return handleCorsOptions(request);
+}
 
 /**
  * GET /api/v1/labels
  *
  * Public API endpoint for retrieving size labels.
  * Labels are standardized size identifiers (e.g., SIZE_SM -> "SM")
+ * Requires API key authentication when API_AUTH_REQUIRED=true
  *
  * Query params:
  * - type: Filter by label type (e.g., ?type=ALPHA_SIZE)
@@ -13,38 +21,79 @@ import { db } from "@/lib/db";
  * Returns: Array of labels grouped by type
  */
 export async function GET(request: NextRequest) {
-  try {
-    const searchParams = request.nextUrl.searchParams;
-    const labelType = searchParams.get("type");
+	// Check if API auth is required
+	const authRequired = process.env.API_AUTH_REQUIRED === "true";
+	let apiKeyId: string | undefined;
 
-    const where: Record<string, unknown> = {};
-    if (labelType) {
-      where.labelType = labelType;
-    }
+	if (authRequired) {
+		const apiKey = extractApiKey(request);
+		const validation = await validateApiKey(apiKey);
 
-    const labels = await db.sizeLabel.findMany({
-      where,
-      orderBy: [{ labelType: "asc" }, { sortOrder: "asc" }],
-    });
+		if (!validation.valid) {
+			return withCors(
+				NextResponse.json({ error: validation.error }, { status: 401 }),
+				request
+			);
+		}
 
-    // Group by type for easier consumption
-    const grouped = labels.reduce((acc, label) => {
-      const type = label.labelType;
-      if (!acc[type]) {
-        acc[type] = [];
-      }
-      acc[type].push({
-        key: label.key,
-        value: label.displayValue,
-        sortOrder: label.sortOrder,
-        description: label.description,
-      });
-      return acc;
-    }, {} as Record<string, Array<{ key: string; value: string; sortOrder: number; description: string | null }>>);
+		if (!hasScope(validation.key!.scopes, "read:labels")) {
+			return withCors(
+				NextResponse.json({ error: "Insufficient permissions" }, { status: 403 }),
+				request
+			);
+		}
 
-    return NextResponse.json(grouped);
-  } catch (error) {
-    console.error("Error fetching labels:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
+		apiKeyId = validation.key!.id;
+	}
+
+	// Apply rate limiting
+	const rateLimitId = getRateLimitIdentifier(request, apiKeyId);
+	const rateLimitResponse = applyRateLimit(rateLimitId);
+	if (rateLimitResponse) {
+		return withCors(rateLimitResponse, request);
+	}
+
+	try {
+		const searchParams = request.nextUrl.searchParams;
+		const labelType = searchParams.get("type");
+
+		const where: Record<string, unknown> = {};
+		if (labelType) {
+			where.labelType = labelType;
+		}
+
+		const labels = await db.sizeLabel.findMany({
+			where,
+			orderBy: [{ labelType: "asc" }, { sortOrder: "asc" }],
+		});
+
+		// Group by type for easier consumption
+		const grouped = labels.reduce(
+			(acc, label) => {
+				const type = label.labelType;
+				if (!acc[type]) {
+					acc[type] = [];
+				}
+				acc[type].push({
+					key: label.key,
+					value: label.displayValue,
+					sortOrder: label.sortOrder,
+					description: label.description,
+				});
+				return acc;
+			},
+			{} as Record<
+				string,
+				Array<{ key: string; value: string; sortOrder: number; description: string | null }>
+			>
+		);
+
+		return withCors(NextResponse.json(grouped), request);
+	} catch (error) {
+		console.error("Error fetching labels:", error);
+		return withCors(
+			NextResponse.json({ error: "Internal server error" }, { status: 500 }),
+			request
+		);
+	}
 }
