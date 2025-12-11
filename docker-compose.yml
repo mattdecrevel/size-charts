@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: size-charts-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-size_charts}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-size_charts}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Next.js Application (Development)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: size-charts-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-size_charts}?schema=public
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - production
+
+  # Development mode (uses local source files)
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: size-charts-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-size_charts}?schema=public
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+
+# Usage:
+#
+# Start just the database (for local development):
+#   docker-compose up -d postgres
+#
+# Start database + dev app (with hot reload):
+#   docker-compose --profile dev up -d
+#
+# Start database + production app:
+#   docker-compose --profile production up -d
+#
+# View logs:
+#   docker-compose logs -f app
+#
+# Stop all services:
+#   docker-compose down
+#
+# Reset database:
+#   docker-compose down -v
