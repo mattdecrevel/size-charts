@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Code, History, ArrowRight } from "lucide-react";
+import { BookOpen, Code, History, ArrowRight, Code2 } from "lucide-react";
 
 const docs = [
   {
@@ -15,6 +15,12 @@ const docs = [
     description: "Complete API documentation for integrating size charts into your application.",
     href: "/admin/docs/api",
     icon: Code,
+  },
+  {
+    title: "Embed Widget",
+    description: "Add size charts to any website with a simple script tag. Includes theming and configuration options.",
+    href: "/admin/docs/embed",
+    icon: Code2,
   },
   {
     title: "Changelog & Roadmap",

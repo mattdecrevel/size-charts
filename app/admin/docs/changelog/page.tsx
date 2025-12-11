@@ -301,6 +301,18 @@ export default function ChangelogPage() {
                 description="JSON/pretty logging with levels (error, warn, info, debug)."
                 status="done"
               />
+              <RoadmapItem
+                icon={FileUp}
+                title="Import/Export"
+                description="JSON import and export for bulk data operations with multiple modes."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Code2}
+                title="Embeddable Widget/SDK"
+                description="JavaScript widget to embed size charts in any website with theming support."
+                status="done"
+              />
             </div>
           </div>
 
@@ -310,20 +322,6 @@ export default function ChangelogPage() {
               Planned — v1.0 (Integration Ready)
             </h3>
             <div className="space-y-3">
-              <RoadmapItem
-                icon={Code2}
-                title="Embeddable Widget/SDK"
-                description="JavaScript snippet to embed size charts in any website with theming support."
-                status="planned"
-                priority="high"
-              />
-              <RoadmapItem
-                icon={FileUp}
-                title="Import/Export"
-                description="CSV/JSON import and export for bulk data operations."
-                status="planned"
-                priority="high"
-              />
               <RoadmapItem
                 icon={Bell}
                 title="Webhooks"
