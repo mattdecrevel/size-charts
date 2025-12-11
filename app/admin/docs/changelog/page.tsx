@@ -12,6 +12,11 @@ import {
   Zap,
   Globe,
   FileText,
+  Package,
+  Heart,
+  Server,
+  Database,
+  Settings,
 } from "lucide-react";
 
 interface ChangelogEntryProps {
@@ -124,10 +129,10 @@ export default function ChangelogPage() {
 
       {/* Current Status */}
       <div className="mb-8 rounded-lg border bg-emerald-500/5 border-emerald-500/20 p-6">
-        <h2 className="mb-2 text-lg font-semibold text-emerald-600">Current Status: MVP Complete</h2>
+        <h2 className="mb-2 text-lg font-semibold text-emerald-600">Current Status: Open Source Ready</h2>
         <p className="text-sm text-muted-foreground">
-          The core size chart CRUD system is functional. You can create categories, labels, and size charts,
-          then consume them via the v1 API.
+          The core size chart system is complete and ready for open source contribution. Full CRUD operations,
+          REST API, Docker support, and comprehensive documentation are available.
         </p>
         <div className="mt-4 grid gap-2 md:grid-cols-4">
           <div className="rounded border bg-background p-3 text-center">
@@ -195,6 +200,46 @@ export default function ChangelogPage() {
                 title="Documentation"
                 description="API docs, getting started guide, and changelog."
                 status="done"
+              />
+              <RoadmapItem
+                icon={Settings}
+                title="Label Type Configuration"
+                description="Customize display names for label types (rename Alpha Size to General Size, etc.)."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Database}
+                title="Full Category CRUD"
+                description="Create, edit, and delete categories and subcategories with delete protection."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Package}
+                title="Open Source Ready"
+                description="README, LICENSE (MIT), Docker, contributing guidelines, and GitHub templates."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Server}
+                title="Health Check Endpoint"
+                description="GET /api/health for monitoring database connectivity and uptime."
+                status="done"
+              />
+            </div>
+          </div>
+
+          {/* In Progress */}
+          <div>
+            <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              In Progress
+            </h3>
+            <div className="space-y-3">
+              <RoadmapItem
+                icon={FileText}
+                title="OpenAPI/Swagger Documentation"
+                description="Auto-generated API specification with interactive explorer at /api/docs."
+                status="in-progress"
+                priority="high"
               />
             </div>
           </div>
@@ -283,6 +328,21 @@ export default function ChangelogPage() {
         <h2 className="mb-4 text-lg font-semibold">Changelog</h2>
 
         <div className="rounded-lg border bg-card p-6">
+          <ChangelogEntry
+            version="0.4.0"
+            date="December 11, 2024"
+            changes={[
+              { type: "feature", description: "Open source preparation: README, LICENSE (MIT), CONTRIBUTING, SECURITY docs" },
+              { type: "feature", description: "Docker Compose setup with PostgreSQL, dev, and production profiles" },
+              { type: "feature", description: "Health check endpoint at GET /api/health with database connectivity status" },
+              { type: "feature", description: "GitHub issue and PR templates" },
+              { type: "feature", description: "Full category CRUD with create, edit, delete for categories and subcategories" },
+              { type: "feature", description: "Label type configuration - customize display names for label types" },
+              { type: "improvement", description: "Enabled standalone output in Next.js config for Docker deployments" },
+              { type: "fix", description: "Fixed breadcrumb duplication when chart name matches subcategory name" },
+            ]}
+          />
+
           <ChangelogEntry
             version="0.3.0"
             date="December 10, 2024"
