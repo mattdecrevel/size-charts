@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, TableProperties, FolderTree, ExternalLink, Ruler, Tag, BookOpen, Code, History } from "lucide-react";
+import { LayoutGrid, TableProperties, FolderTree, ExternalLink, Ruler, Tag, BookOpen, Code, History, KeyRound } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +22,7 @@ const navigation = [
   { name: "Size Charts", href: "/admin/size-charts", icon: TableProperties },
   { name: "Categories", href: "/admin/categories", icon: FolderTree },
   { name: "Labels", href: "/admin/labels", icon: Tag },
+  { name: "API Keys", href: "/admin/api-keys", icon: KeyRound },
 ];
 
 const docs = [

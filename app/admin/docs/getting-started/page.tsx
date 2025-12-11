@@ -13,7 +13,8 @@ import {
   Database,
   Layers,
   Settings,
-  Ruler
+  Ruler,
+  KeyRound
 } from "lucide-react";
 
 interface StepProps {
@@ -292,6 +293,58 @@ export default function GettingStartedPage() {
 
         <Step
           number={5}
+          title="Create an API Key"
+          description="Generate API keys to authenticate requests to the v1 API."
+        >
+          <div className="rounded-lg border bg-card p-4">
+            <p className="text-sm mb-3">
+              API keys are required to access the v1 API endpoints. Create one in the admin panel.
+            </p>
+
+            <ol className="space-y-3 text-sm">
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">1</span>
+                <div>
+                  <p className="font-medium">Navigate to API Keys</p>
+                  <p className="text-muted-foreground">Go to the API Keys section in the admin navigation.</p>
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">2</span>
+                <div>
+                  <p className="font-medium">Create a new key</p>
+                  <p className="text-muted-foreground">Give it a name (e.g., &quot;Production&quot;) and select scopes (read/write).</p>
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">3</span>
+                <div>
+                  <p className="font-medium">Copy and store securely</p>
+                  <p className="text-muted-foreground">The full key is only shown once. Store it in your environment variables.</p>
+                </div>
+              </li>
+            </ol>
+
+            <div className="rounded border bg-amber-500/5 border-amber-500/20 p-3 mt-3 mb-3">
+              <p className="text-sm"><strong>Usage:</strong></p>
+              <pre className="text-xs text-muted-foreground mt-1 font-mono">
+{`X-API-Key: sc_xxxxxxxxxxxx
+# or
+Authorization: Bearer sc_xxxxxxxxxxxx`}
+              </pre>
+            </div>
+
+            <Link
+              href="/admin/api-keys"
+              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+            >
+              Manage API Keys <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+        </Step>
+
+        <Step
+          number={6}
           title="Integrate via API"
           description="Use the v1 API to display charts in your application."
         >
@@ -387,6 +440,16 @@ SizeLabel (standalone, reusable)
             </div>
             <p className="text-sm text-muted-foreground">
               Create and edit size chart data tables.
+            </p>
+          </Link>
+
+          <Link href="/admin/api-keys" className="group rounded-lg border bg-card p-4 hover:border-primary/50 transition-colors">
+            <div className="flex items-center gap-3 mb-2">
+              <KeyRound className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
+              <span className="font-medium">API Keys</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Generate and manage API access keys.
             </p>
           </Link>
 
