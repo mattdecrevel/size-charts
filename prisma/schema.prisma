@@ -112,6 +112,7 @@ model SizeChart {
     subcategories SizeChartSubcategory[] // Many-to-many relationship
     columns       SizeChartColumn[]
     rows          SizeChartRow[]
+    measurementInstructions SizeChartMeasurementInstruction[] // Which how-to-measure instructions apply
     isPublished   Boolean                @default(false)
     createdAt     DateTime               @default(now())
     updatedAt     DateTime               @updatedAt
@@ -192,3 +193,57 @@ enum ColumnType {
 }
 
 // Removed MeasurementUnit enum - we now store both inches and cm explicitly
+
+// ============================================
+// MEASUREMENT INSTRUCTIONS
+// ============================================
+
+// Reusable measurement instruction definitions
+model MeasurementInstruction {
+    id          String      @id @default(cuid())
+    key         String      @unique // e.g., "waist", "chest", "inseam", "hand_circumference"
+    name        String // Display name: "Waist", "Chest", "Inseam"
+    instruction String // How to measure: "Measure around the narrowest part..."
+    sortOrder   Int         @default(0)
+    sizeCharts  SizeChartMeasurementInstruction[]
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+
+    @@index([sortOrder])
+}
+
+// Join table: which instructions apply to which size chart
+model SizeChartMeasurementInstruction {
+    id            String                 @id @default(cuid())
+    sizeChartId   String
+    instructionId String
+    sizeChart     SizeChart              @relation(fields: [sizeChartId], references: [id], onDelete: Cascade)
+    instruction   MeasurementInstruction @relation(fields: [instructionId], references: [id], onDelete: Cascade)
+    displayOrder  Int                    @default(0) // Order for this chart
+    createdAt     DateTime               @default(now())
+
+    @@unique([sizeChartId, instructionId])
+    @@index([sizeChartId])
+    @@index([instructionId])
+}
+
+// ============================================
+// API AUTHENTICATION
+// ============================================
+
+// API keys for v1 endpoint access
+model ApiKey {
+    id          String    @id @default(cuid())
+    name        String // Friendly name: "Production", "Staging"
+    key         String    @unique // The actual API key (hashed)
+    keyPrefix   String // First 8 chars for identification: "sk_live_abc..."
+    scopes      String[] // Permissions: ["read:size-charts", "read:categories"]
+    isActive    Boolean   @default(true)
+    lastUsedAt  DateTime?
+    expiresAt   DateTime?
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+
+    @@index([key])
+    @@index([isActive])
+}
