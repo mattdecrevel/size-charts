@@ -144,11 +144,11 @@ export default function ChangelogPage() {
       </div>
 
       {/* Current Status */}
-      <div className="mb-8 rounded-lg border bg-blue-500/5 border-blue-500/20 p-6">
-        <h2 className="mb-2 text-lg font-semibold text-blue-600">Current Status: v0.6.0 In Progress</h2>
+      <div className="mb-8 rounded-lg border bg-emerald-500/5 border-emerald-500/20 p-6">
+        <h2 className="mb-2 text-lg font-semibold text-emerald-600">Current Status: v0.6.0 Production Ready</h2>
         <p className="text-sm text-muted-foreground">
-          Working on production-ready features: admin authentication, Docker support, rate limiting,
-          and structured logging. The goal is a secure, self-hostable size chart microservice.
+          Production-ready with admin authentication, rate limiting, Docker support, and structured logging.
+          A secure, self-hostable size chart microservice ready for integration.
         </p>
         <div className="mt-4 grid gap-2 md:grid-cols-4">
           <div className="rounded border bg-background p-3 text-center">
@@ -271,49 +271,35 @@ export default function ChangelogPage() {
                 description="Dynamic how-to-measure content per chart, editable in admin."
                 status="done"
               />
-            </div>
-          </div>
-
-          {/* In Progress - v0.6.0 */}
-          <div>
-            <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              In Progress — v0.6.0 (Production Ready)
-            </h3>
-            <div className="space-y-3">
               <RoadmapItem
                 icon={Lock}
                 title="Admin Authentication"
                 description="Environment-based username/password protection for admin dashboard."
-                status="in-progress"
-                priority="high"
+                status="done"
               />
               <RoadmapItem
                 icon={Container}
                 title="Docker Support"
                 description="Dockerfile and docker-compose for easy self-hosting deployment."
-                status="in-progress"
-                priority="high"
+                status="done"
               />
               <RoadmapItem
                 icon={Gauge}
                 title="Rate Limiting"
-                description="Prevent API abuse with configurable request limits per API key."
-                status="in-progress"
-                priority="high"
+                description="Configurable request limits per API key/IP with 429 responses."
+                status="done"
               />
               <RoadmapItem
                 icon={FileCode}
                 title="Environment Configuration"
-                description="Complete .env.example with validation on startup."
-                status="in-progress"
-                priority="high"
+                description="Complete .env.example with all configuration options documented."
+                status="done"
               />
               <RoadmapItem
                 icon={ScrollText}
                 title="Structured Logging"
-                description="JSON logging with levels (error, warn, info, debug) for production."
-                status="in-progress"
-                priority="medium"
+                description="JSON/pretty logging with levels (error, warn, info, debug)."
+                status="done"
               />
             </div>
           </div>
@@ -436,6 +422,21 @@ export default function ChangelogPage() {
 
         <div className="rounded-lg border bg-card p-6">
           <ChangelogEntry
+            version="0.6.0"
+            date="December 11, 2024"
+            changes={[
+              { type: "feature", description: "Admin authentication with environment-based username/password" },
+              { type: "feature", description: "Rate limiting for v1 API endpoints (100 req/min default, configurable)" },
+              { type: "feature", description: "Structured logging with JSON/pretty formats and log levels" },
+              { type: "feature", description: "Login page at /admin/login with session-based auth (24h expiry)" },
+              { type: "feature", description: "Logout button in admin sidebar when auth is enabled" },
+              { type: "improvement", description: "Docker Compose updated with admin auth environment variables" },
+              { type: "improvement", description: "Complete .env.example with all configuration options" },
+              { type: "improvement", description: "Rate limit headers (X-RateLimit-*) on API responses" },
+            ]}
+          />
+
+          <ChangelogEntry
             version="0.5.0"
             date="December 11, 2024"
             changes={[
@@ -520,16 +521,6 @@ export default function ChangelogPage() {
           </div>
 
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
-            <div>
-              <p className="font-medium">No rate limiting</p>
-              <p className="text-sm text-muted-foreground">
-                API has no protection against abuse. Consider adding rate limiting middleware.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div>
               <p className="font-medium">No error tracking</p>
@@ -542,9 +533,9 @@ export default function ChangelogPage() {
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div>
-              <p className="font-medium">No admin authentication</p>
+              <p className="font-medium">In-memory session storage</p>
               <p className="text-sm text-muted-foreground">
-                Admin dashboard is open to anyone. Consider adding user auth for production.
+                Admin sessions and rate limits are stored in memory. For multi-instance deployments, consider Redis.
               </p>
             </div>
           </div>
