@@ -8,6 +8,7 @@ import {
 	RATE_LIMITS,
 	type RateLimitConfig,
 } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 // API key format: sc_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxx (32 chars after prefix)
 const API_KEY_PREFIX = "sc_live_";
@@ -113,7 +114,7 @@ export async function validateApiKey(rawKey: string | null): Promise<{
 			},
 		};
 	} catch (error) {
-		console.error("API key validation error:", error);
+		logger.error("API key validation error", { error: error instanceof Error ? error.message : String(error) });
 		return { valid: false, error: "Failed to validate API key" };
 	}
 }
