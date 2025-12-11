@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { extractApiKey, validateApiKey, hasScope } from "@/lib/api-auth";
+import { extractApiKey, validateApiKey, hasScope, applyRateLimit, getRateLimitIdentifier } from "@/lib/api-auth";
 import { withCors, handleCorsOptions } from "@/lib/cors";
 
 // Handle CORS preflight
@@ -23,6 +23,7 @@ export async function OPTIONS(request: Request) {
 export async function GET(request: NextRequest) {
 	// Check if API auth is required
 	const authRequired = process.env.API_AUTH_REQUIRED === "true";
+	let apiKeyId: string | undefined;
 
 	if (authRequired) {
 		const apiKey = extractApiKey(request);
@@ -41,6 +42,15 @@ export async function GET(request: NextRequest) {
 				request
 			);
 		}
+
+		apiKeyId = validation.key!.id;
+	}
+
+	// Apply rate limiting
+	const rateLimitId = getRateLimitIdentifier(request, apiKeyId);
+	const rateLimitResponse = applyRateLimit(rateLimitId);
+	if (rateLimitResponse) {
+		return withCors(rateLimitResponse, request);
 	}
 
 	try {
