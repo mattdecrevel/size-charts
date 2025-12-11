@@ -38,6 +38,10 @@ export async function GET(request: NextRequest) {
             },
           },
         },
+        measurementInstructions: {
+          include: { instruction: true },
+          orderBy: { displayOrder: "asc" },
+        },
         columns: { orderBy: { displayOrder: "asc" } },
         rows: {
           orderBy: { displayOrder: "asc" },

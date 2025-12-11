@@ -126,25 +126,20 @@ export default function ChartPage({ params }: PageProps) {
 
 			<SizeChartDisplay chart={chart} unit={unit} />
 
-			<div className="mt-8 rounded-lg bg-zinc-50 p-6 dark:bg-zinc-900">
-				<h2 className="mb-3 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-					How to Measure
-				</h2>
-				<ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-					<li>
-						<strong>Waist:</strong> Measure around the narrowest part of your natural waistline.
-					</li>
-					<li>
-						<strong>Hip:</strong> Measure around the fullest part of your hips.
-					</li>
-					<li>
-						<strong>Chest/Bust:</strong> Measure around the fullest part of your chest.
-					</li>
-					<li>
-						<strong>Inseam:</strong> Measure from the crotch seam to the bottom of the leg.
-					</li>
-				</ul>
-			</div>
+			{chart.measurementInstructions && chart.measurementInstructions.length > 0 && (
+				<div className="mt-8 rounded-lg bg-zinc-50 p-6 dark:bg-zinc-900">
+					<h2 className="mb-3 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+						How to Measure
+					</h2>
+					<ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+						{chart.measurementInstructions.map((mi) => (
+							<li key={mi.instruction.id}>
+								<strong>{mi.instruction.name}:</strong> {mi.instruction.instruction}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
 		</div>
 	);
 }

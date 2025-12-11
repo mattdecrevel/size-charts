@@ -20,6 +20,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           },
           orderBy: { displayOrder: "asc" },
         },
+        measurementInstructions: {
+          include: { instruction: true },
+          orderBy: { displayOrder: "asc" },
+        },
         columns: { orderBy: { displayOrder: "asc" } },
         rows: {
           orderBy: { displayOrder: "asc" },
@@ -106,6 +110,25 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
           data: data.subcategoryIds.map((subcategoryId, index) => ({
             sizeChartId: id,
             subcategoryId,
+            displayOrder: index,
+          })),
+        });
+      }
+    }
+
+    // Handle measurement instructions update (many-to-many)
+    if (data.measurementInstructionIds !== undefined) {
+      // Delete existing relationships
+      await db.sizeChartMeasurementInstruction.deleteMany({
+        where: { sizeChartId: id },
+      });
+
+      // Create new relationships
+      if (data.measurementInstructionIds.length > 0) {
+        await db.sizeChartMeasurementInstruction.createMany({
+          data: data.measurementInstructionIds.map((instructionId, index) => ({
+            sizeChartId: id,
+            instructionId,
             displayOrder: index,
           })),
         });
@@ -245,6 +268,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
           include: {
             subcategory: { include: { category: true } },
           },
+          orderBy: { displayOrder: "asc" },
+        },
+        measurementInstructions: {
+          include: { instruction: true },
           orderBy: { displayOrder: "asc" },
         },
         columns: { orderBy: { displayOrder: "asc" } },

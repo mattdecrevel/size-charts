@@ -98,6 +98,7 @@ export const updateSizeChartSchema = z.object({
   description: z.string().max(500).nullable().optional(),
   isPublished: z.boolean().optional(),
   subcategoryIds: z.array(z.string().cuid()).optional(), // Update many-to-many
+  measurementInstructionIds: z.array(z.string().cuid()).optional(), // Update many-to-many
   columns: z.array(
     z.object({
       id: z.string().cuid().optional(),

@@ -32,6 +32,7 @@ export interface EditorState {
   name: string;
   description: string;
   subcategoryIds: string[];
+  measurementInstructionIds: string[];
   isPublished: boolean;
   columns: EditorColumn[];
   rows: EditorRow[];
