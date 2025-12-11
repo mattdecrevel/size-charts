@@ -225,21 +225,11 @@ export default function ChangelogPage() {
                 description="GET /api/health for monitoring database connectivity and uptime."
                 status="done"
               />
-            </div>
-          </div>
-
-          {/* In Progress */}
-          <div>
-            <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              In Progress
-            </h3>
-            <div className="space-y-3">
               <RoadmapItem
                 icon={FileText}
                 title="OpenAPI/Swagger Documentation"
-                description="Auto-generated API specification with interactive explorer at /api/docs."
-                status="in-progress"
-                priority="high"
+                description="Interactive API explorer at /api/docs with full schema documentation."
+                status="done"
               />
             </div>
           </div>
@@ -335,6 +325,7 @@ export default function ChangelogPage() {
               { type: "feature", description: "Open source preparation: README, LICENSE (MIT), CONTRIBUTING, SECURITY docs" },
               { type: "feature", description: "Docker Compose setup with PostgreSQL, dev, and production profiles" },
               { type: "feature", description: "Health check endpoint at GET /api/health with database connectivity status" },
+              { type: "feature", description: "OpenAPI/Swagger documentation at /api/docs with interactive explorer" },
               { type: "feature", description: "GitHub issue and PR templates" },
               { type: "feature", description: "Full category CRUD with create, edit, delete for categories and subcategories" },
               { type: "feature", description: "Label type configuration - customize display names for label types" },
