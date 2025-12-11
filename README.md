@@ -6,6 +6,9 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748)](https://www.prisma.io/)
+[![GitHub](https://img.shields.io/github/stars/mattdecrevel/size-charts?style=social)](https://github.com/mattdecrevel/size-charts)
+
+**[Documentation](https://github.com/mattdecrevel/size-charts#readme)** | **[Issues](https://github.com/mattdecrevel/size-charts/issues)** | **[Discussions](https://github.com/mattdecrevel/size-charts/discussions)**
 
 A production-ready size chart CRUD system with an admin interface and REST API. Built for e-commerce platforms that need to manage clothing, footwear, and accessory sizing across multiple regions and categories.
 
@@ -17,6 +20,7 @@ A production-ready size chart CRUD system with an admin interface and REST API. 
 - **Translatable Labels** - Standardized size keys (e.g., `SIZE_SM`) for i18n integration
 - **Spreadsheet-like Editor** - Inline editing with keyboard navigation
 - **REST API** - Clean, versioned v1 API for headless integration
+- **OpenAPI/Swagger** - Interactive API documentation at `/api/docs`
 - **Dark Mode** - Full dark mode support with system preference detection
 
 ## Tech Stack
@@ -39,7 +43,7 @@ A production-ready size chart CRUD system with an admin interface and REST API. 
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/size-charts.git
+git clone https://github.com/mattdecrevel/size-charts.git
 cd size-charts
 
 # Start PostgreSQL and the app
@@ -53,7 +57,7 @@ open http://localhost:3000
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/size-charts.git
+git clone https://github.com/mattdecrevel/size-charts.git
 cd size-charts
 
 # Install dependencies
@@ -204,7 +208,7 @@ The system supports these label types:
 
 ### Vercel (Recommended)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/size-charts)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/mattdecrevel/size-charts)
 
 1. Click the button above
 2. Connect a PostgreSQL database (Neon, Supabase, or Railway)
@@ -312,7 +316,7 @@ See the [Changelog & Roadmap](http://localhost:3000/admin/docs/changelog) page f
 
 Key planned features:
 - [ ] API authentication (API keys)
-- [ ] OpenAPI/Swagger documentation
+- [x] OpenAPI/Swagger documentation - Available at `/api/docs`
 - [ ] Webhooks for chart changes
 - [ ] Bulk import/export (CSV)
 - [ ] Version history

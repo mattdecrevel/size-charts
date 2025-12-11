@@ -40,7 +40,7 @@ This project adheres to a Code of Conduct. By participating, you are expected to
 3. **Add upstream remote**
 
    ```bash
-   git remote add upstream https://github.com/ORIGINAL_OWNER/size-charts.git
+   git remote add upstream https://github.com/mattdecrevel/size-charts.git
    ```
 
 4. **Install dependencies**
@@ -244,9 +244,9 @@ size-charts/
 
 ## Need Help?
 
-- Check existing [issues](https://github.com/OWNER/size-charts/issues)
-- Open a [discussion](https://github.com/OWNER/size-charts/discussions)
-- Read the [documentation](http://localhost:3000/admin/docs)
+- Check existing [issues](https://github.com/mattdecrevel/size-charts/issues)
+- Open a [discussion](https://github.com/mattdecrevel/size-charts/discussions)
+- Read the [documentation](https://github.com/mattdecrevel/size-charts#readme)
 
 ## Recognition
 
