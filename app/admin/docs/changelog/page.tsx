@@ -13,10 +13,10 @@ import {
   Globe,
   FileText,
   Package,
-  Heart,
   Server,
   Database,
   Settings,
+  Languages,
 } from "lucide-react";
 
 interface ChangelogEntryProps {
@@ -148,7 +148,7 @@ export default function ChangelogPage() {
             <div className="text-xs text-muted-foreground">Labels</div>
           </div>
           <div className="rounded border bg-background p-3 text-center">
-            <div className="text-2xl font-bold">3</div>
+            <div className="text-2xl font-bold">4</div>
             <div className="text-xs text-muted-foreground">API Endpoints</div>
           </div>
         </div>
@@ -231,6 +231,12 @@ export default function ChangelogPage() {
                 description="Interactive API explorer at /api/docs with full schema documentation."
                 status="done"
               />
+              <RoadmapItem
+                icon={Languages}
+                title="Label Translation Support"
+                description="Standardized label keys (SIZE_SM, etc.) for i18n. See API docs for translation examples."
+                status="done"
+              />
             </div>
           </div>
 
@@ -253,12 +259,6 @@ export default function ChangelogPage() {
                 description="Configurable allowed origins for API consumers."
                 status="planned"
                 priority="high"
-              />
-              <RoadmapItem
-                icon={Globe}
-                title="Label Translation Support"
-                description="Use standardized label keys (SIZE_SM, etc.) with your own translation system. See API docs for examples."
-                status="done"
               />
               <RoadmapItem
                 icon={Zap}
