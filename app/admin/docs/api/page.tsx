@@ -160,6 +160,40 @@ export default function ApiDocsPage() {
 				</p>
 			</div>
 
+			{/* Authentication */}
+			<div className="mb-8 rounded-lg border bg-card p-4">
+				<h2 className="mb-2 font-semibold">Authentication</h2>
+				<p className="text-sm text-muted-foreground mb-3">
+					API requests require an API key. Keys can be created in the admin panel and have configurable scopes.
+				</p>
+
+				<div className="space-y-3">
+					<div>
+						<h3 className="text-sm font-medium mb-1">Header Authentication</h3>
+						<pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
+							{`curl -H "X-API-Key: your_api_key_here" \\
+  ${baseUrl}/api/v1/size-charts`}
+						</pre>
+					</div>
+
+					<div>
+						<h3 className="text-sm font-medium mb-1">Bearer Token</h3>
+						<pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
+							{`curl -H "Authorization: Bearer your_api_key_here" \\
+  ${baseUrl}/api/v1/size-charts`}
+						</pre>
+					</div>
+
+					<div className="rounded border bg-amber-500/5 border-amber-500/20 p-3">
+						<p className="text-sm"><strong>Scopes:</strong></p>
+						<ul className="text-sm text-muted-foreground mt-1 list-disc list-inside">
+							<li><code className="bg-muted px-1 rounded">read</code> - Access to GET endpoints</li>
+							<li><code className="bg-muted px-1 rounded">write</code> - Access to POST, PUT, DELETE endpoints</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
 			{/* Quick Start */}
 			<div className="mb-8 rounded-lg border bg-blue-500/5 border-blue-500/20 p-4">
 				<h2 className="mb-2 font-semibold text-blue-600">Quick Start</h2>
@@ -754,6 +788,16 @@ function UnitSwitcher({ locale }) {
 								<td className="px-4 py-3"><code className="bg-emerald-500/10 text-emerald-600 px-1 rounded">200</code></td>
 								<td className="px-4 py-3 text-muted-foreground">Success</td>
 								<td className="px-4 py-3">Requested data</td>
+							</tr>
+							<tr className="border-b">
+								<td className="px-4 py-3"><code className="bg-amber-500/10 text-amber-600 px-1 rounded">401</code></td>
+								<td className="px-4 py-3 text-muted-foreground">Unauthorized</td>
+								<td className="px-4 py-3"><code className="text-xs">{`{ "error": "API key required" }`}</code></td>
+							</tr>
+							<tr className="border-b">
+								<td className="px-4 py-3"><code className="bg-amber-500/10 text-amber-600 px-1 rounded">403</code></td>
+								<td className="px-4 py-3 text-muted-foreground">Forbidden</td>
+								<td className="px-4 py-3"><code className="text-xs">{`{ "error": "Insufficient permissions" }`}</code></td>
 							</tr>
 							<tr className="border-b">
 								<td className="px-4 py-3"><code className="bg-amber-500/10 text-amber-600 px-1 rounded">404</code></td>

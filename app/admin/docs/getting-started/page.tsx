@@ -12,7 +12,8 @@ import {
   Globe,
   Database,
   Layers,
-  Settings
+  Settings,
+  Ruler
 } from "lucide-react";
 
 interface StepProps {
@@ -93,6 +94,10 @@ export default function GettingStartedPage() {
           <InfoCard icon={TableProperties} title="Size Charts">
             <p>The actual data tables with measurements.</p>
             <p className="mt-1">Can belong to multiple categories.</p>
+          </InfoCard>
+          <InfoCard icon={Ruler} title="Measurement Instructions">
+            <p>How-to-measure guidance for each chart.</p>
+            <p className="mt-1">Customize per chart from available instructions.</p>
           </InfoCard>
         </div>
 
@@ -232,6 +237,13 @@ export default function GettingStartedPage() {
               </li>
               <li className="flex gap-3">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">4</span>
+                <div>
+                  <p className="font-medium">Select Measurement Instructions</p>
+                  <p className="text-muted-foreground">Choose which &quot;How to Measure&quot; instructions appear on the public page for this chart.</p>
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">5</span>
                 <div>
                   <p className="font-medium">Save and Publish</p>
                   <p className="text-muted-foreground">Draft charts are only visible in admin. Publish to make them available via API.</p>

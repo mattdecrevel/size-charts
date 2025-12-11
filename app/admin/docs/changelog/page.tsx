@@ -17,6 +17,8 @@ import {
   Database,
   Settings,
   Languages,
+  Ruler,
+  Key,
 } from "lucide-react";
 
 interface ChangelogEntryProps {
@@ -237,6 +239,24 @@ export default function ChangelogPage() {
                 description="Standardized label keys (SIZE_SM, etc.) for i18n. See API docs for translation examples."
                 status="done"
               />
+              <RoadmapItem
+                icon={Key}
+                title="API Key Authentication"
+                description="SHA256-hashed API keys with scopes (read/write) for v1 endpoints."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Globe}
+                title="CORS Configuration"
+                description="Environment-based allowed origins with preflight support."
+                status="done"
+              />
+              <RoadmapItem
+                icon={Ruler}
+                title="Measurement Instructions"
+                description="Dynamic how-to-measure content per chart, editable in admin."
+                status="done"
+              />
             </div>
           </div>
 
@@ -246,20 +266,6 @@ export default function ChangelogPage() {
               Planned
             </h3>
             <div className="space-y-3">
-              <RoadmapItem
-                icon={Shield}
-                title="API Authentication"
-                description="API key-based authentication for v1 endpoints."
-                status="planned"
-                priority="high"
-              />
-              <RoadmapItem
-                icon={Globe}
-                title="CORS Configuration"
-                description="Configurable allowed origins for API consumers."
-                status="planned"
-                priority="high"
-              />
               <RoadmapItem
                 icon={Zap}
                 title="Webhooks"
@@ -299,11 +305,6 @@ export default function ChangelogPage() {
                 status="considering"
               />
               <RoadmapItem
-                title="Measurement Instructions"
-                description="How-to-measure guidance content for each measurement type."
-                status="considering"
-              />
-              <RoadmapItem
                 title="Print Styles"
                 description="Optimized print stylesheet for end-user printing."
                 status="considering"
@@ -318,6 +319,21 @@ export default function ChangelogPage() {
         <h2 className="mb-4 text-lg font-semibold">Changelog</h2>
 
         <div className="rounded-lg border bg-card p-6">
+          <ChangelogEntry
+            version="0.5.0"
+            date="December 11, 2024"
+            changes={[
+              { type: "feature", description: "API key authentication with SHA256 hashing, scopes (read/write), and Bearer token support" },
+              { type: "feature", description: "CORS configuration with environment-based allowed origins and preflight support" },
+              { type: "feature", description: "Measurement Instructions - dynamic how-to-measure content assignable per chart" },
+              { type: "feature", description: "Measurement Instructions admin UI - selector component in chart editor" },
+              { type: "feature", description: "API Key management UI - create, view, revoke API keys in admin" },
+              { type: "feature", description: "Public chart pages now display chart-specific measurement instructions" },
+              { type: "improvement", description: "Updated v1 API routes with authentication middleware" },
+              { type: "improvement", description: "Seed data includes 11 measurement instructions linked to charts" },
+            ]}
+          />
+
           <ChangelogEntry
             version="0.4.0"
             date="December 11, 2024"
@@ -380,16 +396,6 @@ export default function ChangelogPage() {
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
             <div>
-              <p className="font-medium">No API authentication</p>
-              <p className="text-sm text-muted-foreground">
-                v1 API endpoints are currently open. Need to implement API key auth before production use.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
-            <div>
               <p className="font-medium">CM values not auto-computed on API write</p>
               <p className="text-sm text-muted-foreground">
                 If updating via API, you must provide both inch and cm values. Consider auto-computing cm from inches.
@@ -413,6 +419,16 @@ export default function ChangelogPage() {
               <p className="font-medium">No error tracking</p>
               <p className="text-sm text-muted-foreground">
                 No Sentry or similar integration for production error monitoring.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
+            <div>
+              <p className="font-medium">No admin authentication</p>
+              <p className="text-sm text-muted-foreground">
+                Admin dashboard is open to anyone. Consider adding user auth for production.
               </p>
             </div>
           </div>
