@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { TableProperties, Settings, Code2, FileText, Ruler } from "lucide-react";
+import { TableProperties, Settings, Code2, FileText } from "lucide-react";
 
 const navLinks = [
-  { name: "Size Guide", href: "/size-guide", icon: Ruler },
   { name: "Demo", href: "/demo", icon: Code2 },
   { name: "Docs", href: "/docs", icon: FileText },
 ];

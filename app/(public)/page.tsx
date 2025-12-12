@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Code2, FileText, Layers, Globe, Key, Gauge, ArrowRight, Ruler, ChevronRight } from "lucide-react";
+import { Code2, FileText, Layers, Globe, Key, Gauge, ArrowRight, ChevronRight } from "lucide-react";
 import { db } from "@/lib/db";
 
 const features = [
@@ -37,17 +37,10 @@ const features = [
 
 const quickLinks = [
   {
-    href: "/size-guide",
-    icon: Ruler,
-    title: "Size Guide",
-    description: "Browse size charts by category - the end-user experience.",
-    cta: "Browse Charts",
-  },
-  {
     href: "/demo",
     icon: Code2,
-    title: "Widget Demo",
-    description: "See the embeddable widget in action with live examples.",
+    title: "Demo & Size Guide",
+    description: "Widget examples, live builder, and browse all size charts by category.",
     cta: "View Demo",
   },
   {
@@ -123,13 +116,6 @@ export default async function HomePage() {
           >
             <FileText className="h-4 w-4" />
             Docs
-          </Link>
-          <Link
-            href="/size-guide"
-            className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-6 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-50 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-          >
-            <Ruler className="h-4 w-4" />
-            Size Guide
           </Link>
         </div>
       </div>
