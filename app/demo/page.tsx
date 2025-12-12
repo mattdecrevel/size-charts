@@ -1,79 +1,73 @@
-"use client";
+import Link from "next/link";
+import { Code2, Wand2, ExternalLink, ArrowRight } from "lucide-react";
 
-import { useEffect } from "react";
-import Script from "next/script";
-import { EmbedGuideContent } from "@/components/docs";
+const demos = [
+  {
+    href: "/demo/embed",
+    icon: Code2,
+    title: "Embed Widget Examples",
+    description: "Pre-configured widget examples showing light/dark themes, units, and compact mode.",
+  },
+  {
+    href: "/demo/live",
+    icon: Wand2,
+    title: "Live Builder",
+    description: "Interactive builder to configure and preview the widget with your settings.",
+  },
+  {
+    href: "/embed/demo.html",
+    icon: ExternalLink,
+    title: "Standalone HTML",
+    description: "Pure HTML example showing how to embed the widget without a framework.",
+    external: true,
+  },
+];
 
 export default function DemoPage() {
-  // Re-initialize widgets after script loads
-  useEffect(() => {
-    // @ts-expect-error - SizeCharts is loaded from external script
-    if (typeof window !== "undefined" && window.SizeCharts) {
-      // @ts-expect-error - SizeCharts is loaded from external script
-      window.SizeCharts.init();
-    }
-  }, []);
-
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Embed Widget Demo</h1>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Demo</h1>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-          See the size chart widget in action with different configurations.
+          Explore different ways to use the size chart widget.
         </p>
       </div>
 
-      {/* Live Widget Examples */}
-      <section className="mb-12">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-6">Live Examples</h2>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {demos.map((demo) => (
+          <Link
+            key={demo.href}
+            href={demo.href}
+            target={demo.external ? "_blank" : undefined}
+            rel={demo.external ? "noopener noreferrer" : undefined}
+            className="group rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+          >
+            <demo.icon className="h-8 w-8 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 mb-4" />
+            <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-1">
+              {demo.title}
+            </h2>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+              {demo.description}
+            </p>
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-zinc-900 dark:text-zinc-50 group-hover:gap-2 transition-all">
+              {demo.external ? "Open" : "View"}
+              <ArrowRight className="h-4 w-4" />
+            </span>
+          </Link>
+        ))}
+      </div>
 
-        {/* Light Theme */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wide mb-3">
-            Light Theme (Inches)
-          </h3>
-          <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white p-6">
-            <div data-chart="mens-tops" data-unit="in" data-theme="light"></div>
-          </div>
-        </div>
-
-        {/* Dark Theme */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wide mb-3">
-            Dark Theme (Centimeters)
-          </h3>
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-            <div data-chart="womens-bottoms" data-unit="cm" data-theme="dark"></div>
-          </div>
-        </div>
-
-        {/* Compact */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wide mb-3">
-            Compact Mode
-          </h3>
-          <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white p-6">
-            <div data-chart="mens-gloves" data-unit="in" data-theme="light" data-compact="true"></div>
-          </div>
-        </div>
-      </section>
-
-      {/* Configuration Docs */}
-      <EmbedGuideContent showTitle={false} />
-
-      {/* Load the embed script */}
-      <Script
-        src="/embed/size-charts.js"
-        data-api=""
-        strategy="afterInteractive"
-        onLoad={() => {
-          // @ts-expect-error - SizeCharts is loaded from external script
-          if (window.SizeCharts) {
-            // @ts-expect-error - SizeCharts is loaded from external script
-            window.SizeCharts.init();
-          }
-        }}
-      />
+      {/* Quick info */}
+      <div className="mt-12 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-6">
+        <h2 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-3">Quick Embed</h2>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+          Add size charts to any website with just two lines of code:
+        </p>
+        <pre className="rounded-lg bg-zinc-950 p-4 text-sm text-zinc-100 overflow-x-auto">
+          <code>{`<div data-chart="mens-tops"></div>
+<script src="https://your-domain.com/embed/size-charts.js" data-api="https://your-domain.com"></script>`}</code>
+        </pre>
+      </div>
     </div>
   );
 }

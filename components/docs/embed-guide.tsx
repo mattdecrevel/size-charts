@@ -181,15 +181,25 @@ SizeCharts.setApiUrl("https://api.example.com");`}
       {/* Demo Links */}
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-4">Live Demos</h2>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           <a
-            href="/demo"
+            href="/demo/embed"
             className="rounded-lg border bg-card p-4 hover:border-primary/50 transition-colors flex items-center gap-3"
           >
             <ExternalLink className="h-5 w-5 text-muted-foreground" />
             <div>
-              <div className="font-medium">Widget Demo</div>
-              <div className="text-sm text-muted-foreground">Interactive examples with configuration</div>
+              <div className="font-medium">Widget Examples</div>
+              <div className="text-sm text-muted-foreground">Pre-configured themes</div>
+            </div>
+          </a>
+          <a
+            href="/demo/live"
+            className="rounded-lg border bg-card p-4 hover:border-primary/50 transition-colors flex items-center gap-3"
+          >
+            <ExternalLink className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <div className="font-medium">Live Builder</div>
+              <div className="text-sm text-muted-foreground">Configure and preview</div>
             </div>
           </a>
           <a
@@ -201,7 +211,7 @@ SizeCharts.setApiUrl("https://api.example.com");`}
             <ExternalLink className="h-5 w-5 text-muted-foreground" />
             <div>
               <div className="font-medium">Standalone HTML</div>
-              <div className="text-sm text-muted-foreground">Pure HTML embed example</div>
+              <div className="text-sm text-muted-foreground">Pure HTML example</div>
             </div>
           </a>
         </div>
