@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Code2 } from "lucide-react";
 
 export default async function SizeGuidePage() {
   const categories = await db.category.findMany({
@@ -47,6 +47,17 @@ export default async function SizeGuidePage() {
         <p className="text-zinc-600 dark:text-zinc-400">
           Find your perfect fit with our comprehensive size charts
         </p>
+      </div>
+
+      {/* Embed Widget Demo Link */}
+      <div className="mb-8">
+        <Link
+          href="/size-guide/demo"
+          className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+        >
+          <Code2 className="h-4 w-4" />
+          View Embed Widget Demo
+        </Link>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

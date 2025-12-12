@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Code, History, ArrowRight, Code2 } from "lucide-react";
+import { BookOpen, Code, History, ArrowRight, Code2, FileUp, ExternalLink } from "lucide-react";
 
 const docs = [
   {
@@ -78,9 +78,40 @@ export default function DocsPage() {
           <Link href="/admin/categories" className="text-sm text-primary hover:underline">
             → View categories
           </Link>
-          <Link href="/size-guide" className="text-sm text-primary hover:underline" target="_blank">
-            → View public size guide
+          <Link href="/admin/api-keys" className="text-sm text-primary hover:underline">
+            → Manage API keys
           </Link>
+          <Link href="/size-guide" className="text-sm text-primary hover:underline" target="_blank">
+            → View public size guide <ExternalLink className="inline h-3 w-3 ml-1" />
+          </Link>
+          <Link href="/size-guide/demo" className="text-sm text-primary hover:underline" target="_blank">
+            → Frontend embed demo <ExternalLink className="inline h-3 w-3 ml-1" />
+          </Link>
+          <Link href="/embed/demo.html" className="text-sm text-primary hover:underline" target="_blank">
+            → Standalone embed demo <ExternalLink className="inline h-3 w-3 ml-1" />
+          </Link>
+          <Link href="/api/docs" className="text-sm text-primary hover:underline" target="_blank">
+            → Swagger API docs <ExternalLink className="inline h-3 w-3 ml-1" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Import/Export Info */}
+      <div className="mt-6 rounded-lg border bg-muted/50 p-6">
+        <div className="flex items-start gap-4">
+          <div className="rounded-lg bg-primary/10 p-3">
+            <FileUp className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="font-semibold">Import & Export</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Export all size charts to JSON for backup or migration. Import from JSON to bulk-create charts.
+              Available on the{" "}
+              <Link href="/admin/size-charts" className="text-primary hover:underline">
+                Size Charts page
+              </Link>.
+            </p>
+          </div>
         </div>
       </div>
     </div>
