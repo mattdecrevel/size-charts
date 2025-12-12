@@ -203,40 +203,39 @@
     document.head.appendChild(style);
   }
 
-  // Format a cell value
+  // Format a cell value based on v1 API format
   function formatValue(cell, unit) {
     if (!cell) return '—';
 
-    // Label value
-    if (cell.label) {
-      return cell.label.displayValue;
-    }
+    const suffix = unit === 'cm' ? ' cm' : '"';
 
-    // Text value
-    if (cell.valueText) {
-      return cell.valueText;
+    // Text or label value
+    if (cell.type === 'text' || cell.type === 'label') {
+      return escapeHtml(cell.value || '');
     }
 
     // Range value
-    if (cell.valueMinInches !== null || cell.valueMaxInches !== null) {
-      const min = unit === 'cm' ? cell.valueMinCm : cell.valueMinInches;
-      const max = unit === 'cm' ? cell.valueMaxCm : cell.valueMaxInches;
-      const suffix = unit === 'cm' ? ' cm' : '"';
-
-      if (min !== null && max !== null) {
-        return `<span class="sc-range">${min}<span class="sc-range-sep"> – </span>${max}${suffix}</span>`;
-      } else if (min !== null) {
-        return `${min}+${suffix}`;
-      } else if (max !== null) {
-        return `≤${max}${suffix}`;
+    if (cell.type === 'range') {
+      const values = unit === 'cm' ? cell.cm : cell.inches;
+      if (values) {
+        const min = values.min;
+        const max = values.max;
+        if (min !== null && min !== undefined && max !== null && max !== undefined) {
+          return `<span class="sc-range">${min}<span class="sc-range-sep"> – </span>${max}${suffix}</span>`;
+        } else if (min !== null && min !== undefined) {
+          return `<span class="sc-measurement">${min}+${suffix}</span>`;
+        } else if (max !== null && max !== undefined) {
+          return `<span class="sc-measurement">≤${max}${suffix}</span>`;
+        }
       }
     }
 
     // Single measurement
-    if (cell.valueInches !== null) {
-      const value = unit === 'cm' ? cell.valueCm : cell.valueInches;
-      const suffix = unit === 'cm' ? ' cm' : '"';
-      return `<span class="sc-measurement">${value}${suffix}</span>`;
+    if (cell.type === 'measurement') {
+      const value = unit === 'cm' ? cell.cm : cell.inches;
+      if (value !== null && value !== undefined) {
+        return `<span class="sc-measurement">${value}${suffix}</span>`;
+      }
     }
 
     return '—';
@@ -296,6 +295,7 @@
 
   // Escape HTML
   function escapeHtml(str) {
+    if (!str) return '';
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
@@ -308,7 +308,7 @@
       headers['X-API-Key'] = apiKey;
     }
 
-    const response = await fetch(`${apiUrl}/api/v1/size-charts/${encodeURIComponent(slug)}`, {
+    const response = await fetch(`${apiUrl}/api/v1/size-charts?slug=${encodeURIComponent(slug)}`, {
       headers
     });
 

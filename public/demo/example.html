@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Size Charts Widget - Example Integration</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.5;
+      color: #18181b;
+      background: #fafafa;
+      padding: 48px 24px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 48px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: #71717a;
+      font-size: 16px;
+    }
+    .section {
+      margin-bottom: 48px;
+    }
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #a1a1aa;
+      margin-bottom: 12px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .card.dark {
+      background: #18181b;
+      border-color: #27272a;
+    }
+    .code-card {
+      background: #09090b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+    }
+    pre {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #fafafa;
+      margin: 0;
+    }
+    .comment { color: #71717a; }
+    .tag { color: #60a5fa; }
+    .attr { color: #a5b4fc; }
+    .value { color: #fbbf24; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e4e4e7;
+    }
+    th {
+      font-weight: 600;
+      color: #52525b;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    td code {
+      background: #f4f4f5;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: #18181b;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #71717a;
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .back-link:hover {
+      color: #18181b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/demo" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to Demo
+    </a>
+
+    <header>
+      <h1>Widget Integration Example</h1>
+      <p class="subtitle">This standalone HTML page demonstrates how the size chart widget looks when embedded on an external website.</p>
+    </header>
+
+    <!-- Light Theme -->
+    <div class="section">
+      <p class="section-label">Light Theme</p>
+      <div class="card">
+        <div data-chart="mens-tops" data-unit="in" data-theme="light"></div>
+      </div>
+    </div>
+
+    <!-- Dark Theme -->
+    <div class="section">
+      <p class="section-label">Dark Theme</p>
+      <div class="card dark">
+        <div data-chart="womens-bottoms" data-unit="cm" data-theme="dark"></div>
+      </div>
+    </div>
+
+    <!-- Compact Mode -->
+    <div class="section">
+      <p class="section-label">Compact Mode</p>
+      <div class="card">
+        <div data-chart="mens-gloves" data-theme="light" data-compact="true"></div>
+      </div>
+    </div>
+
+    <!-- Embed Code -->
+    <div class="section">
+      <p class="section-label">Embed Code</p>
+      <div class="code-card">
+        <pre><span class="comment">&lt;!-- Add container where you want the chart --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">data-chart</span>=<span class="value">"mens-tops"</span>
+     <span class="attr">data-unit</span>=<span class="value">"in"</span>
+     <span class="attr">data-theme</span>=<span class="value">"light"</span><span class="tag">&gt;&lt;/div&gt;</span>
+
+<span class="comment">&lt;!-- Add script before &lt;/body&gt; --&gt;</span>
+<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="value">"https://your-domain.com/embed/size-charts.js"</span>
+        <span class="attr">data-api</span>=<span class="value">"https://your-domain.com"</span><span class="tag">&gt;&lt;/script&gt;</span></pre>
+      </div>
+    </div>
+
+    <!-- Options -->
+    <div class="section">
+      <p class="section-label">Configuration Options</p>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Attribute</th>
+              <th>Values</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>data-chart</code></td>
+              <td>Chart slug</td>
+              <td>Required. The chart to display.</td>
+            </tr>
+            <tr>
+              <td><code>data-unit</code></td>
+              <td><code>in</code> / <code>cm</code></td>
+              <td>Default measurement unit.</td>
+            </tr>
+            <tr>
+              <td><code>data-theme</code></td>
+              <td><code>light</code> / <code>dark</code></td>
+              <td>Color theme.</td>
+            </tr>
+            <tr>
+              <td><code>data-compact</code></td>
+              <td><code>true</code></td>
+              <td>Compact styling.</td>
+            </tr>
+            <tr>
+              <td><code>data-api-key</code></td>
+              <td>API key</td>
+              <td>For authenticated requests.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="/embed/size-charts.js" data-api=""></script>
+</body>
+</html>
