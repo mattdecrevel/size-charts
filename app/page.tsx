@@ -161,53 +161,49 @@ export default async function HomePage() {
         {categoriesWithCounts.length > 0 && (
           <div className="mb-12">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Available Size Charts</h2>
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Size Charts</h2>
               <Link
                 href="/size-guide"
                 className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1"
               >
-                View all <ChevronRight className="h-4 w-4" />
+                Browse all <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {categoriesWithCounts.map((category) => (
-                <div
-                  key={category.id}
-                  className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden"
-                >
-                  <div className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-4 py-3">
-                    <div className="flex items-center justify-between">
+            <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-zinc-200 dark:divide-zinc-800">
+                {categoriesWithCounts.map((category) => (
+                  <div key={category.id} className="p-5">
+                    <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">
                         {category.name}
                       </h3>
-                      <span className="text-xs text-zinc-500 bg-zinc-200 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
-                        {category.totalCharts}
+                      <span className="text-xs text-zinc-500">
+                        {category.totalCharts} charts
                       </span>
                     </div>
-                  </div>
-                  <div className="p-3">
-                    <div className="flex flex-wrap gap-2">
-                      {category.subcategories.slice(0, 4).map((sub) => (
+                    <div className="space-y-1.5">
+                      {category.subcategories.slice(0, 3).map((sub) => (
                         <Link
                           key={sub.id}
                           href={`/size-guide/${category.slug}/${sub.slug}`}
-                          className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:underline"
+                          className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 group"
                         >
-                          {sub.name}
+                          <span className="truncate">{sub.name}</span>
+                          <ChevronRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                         </Link>
                       ))}
-                      {category.subcategories.length > 4 && (
+                      {category.subcategories.length > 3 && (
                         <Link
-                          href="/size-guide"
-                          className="text-sm text-zinc-400 hover:text-zinc-600"
+                          href={`/size-guide`}
+                          className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
                         >
-                          +{category.subcategories.length - 4} more
+                          +{category.subcategories.length - 3} more
                         </Link>
                       )}
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         )}
