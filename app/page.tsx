@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Code2, FileText, Layers, Globe, Key, Gauge, ArrowRight, Ruler } from "lucide-react";
+import { Code2, FileText, Layers, Globe, Key, Gauge, ArrowRight, Ruler, ChevronRight } from "lucide-react";
 import { PublicLayout } from "@/components/public-layout";
+import { db } from "@/lib/db";
 
 const features = [
   {
@@ -59,7 +60,45 @@ const quickLinks = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Fetch categories with chart counts
+  const categories = await db.category.findMany({
+    orderBy: { displayOrder: "asc" },
+    include: {
+      subcategories: {
+        orderBy: { displayOrder: "asc" },
+      },
+    },
+  });
+
+  const subcategoryCounts = await db.sizeChartSubcategory.groupBy({
+    by: ["subcategoryId"],
+    where: {
+      sizeChart: { isPublished: true },
+    },
+    _count: {
+      sizeChartId: true,
+    },
+  });
+
+  const countMap = new Map(
+    subcategoryCounts.map((c) => [c.subcategoryId, c._count.sizeChartId])
+  );
+
+  const categoriesWithCounts = categories.map((category) => ({
+    ...category,
+    subcategories: category.subcategories
+      .map((sub) => ({
+        ...sub,
+        chartCount: countMap.get(sub.id) || 0,
+      }))
+      .filter((sub) => sub.chartCount > 0),
+    totalCharts: category.subcategories.reduce(
+      (sum, sub) => sum + (countMap.get(sub.id) || 0),
+      0
+    ),
+  })).filter((cat) => cat.totalCharts > 0);
+
   return (
     <PublicLayout>
       <div>
@@ -117,6 +156,61 @@ export default function HomePage() {
             ))}
           </div>
         </div>
+
+        {/* Size Charts Section */}
+        {categoriesWithCounts.length > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Available Size Charts</h2>
+              <Link
+                href="/size-guide"
+                className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1"
+              >
+                View all <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {categoriesWithCounts.map((category) => (
+                <div
+                  key={category.id}
+                  className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden"
+                >
+                  <div className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-4 py-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">
+                        {category.name}
+                      </h3>
+                      <span className="text-xs text-zinc-500 bg-zinc-200 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
+                        {category.totalCharts}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <div className="flex flex-wrap gap-2">
+                      {category.subcategories.slice(0, 4).map((sub) => (
+                        <Link
+                          key={sub.id}
+                          href={`/size-guide/${category.slug}/${sub.slug}`}
+                          className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:underline"
+                        >
+                          {sub.name}
+                        </Link>
+                      ))}
+                      {category.subcategories.length > 4 && (
+                        <Link
+                          href="/size-guide"
+                          className="text-sm text-zinc-400 hover:text-zinc-600"
+                        >
+                          +{category.subcategories.length - 4} more
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Quick Links */}
         <div className="mb-12">

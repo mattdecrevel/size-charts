@@ -48,7 +48,7 @@ export default async function SizeGuidePage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {categoriesWithCounts.map((category) => (
           <div
             key={category.id}

@@ -15,11 +15,10 @@ const demos = [
     description: "Interactive builder to configure and preview the widget with your settings.",
   },
   {
-    href: "/embed/demo.html",
+    href: "/demo/standalone",
     icon: ExternalLink,
-    title: "Standalone HTML",
-    description: "Pure HTML example showing how to embed the widget without a framework.",
-    external: true,
+    title: "Standalone Demo",
+    description: "See how the widget looks when embedded in an external website.",
   },
 ];
 
@@ -38,8 +37,6 @@ export default function DemoPage() {
           <Link
             key={demo.href}
             href={demo.href}
-            target={demo.external ? "_blank" : undefined}
-            rel={demo.external ? "noopener noreferrer" : undefined}
             className="group rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
           >
             <demo.icon className="h-8 w-8 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 mb-4" />
@@ -50,7 +47,7 @@ export default function DemoPage() {
               {demo.description}
             </p>
             <span className="inline-flex items-center gap-1 text-sm font-medium text-zinc-900 dark:text-zinc-50 group-hover:gap-2 transition-all">
-              {demo.external ? "Open" : "View"}
+              View
               <ArrowRight className="h-4 w-4" />
             </span>
           </Link>

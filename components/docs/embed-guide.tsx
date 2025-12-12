@@ -203,15 +203,13 @@ SizeCharts.setApiUrl("https://api.example.com");`}
             </div>
           </a>
           <a
-            href="/embed/demo.html"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/demo/standalone"
             className="rounded-lg border bg-card p-4 hover:border-primary/50 transition-colors flex items-center gap-3"
           >
             <ExternalLink className="h-5 w-5 text-muted-foreground" />
             <div>
-              <div className="font-medium">Standalone HTML</div>
-              <div className="text-sm text-muted-foreground">Pure HTML example</div>
+              <div className="font-medium">Standalone Demo</div>
+              <div className="text-sm text-muted-foreground">External embed example</div>
             </div>
           </a>
         </div>
