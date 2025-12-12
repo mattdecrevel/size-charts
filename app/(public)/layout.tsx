@@ -1,14 +1,13 @@
 import Link from "next/link";
-import { TableProperties, Settings, Code2, FileText, History, Ruler } from "lucide-react";
+import { TableProperties, Settings, Code2, FileText, Ruler } from "lucide-react";
 
 const navLinks = [
   { name: "Size Guide", href: "/size-guide", icon: Ruler },
   { name: "Demo", href: "/demo", icon: Code2 },
-  { name: "API Docs", href: "/docs", icon: FileText },
-  { name: "Changelog", href: "/changelog", icon: History },
+  { name: "Docs", href: "/docs", icon: FileText },
 ];
 
-export function PublicLayout({ children }: { children: React.ReactNode }) {
+export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950">
       <header className="border-b border-zinc-200 dark:border-zinc-800">
