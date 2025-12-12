@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Code2, FileText, Layers, Globe, Key, Gauge, ArrowRight } from "lucide-react";
+import { Code2, FileText, Layers, Globe, Key, Gauge, ArrowRight, ChevronRight } from "lucide-react";
+import { db } from "@/lib/db";
 
 const features = [
   {
@@ -36,7 +37,7 @@ const features = [
 
 const quickLinks = [
   {
-    href: "/size-guide/demo",
+    href: "/demo",
     icon: Code2,
     title: "Embed Widget Demo",
     description: "See the widget in action with different themes and configurations.",
@@ -59,7 +60,45 @@ const quickLinks = [
   },
 ];
 
-export default function SizeGuidePage() {
+export default async function SizeGuidePage() {
+  // Fetch categories with subcategories and chart counts
+  const categories = await db.category.findMany({
+    orderBy: { displayOrder: "asc" },
+    include: {
+      subcategories: {
+        orderBy: { displayOrder: "asc" },
+      },
+    },
+  });
+
+  // Get count of published size charts per subcategory
+  const subcategoryCounts = await db.sizeChartSubcategory.groupBy({
+    by: ["subcategoryId"],
+    where: {
+      sizeChart: { isPublished: true },
+    },
+    _count: {
+      sizeChartId: true,
+    },
+  });
+
+  const countMap = new Map(
+    subcategoryCounts.map((c) => [c.subcategoryId, c._count.sizeChartId])
+  );
+
+  // Add counts to categories
+  const categoriesWithCounts = categories.map((category) => ({
+    ...category,
+    subcategories: category.subcategories.map((sub) => ({
+      ...sub,
+      chartCount: countMap.get(sub.id) || 0,
+    })),
+    totalCharts: category.subcategories.reduce(
+      (sum, sub) => sum + (countMap.get(sub.id) || 0),
+      0
+    ),
+  }));
+
   return (
     <div>
       {/* Hero */}
@@ -73,7 +112,7 @@ export default function SizeGuidePage() {
         </p>
         <div className="flex items-center justify-center gap-4">
           <Link
-            href="/size-guide/demo"
+            href="/demo"
             className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 dark:bg-zinc-50 px-6 py-3 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200"
           >
             <Code2 className="h-4 w-4" />
@@ -105,6 +144,50 @@ export default function SizeGuidePage() {
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 {feature.description}
               </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Size Charts Section */}
+      <div className="mb-12">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-6">
+          Available Size Charts
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {categoriesWithCounts.map((category) => (
+            <div
+              key={category.id}
+              className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">
+                  {category.name}
+                </h3>
+                <span className="text-xs text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
+                  {category.totalCharts} charts
+                </span>
+              </div>
+              <div className="space-y-1">
+                {category.subcategories
+                  .filter((sub) => sub.chartCount > 0)
+                  .slice(0, 4)
+                  .map((sub) => (
+                    <Link
+                      key={sub.id}
+                      href={`/size-guide/${category.slug}/${sub.slug}`}
+                      className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 py-1"
+                    >
+                      <span>{sub.name}</span>
+                      <ChevronRight className="h-3 w-3" />
+                    </Link>
+                  ))}
+                {category.subcategories.filter((sub) => sub.chartCount > 0).length > 4 && (
+                  <span className="text-xs text-zinc-400">
+                    +{category.subcategories.filter((sub) => sub.chartCount > 0).length - 4} more
+                  </span>
+                )}
+              </div>
             </div>
           ))}
         </div>

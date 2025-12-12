@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import Script from "next/script";
 import { EmbedGuideContent } from "@/components/docs";
 
-export default function EmbedDemoPage() {
+export default function DemoPage() {
   // Re-initialize widgets after script loads
   useEffect(() => {
     // @ts-expect-error - SizeCharts is loaded from external script
@@ -18,19 +16,16 @@ export default function EmbedDemoPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Link
-        href="/size-guide"
-        className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 mb-6"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back
-      </Link>
-
-      <EmbedGuideContent />
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Embed Widget Demo</h1>
+        <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+          See the size chart widget in action with different configurations.
+        </p>
+      </div>
 
       {/* Live Widget Examples */}
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">Live Examples</h2>
+      <section className="mb-12">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-6">Live Examples</h2>
 
         {/* Light Theme */}
         <div className="mb-6">
@@ -62,6 +57,9 @@ export default function EmbedDemoPage() {
           </div>
         </div>
       </section>
+
+      {/* Configuration Docs */}
+      <EmbedGuideContent showTitle={false} />
 
       {/* Load the embed script */}
       <Script

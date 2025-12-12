@@ -7,7 +7,7 @@ const navLinks = [
   { name: "Changelog", href: "/size-guide/changelog", icon: History },
 ];
 
-export default function SizeGuideLayout({
+export default function DemoLayout({
   children,
 }: {
   children: React.ReactNode;
