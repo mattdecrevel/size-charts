@@ -18,7 +18,7 @@ const demos = [
     external: false,
   },
   {
-    href: "/embed/demo.html",
+    href: "/demo/example.html",
     icon: ExternalLink,
     title: "Standalone HTML",
     description: "Plain HTML page demonstrating the embed widget - opens in new tab.",

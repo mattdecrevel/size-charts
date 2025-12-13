@@ -5,7 +5,7 @@ const docsNav = [
   { href: "/docs/getting-started", label: "Getting Started", icon: BookOpen },
   { href: "/docs/api", label: "API Reference", icon: FileCode },
   { href: "/docs/embed", label: "Embed Widget", icon: Code2 },
-  { href: "/changelog", label: "Changelog", icon: History },
+  { href: "/docs/changelog", label: "Changelog", icon: History },
 ];
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
