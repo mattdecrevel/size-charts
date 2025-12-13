@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           _count: { select: { rows: true, columns: true } },
         },
         orderBy: [
-          { name: "asc" },
+          { updatedAt: "desc" },
         ],
         skip: (filters.page - 1) * filters.limit,
         take: filters.limit,

@@ -1,12 +1,16 @@
+"use client";
+
 import Link from "next/link";
-import { TableProperties, Settings, Code2, FileText } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Settings, Code2, FileText, Ruler } from "lucide-react";
 
 const navLinks = [
   { name: "Demo", href: "/demo", icon: Code2 },
   { name: "Docs", href: "/docs", icon: FileText },
+  { name: "Admin", href: "/admin", icon: Settings },
 ];
 
-// GitHub icon as inline SVG (lucide-react doesn't include brand icons)
+// GitHub icon as inline SVG
 function GitHubIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -15,57 +19,88 @@ function GitHubIcon({ className }: { className?: string }) {
   );
 }
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+function NavLink({ href, name, icon: Icon, isActive }: { href: string; name: string; icon: typeof Code2; isActive: boolean }) {
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950">
-      <header className="border-b border-zinc-200 dark:border-zinc-800">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2">
-              <TableProperties className="h-6 w-6 text-zinc-900 dark:text-zinc-50" />
-              <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+    <Link
+      href={href}
+      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+        isActive
+          ? "text-primary bg-primary/10"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+      }`}
+    >
+      <Icon className="h-4 w-4" />
+      {name}
+    </Link>
+  );
+}
+
+export default function PublicLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === "/admin") return pathname.startsWith("/admin");
+    if (href === "/docs") return pathname.startsWith("/docs");
+    if (href === "/demo") return pathname.startsWith("/demo");
+    return pathname === href;
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Subtle background glow */}
+      <div className="fixed inset-0 hero-glow pointer-events-none" aria-hidden="true" />
+
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+          {/* Logo & Nav */}
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-soft group-hover:shadow-soft-md transition-shadow">
+                <Ruler className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="text-lg font-semibold text-foreground tracking-tight">
                 Size Charts
               </span>
             </Link>
+
+            {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
-                <Link
+                <NavLink
                   key={link.href}
                   href={link.href}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                >
-                  <link.icon className="h-4 w-4" />
-                  {link.name}
-                </Link>
+                  name={link.name}
+                  icon={link.icon}
+                  isActive={isActive(link.href)}
+                />
               ))}
             </nav>
           </div>
-          <div className="flex items-center gap-4">
-            <a
-              href="https://github.com/your-org/size-charts"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-              aria-label="GitHub"
-            >
-              <GitHubIcon className="h-5 w-5" />
-            </a>
-            <Link
-              href="/admin"
-              className="flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Admin</span>
-            </Link>
-          </div>
+
+          {/* GitHub Icon */}
+          <a
+            href="https://github.com/your-org/size-charts"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            aria-label="GitHub"
+          >
+            <GitHubIcon className="h-5 w-5" />
+          </a>
         </div>
-        {/* Mobile nav */}
-        <nav className="md:hidden border-t border-zinc-200 dark:border-zinc-800 px-4 py-2 flex items-center gap-4 overflow-x-auto">
+
+        {/* Mobile Nav */}
+        <nav className="md:hidden border-t border-border/40 px-4 py-2 flex items-center gap-1 overflow-x-auto">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="flex items-center gap-1.5 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 whitespace-nowrap"
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                isActive(link.href)
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              }`}
             >
               <link.icon className="h-4 w-4" />
               {link.name}
@@ -73,7 +108,39 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           ))}
         </nav>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+
+      {/* Main Content */}
+      <main className="relative mx-auto max-w-6xl px-4 sm:px-6 py-10 sm:py-14">
+        {children}
+      </main>
+
+      {/* Footer */}
+      <footer className="relative border-t border-border/40 mt-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Ruler className="h-4 w-4" />
+              <span>Size Charts API</span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <Link href="/docs" className="hover:text-foreground transition-colors">
+                Docs
+              </Link>
+              <Link href="/demo" className="hover:text-foreground transition-colors">
+                Demo
+              </Link>
+              <a
+                href="https://github.com/your-org/size-charts"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
