@@ -57,9 +57,10 @@ export default function AdminLayout({
   const breadcrumbs = getBreadcrumbs(pathname);
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset className="flex flex-col h-svh overflow-hidden bg-background">
+    <div className="h-svh overflow-hidden">
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
         {/* Admin Header */}
         <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
           {/* Mobile menu trigger */}
@@ -100,11 +101,12 @@ export default function AdminLayout({
           </Breadcrumb>
         </header>
 
-        {/* Main Content Area - single scroll container */}
-        <main className="flex-1 overflow-y-auto p-4">
+        {/* Content Area - single scroll container */}
+        <div className="flex-1 overflow-y-auto p-4">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+        </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
   );
 }
