@@ -431,17 +431,15 @@ X-RateLimit-Reset: 1702407600`}</code>
   }
 
   return (
-    <div className={`flex gap-8 ${className}`}>
+    <div className={`flex items-start gap-8 ${className}`}>
       {/* Main content */}
       <div className="flex-1 min-w-0">
         {content}
       </div>
 
-      {/* Right sidebar navigation */}
-      <aside className="hidden lg:block w-48 flex-shrink-0">
-        <div className="sticky top-4">
-          <SectionNav activeSection={activeSection} />
-        </div>
+      {/* Right sidebar navigation - sticky within scroll container */}
+      <aside className="hidden lg:block w-48 flex-shrink-0 sticky top-0 self-start">
+        <SectionNav activeSection={activeSection} />
       </aside>
     </div>
   );

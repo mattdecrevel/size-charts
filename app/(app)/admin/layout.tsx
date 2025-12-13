@@ -1,6 +1,6 @@
 "use client";
 
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/admin/app-sidebar";
 import {
   Breadcrumb,
@@ -11,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
+import { Menu } from "lucide-react";
 
 function getBreadcrumbs(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
@@ -58,9 +59,14 @@ export default function AdminLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="bg-background">
+      <SidebarInset className="flex flex-col h-svh overflow-hidden bg-background">
         {/* Admin Header */}
-        <header className="flex h-14 shrink-0 items-center border-b border-border px-4">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
+          {/* Mobile menu trigger */}
+          <SidebarTrigger className="md:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle menu</span>
+          </SidebarTrigger>
           <Breadcrumb>
             <BreadcrumbList className="text-sm">
               <BreadcrumbItem>
@@ -94,10 +100,10 @@ export default function AdminLayout({
           </Breadcrumb>
         </header>
 
-        {/* Main Content Area - scrollable within the inset border */}
-        <div className="flex-1 overflow-auto p-4">
+        {/* Main Content Area - single scroll container */}
+        <main className="flex-1 overflow-y-auto p-4">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
-        </div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );
