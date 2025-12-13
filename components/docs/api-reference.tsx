@@ -439,7 +439,7 @@ X-RateLimit-Reset: 1702407600`}</code>
 
       {/* Right sidebar navigation */}
       <aside className="hidden lg:block w-48 flex-shrink-0">
-        <div className="sticky top-24">
+        <div className="sticky top-4">
           <SectionNav activeSection={activeSection} />
         </div>
       </aside>
