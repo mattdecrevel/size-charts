@@ -12,6 +12,7 @@ import {
   Code2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default async function AdminDashboard() {
   const [sizeChartCount, categoryCount, publishedCount] = await Promise.all([
@@ -88,9 +89,13 @@ export default async function AdminDashboard() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="card-stat"
-            style={{ "--stat-color": stat.color } as React.CSSProperties}
+            className="relative rounded-xl border border-border bg-card p-6 overflow-hidden"
           >
+            {/* Colored top accent */}
+            <div
+              className="absolute top-0 left-0 right-0 h-1"
+              style={{ backgroundColor: stat.color }}
+            />
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
@@ -99,8 +104,7 @@ export default async function AdminDashboard() {
                 </p>
               </div>
               <div
-                className="flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{ backgroundColor: `color-mix(in oklch, ${stat.color} 15%, transparent)` }}
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted"
               >
                 <stat.icon
                   className="h-5 w-5"
@@ -113,8 +117,8 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Recently Updated */}
-      <div className="card-soft overflow-hidden">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="flex items-center justify-between border-b border-border bg-muted/30 px-6 py-4">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <h2 className="text-lg font-semibold text-foreground">
@@ -147,7 +151,7 @@ export default async function AdminDashboard() {
               <Link
                 key={chart.id}
                 href={`/admin/size-charts/${chart.id}`}
-                className="flex items-center justify-between px-6 py-4 hover:bg-muted/30 transition-colors group"
+                className="flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors group"
               >
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
@@ -160,9 +164,9 @@ export default async function AdminDashboard() {
                   </p>
                 </div>
                 <div className="flex items-center gap-4 ml-4 flex-shrink-0">
-                  <span className={chart.isPublished ? "badge-success" : "badge-muted"}>
+                  <Badge variant={chart.isPublished ? "default" : "secondary"}>
                     {chart.isPublished ? "Published" : "Draft"}
-                  </span>
+                  </Badge>
                   <span className="text-sm text-muted-foreground hidden sm:block">
                     {new Date(chart.updatedAt).toLocaleDateString("en-US", {
                       month: "short",
@@ -178,14 +182,14 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {quickActions.map((action) => (
           <Link
             key={action.href}
             href={action.href}
-            className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors group"
+            className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-border transition-colors group"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted group-hover:bg-muted">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
               <action.icon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
             </div>
             <span className="text-sm font-medium text-foreground">{action.label}</span>

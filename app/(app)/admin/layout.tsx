@@ -1,8 +1,7 @@
 "use client";
 
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/admin/app-sidebar";
-import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -62,8 +61,6 @@ export default function AdminLayout({
       <SidebarInset className="bg-background">
         {/* Admin Header */}
         <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6">
-          <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground" />
-          <Separator orientation="vertical" className="h-4 bg-border/50" />
           <Breadcrumb>
             <BreadcrumbList className="text-sm">
               <BreadcrumbItem>
