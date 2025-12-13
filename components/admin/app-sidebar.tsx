@@ -3,7 +3,19 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutGrid, TableProperties, FolderTree, ExternalLink, Ruler, Tag, BookOpen, Code, History, KeyRound, LogOut } from "lucide-react";
+import {
+  LayoutGrid,
+  TableProperties,
+  FolderTree,
+  ExternalLink,
+  Ruler,
+  Tag,
+  BookOpen,
+  Code,
+  History,
+  KeyRound,
+  LogOut,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -38,7 +50,6 @@ export function AppSidebar() {
   const [authEnabled, setAuthEnabled] = useState(false);
 
   useEffect(() => {
-    // Check if auth is enabled
     fetch("/api/admin/auth")
       .then((res) => res.json())
       .then((data) => setAuthEnabled(data.authEnabled))
@@ -51,23 +62,22 @@ export function AppSidebar() {
       router.push("/admin/login");
       router.refresh();
     } catch {
-      // Ignore errors, just redirect
       router.push("/admin/login");
     }
   };
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild className="hover:bg-sidebar-accent">
               <Link href="/admin">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Ruler className="size-4" />
+                <div className="flex aspect-square size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-soft">
+                  <Ruler className="size-5" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Size Charts</span>
+                  <span className="truncate font-semibold text-sidebar-foreground">Size Charts</span>
                   <span className="truncate text-xs text-muted-foreground">Admin Panel</span>
                 </div>
               </Link>
@@ -78,7 +88,9 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigation.map((item) => {
@@ -89,9 +101,14 @@ export function AppSidebar() {
 
                 return (
                   <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.name}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.name}
+                      className="transition-colors"
+                    >
                       <Link href={item.href}>
-                        <item.icon />
+                        <item.icon className="size-4" />
                         <span>{item.name}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -103,7 +120,9 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Documentation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Documentation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {docs.map((item) => {
@@ -111,9 +130,14 @@ export function AppSidebar() {
 
                 return (
                   <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.name}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.name}
+                      className="transition-colors"
+                    >
                       <Link href={item.href}>
-                        <item.icon />
+                        <item.icon className="size-4" />
                         <span>{item.name}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -125,20 +149,24 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="View Public Site">
+            <SidebarMenuButton asChild tooltip="View Public Site" className="transition-colors">
               <Link href="/size-guide" target="_blank">
-                <ExternalLink />
+                <ExternalLink className="size-4" />
                 <span>View Public Site</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           {authEnabled && (
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleLogout} tooltip="Sign Out">
-                <LogOut />
+              <SidebarMenuButton
+                onClick={handleLogout}
+                tooltip="Sign Out"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <LogOut className="size-4" />
                 <span>Sign Out</span>
               </SidebarMenuButton>
             </SidebarMenuItem>

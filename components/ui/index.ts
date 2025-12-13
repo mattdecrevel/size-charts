@@ -1,5 +1,6 @@
 // shadcn/ui components
 export { Button, buttonVariants } from "./button";
+export { Checkbox } from "./checkbox";
 export { Input } from "./input";
 export { Label } from "./label";
 export { Textarea } from "./textarea";

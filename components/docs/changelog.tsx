@@ -1,95 +1,21 @@
 "use client";
 
-import {
-  CheckCircle2,
-  Circle,
-  Clock,
-  HelpCircle,
-  Lock,
-  Container,
-  Gauge,
-  FileCode,
-  ScrollText,
-  Code2,
-  FileUp,
-  Bell,
-  HardDrive,
-  Calculator,
-  BarChart3,
-  Building2,
-  History,
-  Puzzle,
-  Layers,
-  Languages,
-  Tag,
-  Ruler,
-  Key,
-  Globe,
-  Database,
-  type LucideIcon,
-} from "lucide-react";
+import { CheckCircle2, Circle, Clock, HelpCircle } from "lucide-react";
 
-interface RoadmapItemProps {
-  icon: LucideIcon;
+interface ReleaseItemProps {
   title: string;
-  description: string;
-  status: "done" | "in-progress" | "planned" | "considering";
-  priority?: "high" | "medium" | "low";
+  items: string[];
 }
 
-function RoadmapItem({ icon: Icon, title, description, status, priority }: RoadmapItemProps) {
-  const statusConfig = {
-    done: {
-      indicator: <CheckCircle2 className="h-5 w-5 text-emerald-500" />,
-      border: "border-emerald-500/20",
-      bg: "bg-emerald-500/5",
-    },
-    "in-progress": {
-      indicator: <Clock className="h-5 w-5 text-blue-500 animate-pulse" />,
-      border: "border-blue-500/20",
-      bg: "bg-blue-500/5",
-    },
-    planned: {
-      indicator: <Circle className="h-5 w-5 text-zinc-400" />,
-      border: "border-zinc-200 dark:border-zinc-800",
-      bg: "",
-    },
-    considering: {
-      indicator: <HelpCircle className="h-5 w-5 text-zinc-400" />,
-      border: "border-zinc-200 dark:border-zinc-800",
-      bg: "bg-zinc-500/5",
-    },
-  };
-
-  const priorityBadge = priority && (
-    <span
-      className={`text-xs px-2 py-0.5 rounded-full ${
-        priority === "high"
-          ? "bg-red-500/10 text-red-600"
-          : priority === "medium"
-          ? "bg-amber-500/10 text-amber-600"
-          : "bg-zinc-500/10 text-zinc-600"
-      }`}
-    >
-      {priority}
-    </span>
-  );
-
-  const config = statusConfig[status];
-
+function ReleaseItem({ title, items }: ReleaseItemProps) {
   return (
-    <div className={`rounded-lg border p-4 ${config.border} ${config.bg}`}>
-      <div className="flex items-start gap-3">
-        {config.indicator}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Icon className="h-4 w-4 text-muted-foreground" />
-            <h3 className="font-medium">{title}</h3>
-            {priorityBadge}
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        </div>
-      </div>
+    <div className="pl-6 border-l-2 border-primary/20">
+      <h3 className="font-medium text-foreground">{title}</h3>
+      <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+        {items.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -104,194 +30,128 @@ export function ChangelogContent({ showTitle = true, className = "" }: Changelog
     <div className={className}>
       {showTitle && (
         <div className="mb-8">
-          <h1 className="text-2xl font-bold">Changelog & Roadmap</h1>
+          <h1 className="text-2xl font-bold text-foreground">Changelog</h1>
           <p className="mt-2 text-muted-foreground">
-            Track what&apos;s been built, what&apos;s in progress, and what&apos;s coming next.
+            Release history and upcoming features.
           </p>
         </div>
       )}
 
-      {/* Current Status */}
-      <div className="mb-8 rounded-lg border bg-blue-500/5 border-blue-500/20 p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-          <span className="text-sm font-medium text-blue-600">v1.0 Integration Ready - In Progress</span>
+      {/* Current Version Banner */}
+      <div className="mb-8 rounded-xl border border-primary/20 bg-primary/5 p-4">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+          <span className="text-sm font-medium text-primary">v1.0 In Development</span>
         </div>
         <p className="text-sm text-muted-foreground">
-          Building embeddable widget, import/export, and integration features.
+          Embeddable widget and integration features.
         </p>
       </div>
 
-      {/* Completed - v0.6.0 */}
+      {/* v0.6.0 - Latest Stable */}
       <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-          Completed - v0.6.0 (Production Ready)
-        </h2>
-        <div className="space-y-3">
-          <RoadmapItem
-            icon={Lock}
-            title="Admin Authentication"
-            description="Environment-based admin login with session management and middleware protection."
-            status="done"
+        <div className="flex items-center gap-2 mb-4">
+          <CheckCircle2 className="h-5 w-5 text-[oklch(0.65_0.20_160)]" />
+          <h2 className="text-lg font-semibold text-foreground">v0.6.0</h2>
+          <span className="text-sm text-muted-foreground">Production Ready</span>
+        </div>
+        <div className="space-y-4">
+          <ReleaseItem
+            title="Security & Authentication"
+            items={[
+              "Admin login with session management",
+              "API key authentication with scopes",
+              "Rate limiting (100 read / 30 write per minute)",
+              "CORS configuration for cross-origin access",
+            ]}
           />
-          <RoadmapItem
-            icon={Key}
-            title="API Key Authentication"
-            description="Secure API keys with scopes, rate limiting per key, and usage tracking."
-            status="done"
+          <ReleaseItem
+            title="Data Management"
+            items={[
+              "Full CRUD API for charts, categories, and labels",
+              "Many-to-many category relationships",
+              "Reusable size labels (SM, MD, LG)",
+              "Measurement instructions support",
+            ]}
           />
-          <RoadmapItem
-            icon={Globe}
-            title="CORS Configuration"
-            description="Configurable cross-origin resource sharing for API access from any domain."
-            status="done"
-          />
-          <RoadmapItem
-            icon={Gauge}
-            title="Rate Limiting"
-            description="Per-key rate limiting (100 read/30 write per minute) with headers."
-            status="done"
-          />
-          <RoadmapItem
-            icon={FileCode}
-            title="Structured Logging"
-            description="JSON logging in production, pretty output in dev, with request tracing."
-            status="done"
-          />
-          <RoadmapItem
-            icon={Container}
-            title="Docker Support"
-            description="Production-ready Docker with multi-stage builds and compose setup."
-            status="done"
-          />
-          <RoadmapItem
-            icon={Ruler}
-            title="Measurement Instructions"
-            description="How-to-measure guidance linked to charts, visible on public pages."
-            status="done"
-          />
-          <RoadmapItem
-            icon={Layers}
-            title="Many-to-Many Categories"
-            description="Single chart can appear in multiple categories without duplication."
-            status="done"
-          />
-          <RoadmapItem
-            icon={Tag}
-            title="Reusable Size Labels"
-            description="Standardized labels (SM, MD, LG) shared across all charts."
-            status="done"
-          />
-          <RoadmapItem
-            icon={Database}
-            title="Full CRUD API"
-            description="Complete REST API for size charts, categories, and labels."
-            status="done"
+          <ReleaseItem
+            title="Infrastructure"
+            items={[
+              "Docker support with multi-stage builds",
+              "Structured JSON logging",
+            ]}
           />
         </div>
       </section>
 
-      {/* In Progress - v1.0 */}
+      {/* v0.1.0 - Alpha */}
       <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Clock className="h-5 w-5 text-blue-500" />
-          In Progress - v1.0 (Integration Ready)
-        </h2>
-        <div className="space-y-3">
-          <RoadmapItem
-            icon={Code2}
-            title="Embeddable Widget"
-            description="Zero-dependency JS widget for embedding charts on any website."
-            status="in-progress"
+        <div className="flex items-center gap-2 mb-4">
+          <CheckCircle2 className="h-5 w-5 text-[oklch(0.65_0.20_160)]" />
+          <h2 className="text-lg font-semibold text-foreground">v0.1.0</h2>
+          <span className="text-sm text-muted-foreground">Alpha</span>
+        </div>
+        <div className="space-y-4">
+          <ReleaseItem
+            title="Core Foundation"
+            items={[
+              "Initial project architecture with Next.js 15",
+              "PostgreSQL database with Prisma ORM",
+              "Basic size chart data model",
+              "Category and subcategory hierarchy",
+            ]}
           />
-          <RoadmapItem
-            icon={FileUp}
-            title="Import/Export"
-            description="JSON import/export for bulk chart management and backups."
-            status="in-progress"
+          <ReleaseItem
+            title="Admin Interface"
+            items={[
+              "Dashboard with chart management",
+              "Visual chart editor with drag-and-drop rows",
+              "Dual unit display (inches/cm)",
+            ]}
           />
         </div>
       </section>
 
-      {/* Planned - v2.0 */}
+      {/* In Progress */}
       <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Circle className="h-5 w-5 text-zinc-400" />
-          Planned - v2.0 (Differentiation)
-        </h2>
-        <div className="space-y-3">
-          <RoadmapItem
-            icon={Bell}
-            title="Webhooks"
-            description="Notify external systems when charts are updated."
-            status="planned"
-            priority="high"
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold text-foreground">v1.0</h2>
+          <span className="text-sm text-muted-foreground">In Progress</span>
+        </div>
+        <div className="space-y-4">
+          <ReleaseItem
+            title="Integration"
+            items={[
+              "Zero-dependency embeddable widget",
+              "JSON import/export for bulk management",
+            ]}
           />
-          <RoadmapItem
-            icon={HardDrive}
-            title="Redis Caching"
-            description="Optional Redis for high-performance API responses."
-            status="planned"
-            priority="medium"
-          />
-          <RoadmapItem
-            icon={Calculator}
-            title="Fit Recommendation API"
-            description="POST measurements, get recommended size with confidence score."
-            status="planned"
-            priority="high"
-          />
-          <RoadmapItem
-            icon={Building2}
-            title="Multi-tenancy"
-            description="Support multiple brands/stores with isolated data."
-            status="planned"
-            priority="medium"
-          />
-          <RoadmapItem
-            icon={BarChart3}
-            title="Analytics Dashboard"
-            description="Track which charts are viewed most, API usage patterns."
-            status="planned"
-            priority="low"
-          />
-          <RoadmapItem
-            icon={Languages}
-            title="Full i18n Support"
-            description="Multi-language label translations with locale selection."
-            status="planned"
-            priority="medium"
+          <ReleaseItem
+            title="Productivity"
+            items={[
+              "Pre-built chart templates for common use cases",
+              "Version history with restore capability",
+            ]}
           />
         </div>
       </section>
 
       {/* Considering */}
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <HelpCircle className="h-5 w-5 text-zinc-400" />
-          Considering
-        </h2>
-        <div className="space-y-3">
-          <RoadmapItem
-            icon={History}
-            title="Version History"
-            description="Track and undo changes to charts."
-            status="considering"
-          />
-          <RoadmapItem
-            icon={Puzzle}
-            title="Platform Integrations"
-            description="Native Shopify, WooCommerce, Magento apps."
-            status="considering"
-          />
-          <RoadmapItem
-            icon={ScrollText}
-            title="Chart Templates"
-            description="Pre-configured templates for common use cases."
-            status="considering"
-          />
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <HelpCircle className="h-5 w-5 text-muted-foreground" />
+          <h2 className="text-lg font-semibold text-foreground">Considering</h2>
         </div>
+        <ul className="pl-6 text-sm text-muted-foreground space-y-1">
+          <li>Webhooks for chart updates</li>
+          <li>Redis caching for high-performance API</li>
+          <li>Fit recommendation API</li>
+          <li>Multi-tenancy support</li>
+          <li>Analytics dashboard</li>
+          <li>Full i18n support</li>
+          <li>Shopify, WooCommerce, Magento integrations</li>
+        </ul>
       </section>
     </div>
   );

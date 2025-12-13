@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Button,
+  Checkbox,
   Input,
   Badge,
   Dialog,
@@ -210,12 +211,14 @@ function SizeChartsListContent() {
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="flex-1 min-w-[200px] max-w-xs">
+        <div className="relative flex-1 min-w-[200px] max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search..."
+            placeholder="Search charts..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            className="pl-9"
           />
         </div>
         <SimpleSelect
@@ -258,10 +261,6 @@ function SizeChartsListContent() {
           }}
           className="w-32"
         />
-        <Button variant="outline" onClick={handleSearch}>
-          <Search className="h-4 w-4" />
-          Search
-        </Button>
       </div>
 
       {selectedIds.size > 0 && (
@@ -296,17 +295,15 @@ function SizeChartsListContent() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={data.data.length > 0 && selectedIds.size === data.data.length}
-                      onChange={handleSelectAll}
-                      className="rounded border-input"
+                      onCheckedChange={handleSelectAll}
                     />
                   </TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Size</TableHead>
+                  <TableHead>Updated</TableHead>
                   <TableHead className="w-32"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -321,11 +318,9 @@ function SizeChartsListContent() {
                   data.data.map((chart) => (
                     <TableRow key={chart.id}>
                       <TableCell>
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={selectedIds.has(chart.id)}
-                          onChange={() => handleSelect(chart.id)}
-                          className="rounded border-input"
+                          onCheckedChange={() => handleSelect(chart.id)}
                         />
                       </TableCell>
                       <TableCell>
@@ -351,8 +346,13 @@ function SizeChartsListContent() {
                           {chart.isPublished ? "Published" : "Draft"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {chart._count.rows} rows &times; {chart._count.columns} cols
+                      <TableCell className="text-muted-foreground text-sm">
+                        {new Date(chart.updatedAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                        })}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">

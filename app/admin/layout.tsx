@@ -33,6 +33,15 @@ function getBreadcrumbs(pathname: string) {
       breadcrumbs.push({ label: "Labels" });
     } else if (segments[1] === "api-keys") {
       breadcrumbs.push({ label: "API Keys" });
+    } else if (segments[1] === "docs") {
+      breadcrumbs.push({ label: "Documentation", href: "/admin/docs" });
+      if (segments[2] === "getting-started") {
+        breadcrumbs.push({ label: "Getting Started" });
+      } else if (segments[2] === "api") {
+        breadcrumbs.push({ label: "API Reference" });
+      } else if (segments[2] === "changelog") {
+        breadcrumbs.push({ label: "Changelog" });
+      }
     }
   }
 
@@ -50,23 +59,36 @@ export default function AdminLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
+      <SidebarInset className="bg-background">
+        {/* Admin Header */}
+        <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6">
+          <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground" />
+          <Separator orientation="vertical" className="h-4 bg-border/50" />
           <Breadcrumb>
-            <BreadcrumbList>
+            <BreadcrumbList className="text-sm">
               <BreadcrumbItem>
-                <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
+                <BreadcrumbLink
+                  href="/admin"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Admin
+                </BreadcrumbLink>
               </BreadcrumbItem>
               {breadcrumbs.map((crumb, index) => (
                 <span key={index} className="contents">
-                  <BreadcrumbSeparator />
+                  <BreadcrumbSeparator className="text-border" />
                   <BreadcrumbItem>
                     {crumb.href ? (
-                      <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+                      <BreadcrumbLink
+                        href={crumb.href}
+                        className="text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {crumb.label}
+                      </BreadcrumbLink>
                     ) : (
-                      <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                      <BreadcrumbPage className="font-medium text-foreground">
+                        {crumb.label}
+                      </BreadcrumbPage>
                     )}
                   </BreadcrumbItem>
                 </span>
@@ -74,8 +96,10 @@ export default function AdminLayout({
             </BreadcrumbList>
           </Breadcrumb>
         </header>
+
+        {/* Main Content Area */}
         <main className="flex-1 overflow-auto">
-          <div className="mx-auto max-w-6xl p-6">{children}</div>
+          <div className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-8">{children}</div>
         </main>
       </SidebarInset>
     </SidebarProvider>

@@ -1,6 +1,17 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { TableProperties, FolderTree, Plus } from "lucide-react";
+import {
+  TableProperties,
+  FolderTree,
+  Plus,
+  TrendingUp,
+  ChevronRight,
+  Clock,
+  Tag,
+  KeyRound,
+  Code2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default async function AdminDashboard() {
   const [sizeChartCount, categoryCount, publishedCount] = await Promise.all([
@@ -23,109 +34,164 @@ export default async function AdminDashboard() {
     },
   });
 
+  const stats = [
+    {
+      label: "Total Charts",
+      value: sizeChartCount,
+      icon: TableProperties,
+      color: "oklch(0.55 0.28 295)", // Purple
+    },
+    {
+      label: "Published",
+      value: publishedCount,
+      icon: TrendingUp,
+      color: "oklch(0.65 0.20 160)", // Teal
+    },
+    {
+      label: "Categories",
+      value: categoryCount,
+      icon: FolderTree,
+      color: "oklch(0.65 0.28 330)", // Magenta
+    },
+  ];
+
+  const quickActions = [
+    { href: "/admin/size-charts", label: "Size Charts", icon: TableProperties },
+    { href: "/admin/categories", label: "Categories", icon: FolderTree },
+    { href: "/admin/labels", label: "Labels", icon: Tag },
+    { href: "/admin/api-keys", label: "API Keys", icon: KeyRound },
+    { href: "/admin/docs/embed", label: "Embed Widget", icon: Code2 },
+  ];
+
   return (
-    <div>
-      <div className="mb-8 flex items-center justify-between">
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Dashboard</h1>
-          <p className="text-zinc-600 dark:text-zinc-400">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+            Dashboard
+          </h1>
+          <p className="text-muted-foreground mt-1">
             Manage your size charts and categories
           </p>
         </div>
-        <Link
-          href="/admin/size-charts/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
-        >
-          <Plus className="h-4 w-4" />
-          New Size Chart
-        </Link>
+        <Button asChild className="self-start">
+          <Link href="/admin/size-charts/new">
+            <Plus className="h-4 w-4" />
+            New Size Chart
+          </Link>
+        </Button>
       </div>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-              <TableProperties className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Total Size Charts</p>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{sizeChartCount}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
-              <TableProperties className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Published</p>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{publishedCount}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
-              <FolderTree className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Categories</p>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{categoryCount}</p>
+      {/* Stats */}
+      <div className="grid gap-5 sm:grid-cols-3">
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="card-stat"
+            style={{ "--stat-color": stat.color } as React.CSSProperties}
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
+                <p className="text-3xl font-bold text-foreground tracking-tight">
+                  {stat.value}
+                </p>
+              </div>
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-xl"
+                style={{ backgroundColor: `color-mix(in oklch, ${stat.color} 15%, transparent)` }}
+              >
+                <stat.icon
+                  className="h-5 w-5"
+                  style={{ color: stat.color }}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        ))}
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            Recently Updated
-          </h2>
+      {/* Recently Updated */}
+      <div className="card-soft overflow-hidden">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-lg font-semibold text-foreground">
+              Recently Updated
+            </h2>
+          </div>
+          <Link
+            href="/admin/size-charts"
+            className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+          >
+            View all
+            <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
-        <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
-          {recentCharts.length === 0 ? (
-            <div className="px-6 py-8 text-center text-zinc-500">
-              No size charts yet.{" "}
-              <Link href="/admin/size-charts/new" className="text-blue-600 hover:underline">
-                Create your first one
-              </Link>
-            </div>
-          ) : (
-            recentCharts.map((chart) => (
+
+        {recentCharts.length === 0 ? (
+          <div className="px-6 py-14 text-center">
+            <TableProperties className="h-10 w-10 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground mb-2">No size charts yet</p>
+            <Link
+              href="/admin/size-charts/new"
+              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              Create your first one
+            </Link>
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {recentCharts.map((chart) => (
               <Link
                 key={chart.id}
                 href={`/admin/size-charts/${chart.id}`}
-                className="flex items-center justify-between px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                className="flex items-center justify-between px-6 py-4 hover:bg-muted/30 transition-colors group"
               >
-                <div>
-                  <p className="font-medium text-zinc-900 dark:text-zinc-50">{chart.name}</p>
-                  <p className="text-sm text-zinc-500">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                    {chart.name}
+                  </p>
+                  <p className="text-sm text-muted-foreground truncate mt-0.5">
                     {chart.subcategories.length > 0
                       ? `${chart.subcategories[0].subcategory.category.name} → ${chart.subcategories[0].subcategory.name}${chart.subcategories.length > 1 ? ` +${chart.subcategories.length - 1} more` : ""}`
                       : "No category assigned"}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                      chart.isPublished
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-                    }`}
-                  >
+                <div className="flex items-center gap-4 ml-4 flex-shrink-0">
+                  <span className={chart.isPublished ? "badge-success" : "badge-muted"}>
                     {chart.isPublished ? "Published" : "Draft"}
                   </span>
-                  <span className="text-sm text-zinc-500">
-                    {new Date(chart.updatedAt).toLocaleDateString()}
+                  <span className="text-sm text-muted-foreground hidden sm:block">
+                    {new Date(chart.updatedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary transition-colors" />
                 </div>
               </Link>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {quickActions.map((action) => (
+          <Link
+            key={action.href}
+            href={action.href}
+            className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors group"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted group-hover:bg-muted">
+              <action.icon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </div>
+            <span className="text-sm font-medium text-foreground">{action.label}</span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground/40 ml-auto group-hover:text-muted-foreground transition-colors" />
+          </Link>
+        ))}
       </div>
     </div>
   );

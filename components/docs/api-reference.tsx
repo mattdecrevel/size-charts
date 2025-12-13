@@ -19,10 +19,10 @@ function Endpoint({ method, path, description, params, requestBody, response, ex
   const [copied, setCopied] = useState(false);
 
   const methodColors = {
-    GET: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-    POST: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-    PUT: "bg-amber-500/10 text-amber-600 border-amber-500/20",
-    DELETE: "bg-red-500/10 text-red-600 border-red-500/20",
+    GET: "bg-[oklch(0.65_0.20_160)]/10 text-[oklch(0.50_0.18_160)] dark:text-[oklch(0.72_0.18_160)]",
+    POST: "bg-primary/10 text-primary",
+    PUT: "bg-accent/10 text-accent",
+    DELETE: "bg-destructive/10 text-destructive",
   };
 
   const copyToClipboard = (text: string) => {
@@ -35,7 +35,7 @@ function Endpoint({ method, path, description, params, requestBody, response, ex
     <div className="rounded-lg border bg-card">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-accent/50"
+        className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-colors"
       >
         {isOpen ? (
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -92,8 +92,8 @@ function Endpoint({ method, path, description, params, requestBody, response, ex
           {requestBody && (
             <div>
               <h4 className="mb-2 text-sm font-semibold">Request Body</h4>
-              <pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
-                {requestBody}
+              <pre className="code-block p-3 text-xs overflow-x-auto">
+                <code>{requestBody}</code>
               </pre>
             </div>
           )}
@@ -101,8 +101,8 @@ function Endpoint({ method, path, description, params, requestBody, response, ex
           {response && (
             <div>
               <h4 className="mb-2 text-sm font-semibold">Response</h4>
-              <pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
-                {response}
+              <pre className="code-block p-3 text-xs overflow-x-auto">
+                <code>{response}</code>
               </pre>
             </div>
           )}
@@ -113,19 +113,19 @@ function Endpoint({ method, path, description, params, requestBody, response, ex
                 <h4 className="text-sm font-semibold">Example</h4>
                 <button
                   onClick={() => copyToClipboard(example.request || example.response)}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
                 >
                   {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                   {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
               {example.request && (
-                <pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto mb-2">
-                  {example.request}
+                <pre className="code-block p-3 text-xs overflow-x-auto mb-2">
+                  <code>{example.request}</code>
                 </pre>
               )}
-              <pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
-                {example.response}
+              <pre className="code-block p-3 text-xs overflow-x-auto">
+                <code>{example.response}</code>
               </pre>
             </div>
           )}
@@ -242,17 +242,19 @@ export function ApiReferenceContent({ showTitle = true, className = "" }: ApiRef
       {/* Authentication */}
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-4">Authentication</h2>
-        <div className="rounded-lg border bg-card p-4">
+        <div className="rounded-xl border bg-card p-4">
           <p className="text-sm mb-3">
             All API requests require authentication via API key. Include the key in request headers:
           </p>
-          <pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
-{`# Option 1: X-API-Key header
+          <div className="code-block">
+            <pre className="p-3 text-xs overflow-x-auto">
+              <code>{`# Option 1: X-API-Key header
 curl -H "X-API-Key: sc_live_xxxxxxxxxxxx" ...
 
 # Option 2: Authorization header
-curl -H "Authorization: Bearer sc_live_xxxxxxxxxxxx" ...`}
-          </pre>
+curl -H "Authorization: Bearer sc_live_xxxxxxxxxxxx" ...`}</code>
+            </pre>
+          </div>
           <p className="text-sm text-muted-foreground mt-3">
             Generate API keys in the admin panel under API Keys.
           </p>
@@ -345,22 +347,24 @@ curl -H "Authorization: Bearer sc_live_xxxxxxxxxxxx" ...`}
       {/* Rate Limiting */}
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-4">Rate Limiting</h2>
-        <div className="rounded-lg border bg-card p-4">
+        <div className="rounded-xl border bg-card p-4">
           <p className="text-sm mb-3">
             API requests are rate limited per API key:
           </p>
           <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-            <li><strong>Read operations:</strong> 100 requests per minute</li>
-            <li><strong>Write operations:</strong> 30 requests per minute</li>
+            <li><strong className="text-foreground">Read operations:</strong> 100 requests per minute</li>
+            <li><strong className="text-foreground">Write operations:</strong> 30 requests per minute</li>
           </ul>
           <p className="text-sm text-muted-foreground mt-3">
             Rate limit headers are included in all responses:
           </p>
-          <pre className="rounded bg-zinc-950 p-3 text-xs text-zinc-100 mt-2 overflow-x-auto">
-{`X-RateLimit-Limit: 100
+          <div className="code-block mt-2">
+            <pre className="p-3 text-xs overflow-x-auto">
+              <code>{`X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
-X-RateLimit-Reset: 1702407600`}
-          </pre>
+X-RateLimit-Reset: 1702407600`}</code>
+            </pre>
+          </div>
         </div>
       </section>
     </div>
