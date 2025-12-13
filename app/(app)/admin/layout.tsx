@@ -1,8 +1,7 @@
 "use client";
 
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/admin/app-sidebar";
-import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -61,11 +60,8 @@ export default function AdminLayout({
       <AppSidebar />
       <SidebarInset className="bg-background">
         {/* Admin Header */}
-        <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
+        <header className="flex h-14 shrink-0 items-center border-b border-border px-4">
+          <Breadcrumb>
             <BreadcrumbList className="text-sm">
               <BreadcrumbItem>
                 <BreadcrumbLink
@@ -95,12 +91,11 @@ export default function AdminLayout({
                 </span>
               ))}
             </BreadcrumbList>
-            </Breadcrumb>
-          </div>
+          </Breadcrumb>
         </header>
 
-        {/* Main Content Area */}
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        {/* Main Content Area - scrollable within the inset border */}
+        <div className="flex-1 overflow-auto p-4">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
         </div>
       </SidebarInset>
