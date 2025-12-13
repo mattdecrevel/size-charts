@@ -64,14 +64,14 @@
 :root {
   --radius: 0.75rem;
 
-  /* Background - Clean warm white */
-  --background: oklch(0.985 0.005 90);
+  /* Background - Clean with subtle purple tint */
+  --background: oklch(0.985 0.006 290);
   --foreground: oklch(0.22 0.02 280);
 
-  /* Cards - Crisp white */
-  --card: oklch(0.998 0.002 90);
+  /* Cards - Crisp white with purple tint */
+  --card: oklch(0.995 0.004 290);
   --card-foreground: oklch(0.22 0.02 280);
-  --popover: oklch(0.998 0.002 90);
+  --popover: oklch(0.995 0.004 290);
   --popover-foreground: oklch(0.22 0.02 280);
 
   /* Primary - VIBRANT Electric Purple */
@@ -82,9 +82,9 @@
   --secondary: oklch(0.96 0.02 295);
   --secondary-foreground: oklch(0.40 0.15 295);
 
-  /* Muted - Warm gray with hint of purple */
-  --muted: oklch(0.94 0.008 280);
-  --muted-foreground: oklch(0.50 0.02 280);
+  /* Muted - Soft gray with purple tint */
+  --muted: oklch(0.94 0.012 290);
+  --muted-foreground: oklch(0.50 0.02 290);
 
   /* Accent - Hot magenta/pink for extra pop */
   --accent: oklch(0.65 0.28 330);
@@ -94,8 +94,8 @@
   --destructive: oklch(0.55 0.22 25);
 
   /* Borders & Inputs */
-  --border: oklch(0.91 0.01 280);
-  --input: oklch(0.93 0.008 280);
+  --border: oklch(0.91 0.015 290);
+  --input: oklch(0.93 0.012 290);
   --ring: oklch(0.55 0.28 295);
 
   /* Chart Colors - Vibrant with purple anchor */
@@ -236,23 +236,23 @@
     opacity: 0.03;
   }
 
-  /* Warm shadows */
+  /* Soft shadows with purple tint */
   .shadow-soft {
     box-shadow:
-      0 1px 3px oklch(0.30 0.02 60 / 0.06),
-      0 4px 12px oklch(0.30 0.02 60 / 0.04);
+      0 1px 3px oklch(0.30 0.02 290 / 0.06),
+      0 4px 12px oklch(0.30 0.02 290 / 0.04);
   }
 
   .shadow-soft-md {
     box-shadow:
-      0 2px 8px oklch(0.30 0.02 60 / 0.08),
-      0 8px 24px oklch(0.30 0.02 60 / 0.06);
+      0 2px 8px oklch(0.30 0.02 290 / 0.08),
+      0 8px 24px oklch(0.30 0.02 290 / 0.06);
   }
 
   .shadow-soft-lg {
     box-shadow:
-      0 4px 16px oklch(0.30 0.02 60 / 0.10),
-      0 16px 48px oklch(0.30 0.02 60 / 0.08);
+      0 4px 16px oklch(0.30 0.02 290 / 0.10),
+      0 16px 48px oklch(0.30 0.02 290 / 0.08);
   }
 
   .dark .shadow-soft {
@@ -314,15 +314,15 @@
   .card-soft {
     @apply relative bg-card rounded-xl border border-border;
     box-shadow:
-      0 1px 3px oklch(0.30 0.02 60 / 0.04),
-      0 4px 12px oklch(0.30 0.02 60 / 0.03);
+      0 1px 3px oklch(0.30 0.02 290 / 0.04),
+      0 4px 12px oklch(0.30 0.02 290 / 0.03);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .card-soft:hover {
     box-shadow:
-      0 2px 8px oklch(0.30 0.02 60 / 0.06),
-      0 8px 24px oklch(0.30 0.02 60 / 0.05);
+      0 2px 8px oklch(0.30 0.02 290 / 0.06),
+      0 8px 24px oklch(0.30 0.02 290 / 0.05);
     transform: translateY(-2px);
   }
 
@@ -367,7 +367,7 @@
   /* Stat card with colored top bar */
   .card-stat {
     @apply relative bg-card rounded-xl border border-border p-6 overflow-hidden;
-    box-shadow: 0 1px 3px oklch(0.30 0.02 60 / 0.04);
+    box-shadow: 0 1px 3px oklch(0.30 0.02 290 / 0.04);
   }
 
   .card-stat::before {
@@ -441,12 +441,12 @@
     @apply bg-card border border-border text-foreground font-medium;
     @apply rounded-lg px-5 py-2.5 text-sm;
     @apply transition-all duration-200;
-    box-shadow: 0 1px 2px oklch(0.30 0.02 60 / 0.04);
+    box-shadow: 0 1px 2px oklch(0.30 0.02 290 / 0.04);
   }
 
   .btn-secondary:hover {
     @apply bg-secondary;
-    box-shadow: 0 2px 6px oklch(0.30 0.02 60 / 0.08);
+    box-shadow: 0 2px 6px oklch(0.30 0.02 290 / 0.08);
   }
 
   /* Code block */
@@ -591,29 +591,29 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: oklch(0.78 0.008 75);
+    background: oklch(0.78 0.015 290);
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.68 0.010 75);
+    background: oklch(0.68 0.02 290);
   }
 
   .dark ::-webkit-scrollbar-thumb {
-    background: oklch(0.38 0.008 60);
+    background: oklch(0.38 0.02 290);
   }
 
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.48 0.010 60);
+    background: oklch(0.48 0.02 290);
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: oklch(0.78 0.008 75) transparent;
+    scrollbar-color: oklch(0.78 0.015 290) transparent;
   }
 
   .dark * {
-    scrollbar-color: oklch(0.38 0.008 60) transparent;
+    scrollbar-color: oklch(0.38 0.02 290) transparent;
   }
 }
 

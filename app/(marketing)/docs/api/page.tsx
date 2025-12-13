@@ -3,5 +3,5 @@
 import { ApiReferenceContent } from "@/components/docs";
 
 export default function ApiDocsPage() {
-  return <ApiReferenceContent />;
+  return <ApiReferenceContent showNavigation={true} />;
 }

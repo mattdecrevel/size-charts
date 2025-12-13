@@ -27,7 +27,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from "@/components/ui/sidebar";
 
 const navigation = [
@@ -67,7 +66,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+    <Sidebar variant="inset" className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -152,10 +151,18 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="View Public Site" className="transition-colors">
-              <Link href="/size-guide" target="_blank">
+            <SidebarMenuButton asChild tooltip="View Site" className="transition-colors">
+              <Link href="/" target="_blank">
                 <ExternalLink className="size-4" />
-                <span>View Public Site</span>
+                <span>View Site</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Size Guide" className="transition-colors">
+              <Link href="/size-guide" target="_blank">
+                <Ruler className="size-4" />
+                <span>Size Guide</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -173,8 +180,6 @@ export function AppSidebar() {
           )}
         </SidebarMenu>
       </SidebarFooter>
-
-      <SidebarRail />
     </Sidebar>
   );
 }
