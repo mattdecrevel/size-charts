@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function SizeGuideLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <div className="min-h-screen bg-background">
       {/* Minimal Header */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
@@ -22,6 +22,6 @@ export default function SizeGuideLayout({ children }: { children: React.ReactNod
       <main className="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-10">
         {children}
       </main>
-    </>
+    </div>
   );
 }
