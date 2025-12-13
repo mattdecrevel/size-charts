@@ -47,22 +47,22 @@ export default async function SubcategoryPage({ params }: PageProps) {
 
   return (
     <div>
-      <nav className="mb-6 flex items-center gap-2 text-sm text-zinc-500">
-        <Link href="/size-guide" className="hover:text-zinc-900 dark:hover:text-zinc-50">
+      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/size-guide" className="hover:text-foreground transition-colors">
           Size Guide
         </Link>
         <ChevronRight className="h-4 w-4" />
         <Link
           href={`/size-guide/${categorySlug}`}
-          className="hover:text-zinc-900 dark:hover:text-zinc-50"
+          className="hover:text-foreground transition-colors"
         >
           {subcategoryWithCharts.category.name}
         </Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="text-zinc-900 dark:text-zinc-50">{subcategoryWithCharts.name}</span>
+        <span className="text-foreground">{subcategoryWithCharts.name}</span>
       </nav>
 
-      <h1 className="mb-8 text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+      <h1 className="mb-8 text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
         {subcategoryWithCharts.name} Size Charts
       </h1>
 
@@ -71,20 +71,20 @@ export default async function SubcategoryPage({ params }: PageProps) {
           <Link
             key={chart.id}
             href={`/size-guide/${categorySlug}/${subcategorySlug}/${chart.slug}`}
-            className="rounded-xl border border-zinc-200 bg-white p-6 hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+            className="group rounded-xl border border-border bg-card p-6 hover:border-primary/30 hover:bg-primary/5 transition-colors"
           >
-            <h2 className="mb-2 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+            <h2 className="mb-2 text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
               {chart.name}
             </h2>
             {chart.description && (
-              <p className="text-sm text-zinc-500">{chart.description}</p>
+              <p className="text-sm text-muted-foreground">{chart.description}</p>
             )}
           </Link>
         ))}
       </div>
 
       {subcategoryWithCharts.sizeCharts.length === 0 && (
-        <p className="text-center text-zinc-500">No size charts available yet.</p>
+        <p className="text-center text-muted-foreground">No size charts available yet.</p>
       )}
     </div>
   );

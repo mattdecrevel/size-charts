@@ -52,15 +52,15 @@ export default async function CategoryPage({ params }: PageProps) {
 
   return (
     <div>
-      <nav className="mb-6 flex items-center gap-2 text-sm text-zinc-500">
-        <Link href="/size-guide" className="hover:text-zinc-900 dark:hover:text-zinc-50">
+      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/size-guide" className="hover:text-foreground transition-colors">
           Size Guide
         </Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="text-zinc-900 dark:text-zinc-50">{categoryWithCounts.name}</span>
+        <span className="text-foreground">{categoryWithCounts.name}</span>
       </nav>
 
-      <h1 className="mb-8 text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+      <h1 className="mb-8 text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
         {categoryWithCounts.name} Size Charts
       </h1>
 
@@ -71,12 +71,12 @@ export default async function CategoryPage({ params }: PageProps) {
             <Link
               key={subcategory.id}
               href={`/size-guide/${categoryWithCounts.slug}/${subcategory.slug}`}
-              className="rounded-xl border border-zinc-200 bg-white p-6 hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+              className="group rounded-xl border border-border bg-card p-6 hover:border-primary/30 hover:bg-primary/5 transition-colors"
             >
-              <h2 className="mb-2 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+              <h2 className="mb-2 text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
                 {subcategory.name}
               </h2>
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-muted-foreground">
                 {subcategory._count.sizeCharts} size chart{subcategory._count.sizeCharts !== 1 ? "s" : ""}
               </p>
             </Link>
@@ -84,7 +84,7 @@ export default async function CategoryPage({ params }: PageProps) {
       </div>
 
       {categoryWithCounts.subcategories.filter((sub) => sub._count.sizeCharts > 0).length === 0 && (
-        <p className="text-center text-zinc-500">No size charts available for this category yet.</p>
+        <p className="text-center text-muted-foreground">No size charts available for this category yet.</p>
       )}
     </div>
   );

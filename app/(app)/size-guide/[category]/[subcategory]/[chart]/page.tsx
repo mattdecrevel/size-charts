@@ -73,50 +73,50 @@ export default function ChartPage({ params }: PageProps) {
 
 	return (
 		<div>
-			<nav className="mb-6 flex items-center gap-2 text-sm text-zinc-500">
-				<Link href="/size-guide" className="hover:text-zinc-900 dark:hover:text-zinc-50">
+			<nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+				<Link href="/size-guide" className="hover:text-foreground transition-colors">
 					Size Guide
 				</Link>
 				<ChevronRight className="h-4 w-4" />
 				<Link
 					href={`/size-guide/${categorySlug}`}
-					className="hover:text-zinc-900 dark:hover:text-zinc-50"
+					className="hover:text-foreground transition-colors"
 				>
 					{chart.subcategory?.category.name}
 				</Link>
 				<ChevronRight className="h-4 w-4" />
 				{chartNameMatchesSubcategory ? (
 					// If chart name matches subcategory, just show the chart name as the final item
-					<span className="text-zinc-900 dark:text-zinc-50">{chart.name}</span>
+					<span className="text-foreground">{chart.name}</span>
 				) : (
 					// Otherwise show both subcategory and chart name
 					<>
 						<Link
 							href={`/size-guide/${categorySlug}/${subcategorySlug}`}
-							className="hover:text-zinc-900 dark:hover:text-zinc-50"
+							className="hover:text-foreground transition-colors"
 						>
 							{subcategoryName}
 						</Link>
 						<ChevronRight className="h-4 w-4" />
-						<span className="text-zinc-900 dark:text-zinc-50">{chart.name}</span>
+						<span className="text-foreground">{chart.name}</span>
 					</>
 				)}
 			</nav>
 
 			<div className="mb-6 flex flex-wrap items-center justify-between gap-4">
 				<div>
-					<h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+					<h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
 						{chart.name}
 					</h1>
 					{chart.description && (
-						<p className="mt-2 text-zinc-600 dark:text-zinc-400">{chart.description}</p>
+						<p className="mt-2 text-muted-foreground">{chart.description}</p>
 					)}
 				</div>
 				<div className="flex items-center gap-3">
 					{isLoaded && <UnitSwitcher value={unit} onChange={setUnit} />}
 					<button
 						onClick={() => window.print()}
-						className="flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+						className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
 					>
 						<Printer className="h-4 w-4" />
 						Print
@@ -127,14 +127,14 @@ export default function ChartPage({ params }: PageProps) {
 			<SizeChartDisplay chart={chart} unit={unit} />
 
 			{chart.measurementInstructions && chart.measurementInstructions.length > 0 && (
-				<div className="mt-8 rounded-lg bg-zinc-50 p-6 dark:bg-zinc-900">
-					<h2 className="mb-3 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+				<div className="mt-8 rounded-xl border border-border bg-card p-6">
+					<h2 className="mb-3 text-lg font-semibold text-foreground">
 						How to Measure
 					</h2>
-					<ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+					<ul className="space-y-2 text-sm text-muted-foreground">
 						{chart.measurementInstructions.map((mi) => (
 							<li key={mi.instruction.id}>
-								<strong>{mi.instruction.name}:</strong> {mi.instruction.instruction}
+								<strong className="text-foreground">{mi.instruction.name}:</strong> {mi.instruction.instruction}
 							</li>
 						))}
 					</ul>
