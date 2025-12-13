@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Settings, Code2, FileText, Ruler } from "lucide-react";
+import { Settings, Code2, FileText, Ruler, Menu, X } from "lucide-react";
 
 const navLinks = [
   { name: "Demo", href: "/demo", icon: Code2 },
@@ -37,12 +38,17 @@ function NavLink({ href, name, icon: Icon, isActive }: { href: string; name: str
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (href: string) => {
     if (href === "/admin") return pathname.startsWith("/admin");
     if (href === "/docs") return pathname.startsWith("/docs");
     if (href === "/demo") return pathname.startsWith("/demo");
     return pathname === href;
+  };
+
+  const handleNavClick = () => {
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -78,36 +84,72 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             </nav>
           </div>
 
-          {/* GitHub Icon */}
-          <a
-            href="https://github.com/your-org/size-charts"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-            aria-label="GitHub"
-          >
-            <GitHubIcon className="h-5 w-5" />
-          </a>
-        </div>
-
-        {/* Mobile Nav */}
-        <nav className="md:hidden border-t border-border/40 px-4 py-2 flex items-center gap-1 overflow-x-auto">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                isActive(link.href)
-                  ? "text-primary bg-primary/10"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              }`}
+          {/* Right side actions */}
+          <div className="flex items-center gap-2">
+            {/* GitHub Icon - hidden on mobile when menu is open */}
+            <a
+              href="https://github.com/your-org/size-charts"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              aria-label="GitHub"
             >
-              <link.icon className="h-4 w-4" />
-              {link.name}
-            </Link>
-          ))}
-        </nav>
+              <GitHubIcon className="h-5 w-5" />
+            </a>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
       </header>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-background/95 backdrop-blur-sm"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Menu content */}
+          <nav className="relative z-10 flex flex-col items-center justify-center h-full gap-2 p-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={handleNavClick}
+                className={`flex items-center gap-3 px-6 py-4 text-lg font-medium rounded-xl w-full max-w-xs transition-colors ${
+                  isActive(link.href)
+                    ? "text-primary bg-primary/10"
+                    : "text-foreground hover:bg-muted/50"
+                }`}
+              >
+                <link.icon className="h-5 w-5" />
+                {link.name}
+              </Link>
+            ))}
+
+            {/* GitHub link in mobile menu */}
+            <a
+              href="https://github.com/your-org/size-charts"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleNavClick}
+              className="flex items-center gap-3 px-6 py-4 text-lg font-medium rounded-xl w-full max-w-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            >
+              <GitHubIcon className="h-5 w-5" />
+              GitHub
+            </a>
+          </nav>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="relative mx-auto max-w-6xl px-4 sm:px-6 py-10 sm:py-14">

@@ -27,6 +27,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 const navigation = [
@@ -46,6 +47,7 @@ const docs = [
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { setOpenMobile } = useSidebar();
   const [authEnabled, setAuthEnabled] = useState(false);
 
   useEffect(() => {
@@ -63,6 +65,11 @@ export function AppSidebar() {
     } catch {
       router.push("/admin/login");
     }
+  };
+
+  // Close mobile menu when navigating
+  const handleNavClick = () => {
+    setOpenMobile(false);
   };
 
   return (
@@ -104,7 +111,7 @@ export function AppSidebar() {
                       tooltip={item.name}
                       className="transition-colors"
                     >
-                      <Link href={item.href}>
+                      <Link href={item.href} onClick={handleNavClick}>
                         <item.icon className="size-4" />
                         <span>{item.name}</span>
                       </Link>
@@ -131,7 +138,7 @@ export function AppSidebar() {
                       tooltip={item.name}
                       className="transition-colors"
                     >
-                      <Link href={item.href}>
+                      <Link href={item.href} onClick={handleNavClick}>
                         <item.icon className="size-4" />
                         <span>{item.name}</span>
                       </Link>
