@@ -86,20 +86,26 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 ```
 size-charts/
 ├── app/
-│   ├── admin/           # Admin interface pages
-│   │   ├── categories/  # Category management
-│   │   ├── labels/      # Size label management
-│   │   ├── size-charts/ # Chart editor
-│   │   └── docs/        # Documentation pages
-│   ├── api/
-│   │   ├── v1/          # Public API (versioned)
-│   │   ├── categories/  # Admin API
-│   │   ├── labels/      # Labels API
-│   │   └── size-charts/ # Charts API
-│   └── size-guide/      # Public size guide pages
+│   ├── (marketing)/     # Marketing pages (deletable for self-hosting)
+│   │   ├── page.tsx     # Home page
+│   │   ├── demo/        # Widget demos
+│   │   └── docs/        # Public documentation
+│   ├── (app)/           # Core application
+│   │   ├── admin/       # Admin interface
+│   │   │   ├── categories/
+│   │   │   ├── labels/
+│   │   │   ├── size-charts/
+│   │   │   └── docs/    # Built-in documentation
+│   │   └── size-guide/  # Public size guide browser
+│   └── api/
+│       ├── v1/          # Public API (versioned)
+│       ├── categories/  # Admin API
+│       ├── labels/      # Labels API
+│       └── size-charts/ # Charts API
 ├── components/
 │   ├── admin/           # Admin-specific components
 │   │   └── size-chart-editor/  # Spreadsheet editor
+│   ├── docs/            # Documentation components (deletable)
 │   └── ui/              # shadcn/ui components
 ├── hooks/               # React hooks
 ├── lib/                 # Utilities and helpers
@@ -108,6 +114,23 @@ size-charts/
 │   └── seed.ts          # Seed data
 └── types/               # TypeScript types
 ```
+
+## Self-Hosting
+
+This project is designed to be self-hostable. To run as a standalone size chart service without marketing pages:
+
+### Remove Marketing Content
+
+Delete these folders:
+- `app/(marketing)/` - Home page, demos, public docs
+- `components/docs/` - Documentation components
+- `public/demo/` - Demo HTML files
+
+After deletion, the following will continue to work:
+- **Admin Panel** (`/admin`) - Full chart management with built-in docs
+- **Size Guide** (`/size-guide`) - Customer-facing size charts
+- **REST API** (`/api/v1/*`) - Public API endpoints
+- **Embed Widget** (`/embed/size-charts.js`) - Embeddable widget
 
 ## API Reference
 
