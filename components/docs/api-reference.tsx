@@ -376,17 +376,17 @@ curl -H "Authorization: Bearer sc_live_xxxxxxxxxxxx" ...`}</code>
             </thead>
             <tbody>
               {[
-                { code: "200", desc: "Success" },
-                { code: "400", desc: "Bad request - invalid parameters" },
-                { code: "401", desc: "Unauthorized - API key required" },
-                { code: "403", desc: "Forbidden - insufficient permissions" },
-                { code: "404", desc: "Not found" },
-                { code: "429", desc: "Rate limit exceeded (100 req/min)" },
-                { code: "500", desc: "Server error" },
+                { code: "200", desc: "Success", color: "bg-[oklch(0.65_0.20_160)]/15 text-[oklch(0.45_0.18_160)] dark:text-[oklch(0.75_0.16_160)]" },
+                { code: "400", desc: "Bad request - invalid parameters", color: "bg-[oklch(0.75_0.15_85)]/15 text-[oklch(0.50_0.12_85)] dark:text-[oklch(0.80_0.12_85)]" },
+                { code: "401", desc: "Unauthorized - API key required", color: "bg-[oklch(0.75_0.15_85)]/15 text-[oklch(0.50_0.12_85)] dark:text-[oklch(0.80_0.12_85)]" },
+                { code: "403", desc: "Forbidden - insufficient permissions", color: "bg-[oklch(0.75_0.15_85)]/15 text-[oklch(0.50_0.12_85)] dark:text-[oklch(0.80_0.12_85)]" },
+                { code: "404", desc: "Not found", color: "bg-[oklch(0.75_0.15_85)]/15 text-[oklch(0.50_0.12_85)] dark:text-[oklch(0.80_0.12_85)]" },
+                { code: "429", desc: "Rate limit exceeded (100 req/min)", color: "bg-[oklch(0.70_0.18_55)]/15 text-[oklch(0.50_0.15_55)] dark:text-[oklch(0.80_0.15_55)]" },
+                { code: "500", desc: "Server error", color: "bg-destructive/15 text-destructive" },
               ].map((error, i) => (
                 <tr key={error.code} className={i < 6 ? "border-b border-border" : ""}>
                   <td className="px-4 py-3">
-                    <code className="text-xs bg-muted px-1.5 py-0.5 rounded font-mono">{error.code}</code>
+                    <code className={`text-xs px-2 py-1 rounded font-mono font-semibold ${error.color}`}>{error.code}</code>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{error.desc}</td>
                 </tr>
