@@ -1,0 +1,33 @@
+# Local Claude Configuration (Example)
+
+This file is for your personal Claude Code settings. Copy this to `CLAUDE.local.md` to use.
+
+The `CLAUDE.local.md` file is gitignored and lets you add personal preferences without affecting the team.
+
+## Example Personal Preferences
+
+```markdown
+## My Preferences
+
+- I prefer verbose explanations when debugging
+- Always show the full command before running it
+- Use tabs instead of spaces (my editor converts them)
+
+## My Environment
+
+- Running on macOS with Homebrew
+- Using pnpm instead of npm: replace `npm` with `pnpm`
+- Local Postgres runs on port 5433
+
+## Current Focus
+
+Working on the admin panel redesign. Key files:
+- `components/admin/size-chart-editor/`
+- `app/(app)/admin/size-charts/`
+```
+
+## Usage
+
+1. Copy this file: `cp CLAUDE.local.md.example CLAUDE.local.md`
+2. Edit with your preferences
+3. The file is automatically gitignored
