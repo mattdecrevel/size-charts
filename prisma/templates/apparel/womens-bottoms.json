@@ -1,0 +1,23 @@
+{
+  "id": "womens-bottoms",
+  "name": "Women's Bottoms",
+  "description": "Women's pants, shorts, leggings, and skirts",
+  "category": "apparel",
+  "tags": ["womens", "bottoms", "pants", "leggings"],
+  "suggestedCategories": ["womens/bottoms"],
+  "measurementInstructions": ["waist", "hip"],
+  "columns": [
+    { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Waist", "type": "MEASUREMENT" },
+    { "name": "Hip", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "Size": "XXS", "Waist": { "min": 24.5, "max": 25.5 }, "Hip": { "min": 33, "max": 34.5 } },
+    { "Size": "XS", "Waist": { "min": 25.5, "max": 27 }, "Hip": { "min": 34.5, "max": 36 } },
+    { "Size": "SM", "Waist": { "min": 27, "max": 29 }, "Hip": { "min": 36, "max": 38 } },
+    { "Size": "MD", "Waist": { "min": 29, "max": 31 }, "Hip": { "min": 38, "max": 40 } },
+    { "Size": "LG", "Waist": { "min": 31, "max": 34 }, "Hip": { "min": 40, "max": 43 } },
+    { "Size": "XL", "Waist": { "min": 34, "max": 37 }, "Hip": { "min": 43, "max": 46 } },
+    { "Size": "XXL", "Waist": { "min": 37, "max": 40 }, "Hip": { "min": 46, "max": 49 } }
+  ]
+}

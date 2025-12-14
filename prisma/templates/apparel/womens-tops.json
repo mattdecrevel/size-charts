@@ -1,0 +1,23 @@
+{
+  "id": "womens-tops",
+  "name": "Women's Tops",
+  "description": "Women's shirts, tanks, and jackets",
+  "category": "apparel",
+  "tags": ["womens", "tops", "shirts", "tanks"],
+  "suggestedCategories": ["womens/tops"],
+  "measurementInstructions": ["chest", "waist"],
+  "columns": [
+    { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Bust", "type": "MEASUREMENT" },
+    { "name": "Waist", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "Size": "XXS", "Bust": { "min": 31, "max": 32.5 }, "Waist": { "min": 24.5, "max": 25.5 } },
+    { "Size": "XS", "Bust": { "min": 32.5, "max": 33.5 }, "Waist": { "min": 25.5, "max": 27 } },
+    { "Size": "SM", "Bust": { "min": 33.5, "max": 36 }, "Waist": { "min": 27, "max": 29 } },
+    { "Size": "MD", "Bust": { "min": 36, "max": 38 }, "Waist": { "min": 29, "max": 31 } },
+    { "Size": "LG", "Bust": { "min": 38, "max": 41 }, "Waist": { "min": 31, "max": 34 } },
+    { "Size": "XL", "Bust": { "min": 41, "max": 44 }, "Waist": { "min": 34, "max": 37 } },
+    { "Size": "XXL", "Bust": { "min": 44, "max": 47 }, "Waist": { "min": 37, "max": 40 } }
+  ]
+}

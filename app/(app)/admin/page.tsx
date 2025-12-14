@@ -7,9 +7,11 @@ import {
   TrendingUp,
   ChevronRight,
   Clock,
-  Tag,
-  KeyRound,
   Code2,
+  Wand2,
+  ExternalLink,
+  Play,
+  LayoutTemplate,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,11 +59,11 @@ export default async function AdminDashboard() {
   ];
 
   const quickActions = [
-    { href: "/admin/size-charts", label: "Size Charts", icon: TableProperties },
-    { href: "/admin/categories", label: "Categories", icon: FolderTree },
-    { href: "/admin/labels", label: "Labels", icon: Tag },
-    { href: "/admin/api-keys", label: "API Keys", icon: KeyRound },
-    { href: "/admin/docs/embed", label: "Embed Widget", icon: Code2 },
+    { href: "/admin/templates", label: "Templates", icon: LayoutTemplate },
+    { href: "/admin/docs/embed", label: "Embed Guide", icon: Code2 },
+    { href: "/demo/live", label: "Live Builder", icon: Wand2, external: true },
+    { href: "/demo/embed", label: "Widget Demos", icon: Play, external: true },
+    { href: "/size-guide", label: "Size Guide", icon: ExternalLink, external: true },
   ];
 
   return (
@@ -183,19 +185,35 @@ export default async function AdminDashboard() {
 
       {/* Quick Actions */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {quickActions.map((action) => (
-          <Link
-            key={action.href}
-            href={action.href}
-            className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-border transition-colors group"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
-              <action.icon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-            </div>
-            <span className="text-sm font-medium text-foreground">{action.label}</span>
-            <ChevronRight className="h-4 w-4 text-muted-foreground/40 ml-auto group-hover:text-muted-foreground transition-colors" />
-          </Link>
-        ))}
+        {quickActions.map((action) =>
+          action.external ? (
+            <a
+              key={action.href}
+              href={action.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-border transition-colors group"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                <action.icon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+              </div>
+              <span className="text-sm font-medium text-foreground">{action.label}</span>
+              <ExternalLink className="h-4 w-4 text-muted-foreground/40 ml-auto group-hover:text-muted-foreground transition-colors" />
+            </a>
+          ) : (
+            <Link
+              key={action.href}
+              href={action.href}
+              className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-border transition-colors group"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                <action.icon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+              </div>
+              <span className="text-sm font-medium text-foreground">{action.label}</span>
+              <ChevronRight className="h-4 w-4 text-muted-foreground/40 ml-auto group-hover:text-muted-foreground transition-colors" />
+            </Link>
+          )
+        )}
       </div>
     </div>
   );

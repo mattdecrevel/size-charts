@@ -1,0 +1,29 @@
+{
+  "id": "footwear-mens",
+  "name": "Men's Footwear",
+  "description": "Men's athletic shoes and sneakers",
+  "category": "footwear",
+  "tags": ["mens", "shoes", "footwear", "sneakers"],
+  "suggestedCategories": ["mens/footwear"],
+  "measurementInstructions": ["foot_length"],
+  "columns": [
+    { "name": "US", "type": "SHOE_SIZE" },
+    { "name": "UK", "type": "SHOE_SIZE" },
+    { "name": "EU", "type": "SHOE_SIZE" },
+    { "name": "CM", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "US": "7", "UK": "6", "EU": "40", "CM": { "value": 25 } },
+    { "US": "7.5", "UK": "6.5", "EU": "40.5", "CM": { "value": 25.5 } },
+    { "US": "8", "UK": "7", "EU": "41", "CM": { "value": 26 } },
+    { "US": "8.5", "UK": "7.5", "EU": "42", "CM": { "value": 26.5 } },
+    { "US": "9", "UK": "8", "EU": "42.5", "CM": { "value": 27 } },
+    { "US": "9.5", "UK": "8.5", "EU": "43", "CM": { "value": 27.5 } },
+    { "US": "10", "UK": "9", "EU": "44", "CM": { "value": 28 } },
+    { "US": "10.5", "UK": "9.5", "EU": "44.5", "CM": { "value": 28.5 } },
+    { "US": "11", "UK": "10", "EU": "45", "CM": { "value": 29 } },
+    { "US": "12", "UK": "11", "EU": "46", "CM": { "value": 30 } },
+    { "US": "13", "UK": "12", "EU": "47.5", "CM": { "value": 31 } },
+    { "US": "14", "UK": "13", "EU": "48.5", "CM": { "value": 32 } }
+  ]
+}

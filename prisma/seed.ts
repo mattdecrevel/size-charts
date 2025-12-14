@@ -2,6 +2,7 @@ import "dotenv/config";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, ColumnType, LabelType } from "@prisma/client";
+import { getAllTemplates, Template, CellValue, MeasurementRange, MeasurementValue } from "./templates";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -12,25 +13,72 @@ function inToCm(inches: number): number {
   return Math.round(inches * 2.54 * 10) / 10;
 }
 
-// Helper to create a size chart with columns and rows
-// Now supports many-to-many subcategory relationships and measurement instructions
-async function createSizeChart(
+// Map template column types to Prisma ColumnType enum
+function mapColumnType(type: string): ColumnType {
+  switch (type) {
+    case "SIZE_LABEL":
+      return ColumnType.SIZE_LABEL;
+    case "SHOE_SIZE":
+      return ColumnType.SHOE_SIZE;
+    case "MEASUREMENT":
+      return ColumnType.MEASUREMENT;
+    case "BAND_SIZE":
+      return ColumnType.BAND_SIZE;
+    case "CUP_SIZE":
+      return ColumnType.CUP_SIZE;
+    case "TEXT":
+    default:
+      return ColumnType.TEXT;
+  }
+}
+
+// Check if value is a measurement range
+function isMeasurementRange(value: CellValue): value is MeasurementRange {
+  return typeof value === "object" && "min" in value && "max" in value;
+}
+
+// Check if value is a single measurement value
+function isMeasurementValue(value: CellValue): value is MeasurementValue {
+  return typeof value === "object" && "value" in value;
+}
+
+// Transform template row to seed format
+function transformTemplateRow(
+  row: Record<string, CellValue>,
+  columns: Array<{ name: string; columnType: ColumnType }>
+): Record<string, { text?: string; value?: number; min?: number; max?: number }> {
+  const result: Record<string, { text?: string; value?: number; min?: number; max?: number }> = {};
+
+  for (const col of columns) {
+    const cellValue = row[col.name];
+    if (cellValue === undefined) continue;
+
+    if (typeof cellValue === "string") {
+      result[col.name] = { text: cellValue };
+    } else if (isMeasurementRange(cellValue)) {
+      result[col.name] = { min: cellValue.min, max: cellValue.max };
+    } else if (isMeasurementValue(cellValue)) {
+      result[col.name] = { value: cellValue.value };
+    }
+  }
+
+  return result;
+}
+
+// Create a size chart from a template
+async function createSizeChartFromTemplate(
+  template: Template,
   name: string,
   slug: string,
-  description: string,
-  subcategoryIds: string[], // Array of subcategory IDs (many-to-many)
-  columns: Array<{
-    name: string;
-    columnType: ColumnType;
-  }>,
-  rows: Array<Record<string, { text?: string; value?: number; min?: number; max?: number; labelId?: string }>>,
-  instructionIds?: string[] // Optional array of measurement instruction IDs
+  subcategoryIds: string[],
+  instructionMap: Record<string, string>,
+  rows?: Record<string, CellValue>[] // Optional: use specific rows (for variants)
 ) {
   const chart = await prisma.sizeChart.create({
     data: {
       name,
       slug,
-      description,
+      description: template.description,
       isPublished: true,
     },
   });
@@ -48,6 +96,11 @@ async function createSizeChart(
     )
   );
 
+  const columns = template.columns.map((col) => ({
+    name: col.name,
+    columnType: mapColumnType(col.type),
+  }));
+
   const createdColumns = await Promise.all(
     columns.map((col, index) =>
       prisma.sizeChartColumn.create({
@@ -61,8 +114,11 @@ async function createSizeChart(
     )
   );
 
-  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
-    const rowData = rows[rowIndex];
+  // Use provided rows or template default rows
+  const templateRows = rows || template.rows;
+
+  for (let rowIndex = 0; rowIndex < templateRows.length; rowIndex++) {
+    const rowData = transformTemplateRow(templateRows[rowIndex], columns);
     const row = await prisma.sizeChartRow.create({
       data: {
         sizeChartId: chart.id,
@@ -75,9 +131,8 @@ async function createSizeChart(
       return {
         rowId: row.id,
         columnId: createdColumns[colIndex].id,
-        labelId: cellValue?.labelId ?? null,
+        labelId: null,
         valueText: cellValue?.text ?? null,
-        // Store both inches and cm for measurements
         valueInches: cellValue?.value ?? null,
         valueCm: cellValue?.value ? inToCm(cellValue.value) : null,
         valueMinInches: cellValue?.min ?? null,
@@ -90,8 +145,12 @@ async function createSizeChart(
     await prisma.sizeChartCell.createMany({ data: cellData });
   }
 
-  // Create measurement instruction links if provided
-  if (instructionIds && instructionIds.length > 0) {
+  // Create measurement instruction links
+  const instructionIds = template.measurementInstructions
+    .map((key) => instructionMap[key])
+    .filter((id): id is string => id !== undefined);
+
+  if (instructionIds.length > 0) {
     await Promise.all(
       instructionIds.map((instructionId, index) =>
         prisma.sizeChartMeasurementInstruction.create({
@@ -109,7 +168,15 @@ async function createSizeChart(
 }
 
 async function main() {
-  console.log("Seeding database with consolidated size data...\n");
+  console.log("Seeding database with template-based size data...\n");
+
+  // Load all templates
+  const templates = getAllTemplates();
+  console.log(`Loaded ${templates.length} templates`);
+
+  // Create template lookup
+  const templateMap = new Map<string, Template>();
+  templates.forEach((t) => templateMap.set(t.id, t));
 
   // Clear existing data
   await prisma.sizeChartMeasurementInstruction.deleteMany();
@@ -231,7 +298,7 @@ async function main() {
   console.log("Creating size labels...");
 
   // Alpha sizes
-  const alphaLabels = await Promise.all([
+  await Promise.all([
     prisma.sizeLabel.create({ data: { key: "SIZE_XXS", displayValue: "XXS", labelType: LabelType.ALPHA_SIZE, sortOrder: 0 } }),
     prisma.sizeLabel.create({ data: { key: "SIZE_XS", displayValue: "XS", labelType: LabelType.ALPHA_SIZE, sortOrder: 1 } }),
     prisma.sizeLabel.create({ data: { key: "SIZE_SM", displayValue: "SM", labelType: LabelType.ALPHA_SIZE, sortOrder: 2 } }),
@@ -248,7 +315,7 @@ async function main() {
   ]);
 
   // Youth sizes
-  const youthLabels = await Promise.all([
+  await Promise.all([
     prisma.sizeLabel.create({ data: { key: "SIZE_YXS", displayValue: "YXS", labelType: LabelType.YOUTH_SIZE, sortOrder: 0 } }),
     prisma.sizeLabel.create({ data: { key: "SIZE_YSM", displayValue: "YSM", labelType: LabelType.YOUTH_SIZE, sortOrder: 1 } }),
     prisma.sizeLabel.create({ data: { key: "SIZE_YMD", displayValue: "YMD", labelType: LabelType.YOUTH_SIZE, sortOrder: 2 } }),
@@ -369,522 +436,242 @@ async function main() {
   console.log("Created subcategories");
 
   // ============================================
-  // SIZE CHARTS - Using many-to-many relationships
-  // Consolidated charts can belong to multiple subcategories
+  // SIZE CHARTS - Created from templates
   // ============================================
+  console.log("\nCreating size charts from templates...");
 
-  // MEN'S TOPS
-  await createSizeChart(
+  // Helper to get template or throw
+  function getTemplate(id: string): Template {
+    const template = templateMap.get(id);
+    if (!template) throw new Error(`Template not found: ${id}`);
+    return template;
+  }
+
+  // MEN'S APPAREL
+  await createSizeChartFromTemplate(
+    getTemplate("apparel-mens-tops"),
     "Tops",
     "mens-tops",
-    "Men's shirts, t-shirts, polos, and jackets",
     [mensTops.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Chest", columnType: ColumnType.MEASUREMENT },
-      { name: "Waist", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "XS" }, Chest: { min: 31, max: 34 }, Waist: { min: 28, max: 29 } },
-      { Size: { text: "SM" }, Chest: { min: 34, max: 37 }, Waist: { min: 29, max: 31 } },
-      { Size: { text: "MD" }, Chest: { min: 37, max: 41 }, Waist: { min: 31, max: 34 } },
-      { Size: { text: "LG" }, Chest: { min: 41, max: 44 }, Waist: { min: 34, max: 37 } },
-      { Size: { text: "XL" }, Chest: { min: 44, max: 48 }, Waist: { min: 37, max: 41 } },
-      { Size: { text: "XXL" }, Chest: { min: 48, max: 52 }, Waist: { min: 41, max: 45.5 } },
-      { Size: { text: "3XL" }, Chest: { min: 52, max: 56 }, Waist: { min: 45.5, max: 50 } },
-      { Size: { text: "4XL" }, Chest: { min: 56, max: 60 }, Waist: { min: 50, max: 54.5 } },
-      { Size: { text: "5XL" }, Chest: { min: 60, max: 64 }, Waist: { min: 54.5, max: 59 } },
-    ],
-    [instructions.chest, instructions.waist]
+    instructions
   );
   console.log("Created Men's Tops");
 
-  // MEN'S BOTTOMS
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    getTemplate("apparel-mens-bottoms"),
     "Bottoms",
     "mens-bottoms",
-    "Men's pants, shorts, and joggers",
     [mensBottoms.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Waist", columnType: ColumnType.MEASUREMENT },
-      { name: "Hip", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "XS" }, Waist: { value: 28 }, Hip: { min: 33, max: 34 } },
-      { Size: { text: "SM" }, Waist: { value: 30 }, Hip: { min: 34, max: 36 } },
-      { Size: { text: "MD" }, Waist: { min: 32, max: 33 }, Hip: { min: 36, max: 39 } },
-      { Size: { text: "LG" }, Waist: { min: 34, max: 36 }, Hip: { min: 39, max: 42 } },
-      { Size: { text: "XL" }, Waist: { min: 38, max: 40 }, Hip: { min: 42, max: 46 } },
-      { Size: { text: "XXL" }, Waist: { min: 42, max: 44 }, Hip: { min: 46, max: 50 } },
-      { Size: { text: "3XL" }, Waist: { min: 46, max: 48 }, Hip: { min: 50, max: 54 } },
-      { Size: { text: "4XL" }, Waist: { min: 50, max: 52 }, Hip: { min: 54, max: 58 } },
-      { Size: { text: "5XL" }, Waist: { min: 54, max: 56 }, Hip: { min: 58, max: 62 } },
-    ],
-    [instructions.waist, instructions.hip]
+    instructions
   );
   console.log("Created Men's Bottoms");
 
   // MEN'S FOOTWEAR
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    getTemplate("footwear-mens"),
     "Footwear",
     "mens-footwear",
-    "Men's athletic shoes and sneakers",
     [mensFootwear.id],
-    [
-      { name: "US", columnType: ColumnType.SHOE_SIZE },
-      { name: "UK", columnType: ColumnType.SHOE_SIZE },
-      { name: "EU", columnType: ColumnType.SHOE_SIZE },
-      { name: "CM", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { US: { text: "7" }, UK: { text: "6" }, EU: { text: "40" }, CM: { value: 25 } },
-      { US: { text: "7.5" }, UK: { text: "6.5" }, EU: { text: "40.5" }, CM: { value: 25.5 } },
-      { US: { text: "8" }, UK: { text: "7" }, EU: { text: "41" }, CM: { value: 26 } },
-      { US: { text: "8.5" }, UK: { text: "7.5" }, EU: { text: "42" }, CM: { value: 26.5 } },
-      { US: { text: "9" }, UK: { text: "8" }, EU: { text: "42.5" }, CM: { value: 27 } },
-      { US: { text: "9.5" }, UK: { text: "8.5" }, EU: { text: "43" }, CM: { value: 27.5 } },
-      { US: { text: "10" }, UK: { text: "9" }, EU: { text: "44" }, CM: { value: 28 } },
-      { US: { text: "10.5" }, UK: { text: "9.5" }, EU: { text: "44.5" }, CM: { value: 28.5 } },
-      { US: { text: "11" }, UK: { text: "10" }, EU: { text: "45" }, CM: { value: 29 } },
-      { US: { text: "12" }, UK: { text: "11" }, EU: { text: "46" }, CM: { value: 30 } },
-      { US: { text: "13" }, UK: { text: "12" }, EU: { text: "47.5" }, CM: { value: 31 } },
-      { US: { text: "14" }, UK: { text: "13" }, EU: { text: "48.5" }, CM: { value: 32 } },
-    ],
-    [instructions.foot_length]
+    instructions
   );
   console.log("Created Men's Footwear");
 
-  // MEN'S GLOVES
-  await createSizeChart(
+  // MEN'S ACCESSORIES (using variants from template)
+  const glovesTemplate = getTemplate("accessories-gloves");
+  await createSizeChartFromTemplate(
+    glovesTemplate,
     "Gloves",
     "mens-gloves",
-    "Men's training and running gloves",
     [mensGloves.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Hand Circumference", columnType: ColumnType.MEASUREMENT },
-      { name: "Hand Length", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "SM" }, "Hand Circumference": { min: 7, max: 7.5 }, "Hand Length": { min: 6.875, max: 7.125 } },
-      { Size: { text: "MD" }, "Hand Circumference": { min: 7.625, max: 8.125 }, "Hand Length": { min: 7.25, max: 7.5 } },
-      { Size: { text: "LG" }, "Hand Circumference": { min: 8.25, max: 8.75 }, "Hand Length": { min: 7.625, max: 7.875 } },
-      { Size: { text: "XL" }, "Hand Circumference": { min: 8.875, max: 9.375 }, "Hand Length": { min: 8, max: 8.25 } },
-      { Size: { text: "XXL" }, "Hand Circumference": { min: 9.5, max: 10 }, "Hand Length": { min: 8.375, max: 8.625 } },
-    ],
-    [instructions.hand_circumference, instructions.hand_length]
+    instructions,
+    glovesTemplate.variants?.mens?.rows
   );
   console.log("Created Men's Gloves");
 
-  // MEN'S HEADWEAR
-  await createSizeChart(
+  const headwearTemplate = getTemplate("accessories-headwear");
+  await createSizeChartFromTemplate(
+    headwearTemplate,
     "Headwear",
     "mens-headwear",
-    "Men's caps, beanies, and headbands",
     [mensHeadwear.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Head Circumference", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "OSFM" }, "Head Circumference": { min: 21.625, max: 23.875 } },
-      { Size: { text: "S/M" }, "Head Circumference": { min: 21.25, max: 22.5 } },
-      { Size: { text: "M/L" }, "Head Circumference": { min: 22, max: 23.25 } },
-      { Size: { text: "L/XL" }, "Head Circumference": { min: 22.75, max: 24 } },
-      { Size: { text: "XL/XXL" }, "Head Circumference": { min: 23.5, max: 25 } },
-    ],
-    [instructions.head_circumference]
+    instructions,
+    headwearTemplate.variants?.mens?.rows
   );
   console.log("Created Men's Headwear");
 
-  // MEN'S SOCKS
-  await createSizeChart(
+  const socksTemplate = getTemplate("accessories-socks");
+  await createSizeChartFromTemplate(
+    socksTemplate,
     "Socks",
     "mens-socks",
-    "Men's athletic and training socks",
     [mensSocks.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "US Shoe Size", columnType: ColumnType.TEXT },
-    ],
-    [
-      { Size: { text: "SM" }, "US Shoe Size": { text: "4-8.5" } },
-      { Size: { text: "MD" }, "US Shoe Size": { text: "7-8.5" } },
-      { Size: { text: "LG" }, "US Shoe Size": { text: "8.5-13" } },
-      { Size: { text: "XL" }, "US Shoe Size": { text: "13-16" } },
-    ]
+    instructions,
+    socksTemplate.variants?.mens?.rows
   );
   console.log("Created Men's Socks");
 
-  // WOMEN'S TOPS
-  await createSizeChart(
+  // WOMEN'S APPAREL
+  await createSizeChartFromTemplate(
+    getTemplate("apparel-womens-tops"),
     "Tops",
     "womens-tops",
-    "Women's shirts, tanks, and jackets",
     [womensTops.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Bust", columnType: ColumnType.MEASUREMENT },
-      { name: "Waist", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "XXS" }, Bust: { min: 31, max: 32.5 }, Waist: { min: 24.5, max: 25.5 } },
-      { Size: { text: "XS" }, Bust: { min: 32.5, max: 33.5 }, Waist: { min: 25.5, max: 27 } },
-      { Size: { text: "SM" }, Bust: { min: 33.5, max: 36 }, Waist: { min: 27, max: 29 } },
-      { Size: { text: "MD" }, Bust: { min: 36, max: 38 }, Waist: { min: 29, max: 31 } },
-      { Size: { text: "LG" }, Bust: { min: 38, max: 41 }, Waist: { min: 31, max: 34 } },
-      { Size: { text: "XL" }, Bust: { min: 41, max: 44 }, Waist: { min: 34, max: 37 } },
-      { Size: { text: "XXL" }, Bust: { min: 44, max: 47 }, Waist: { min: 37, max: 40 } },
-    ],
-    [instructions.chest, instructions.waist]
+    instructions
   );
   console.log("Created Women's Tops");
 
-  // WOMEN'S BRAS
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    getTemplate("apparel-womens-sports-bras"),
     "Sports Bras",
     "womens-sports-bras",
-    "Sports bras sized by band and cup",
     [womensBras.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Band Size", columnType: ColumnType.BAND_SIZE },
-      { name: "Cup Size", columnType: ColumnType.CUP_SIZE },
-    ],
-    [
-      { Size: { text: "XXS" }, "Band Size": { text: "30" }, "Cup Size": { text: "A" } },
-      { Size: { text: "XS" }, "Band Size": { text: "30-32" }, "Cup Size": { text: "A-B" } },
-      { Size: { text: "SM" }, "Band Size": { text: "32-34" }, "Cup Size": { text: "B-C" } },
-      { Size: { text: "MD" }, "Band Size": { text: "34-36" }, "Cup Size": { text: "C-D" } },
-      { Size: { text: "LG" }, "Band Size": { text: "36-38" }, "Cup Size": { text: "D-DD" } },
-      { Size: { text: "XL" }, "Band Size": { text: "38-40" }, "Cup Size": { text: "DD-DDD" } },
-      { Size: { text: "XXL" }, "Band Size": { text: "40-42" }, "Cup Size": { text: "DDD" } },
-      { Size: { text: "1X" }, "Band Size": { text: "40-42" }, "Cup Size": { text: "DDD-G" } },
-      { Size: { text: "2X" }, "Band Size": { text: "42-44" }, "Cup Size": { text: "G-H" } },
-      { Size: { text: "3X" }, "Band Size": { text: "44-46" }, "Cup Size": { text: "H" } },
-    ],
-    [instructions.band_size, instructions.cup_size]
+    instructions
   );
   console.log("Created Women's Bras");
 
-  // WOMEN'S BOTTOMS
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    getTemplate("apparel-womens-bottoms"),
     "Bottoms",
     "womens-bottoms",
-    "Women's pants, shorts, leggings, and skirts",
     [womensBottoms.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Waist", columnType: ColumnType.MEASUREMENT },
-      { name: "Hip", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "XXS" }, Waist: { min: 24.5, max: 25.5 }, Hip: { min: 33, max: 34.5 } },
-      { Size: { text: "XS" }, Waist: { min: 25.5, max: 27 }, Hip: { min: 34.5, max: 36 } },
-      { Size: { text: "SM" }, Waist: { min: 27, max: 29 }, Hip: { min: 36, max: 38 } },
-      { Size: { text: "MD" }, Waist: { min: 29, max: 31 }, Hip: { min: 38, max: 40 } },
-      { Size: { text: "LG" }, Waist: { min: 31, max: 34 }, Hip: { min: 40, max: 43 } },
-      { Size: { text: "XL" }, Waist: { min: 34, max: 37 }, Hip: { min: 43, max: 46 } },
-      { Size: { text: "XXL" }, Waist: { min: 37, max: 40 }, Hip: { min: 46, max: 49 } },
-    ],
-    [instructions.waist, instructions.hip]
+    instructions
   );
   console.log("Created Women's Bottoms");
 
-  // WOMEN'S PLUS SIZES
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    getTemplate("apparel-womens-plus-sizes"),
     "Plus Sizes",
     "womens-plus-sizes",
-    "Women's plus size tops and bottoms",
     [womensPlus.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Bust", columnType: ColumnType.MEASUREMENT },
-      { name: "Waist", columnType: ColumnType.MEASUREMENT },
-      { name: "Hip", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "1X" }, Bust: { min: 44, max: 47.5 }, Waist: { min: 39, max: 43.5 }, Hip: { min: 47, max: 50.5 } },
-      { Size: { text: "2X" }, Bust: { min: 47.5, max: 51.5 }, Waist: { min: 43.5, max: 48.5 }, Hip: { min: 50.5, max: 54.5 } },
-      { Size: { text: "3X" }, Bust: { min: 51.5, max: 55 }, Waist: { min: 48.5, max: 53 }, Hip: { min: 54.5, max: 58 } },
-    ]
+    instructions
   );
   console.log("Created Women's Plus Sizes");
 
   // WOMEN'S FOOTWEAR
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    getTemplate("footwear-womens"),
     "Footwear",
     "womens-footwear",
-    "Women's athletic shoes and sneakers",
     [womensFootwear.id],
-    [
-      { name: "US", columnType: ColumnType.SHOE_SIZE },
-      { name: "UK", columnType: ColumnType.SHOE_SIZE },
-      { name: "EU", columnType: ColumnType.SHOE_SIZE },
-      { name: "CM", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { US: { text: "5" }, UK: { text: "2.5" }, EU: { text: "35.5" }, CM: { value: 22 } },
-      { US: { text: "5.5" }, UK: { text: "3" }, EU: { text: "36" }, CM: { value: 22.5 } },
-      { US: { text: "6" }, UK: { text: "3.5" }, EU: { text: "36.5" }, CM: { value: 23 } },
-      { US: { text: "6.5" }, UK: { text: "4" }, EU: { text: "37.5" }, CM: { value: 23.5 } },
-      { US: { text: "7" }, UK: { text: "4.5" }, EU: { text: "38" }, CM: { value: 24 } },
-      { US: { text: "7.5" }, UK: { text: "5" }, EU: { text: "38.5" }, CM: { value: 24.5 } },
-      { US: { text: "8" }, UK: { text: "5.5" }, EU: { text: "39" }, CM: { value: 25 } },
-      { US: { text: "9" }, UK: { text: "6.5" }, EU: { text: "40.5" }, CM: { value: 26 } },
-      { US: { text: "10" }, UK: { text: "7.5" }, EU: { text: "42" }, CM: { value: 27 } },
-      { US: { text: "11" }, UK: { text: "8.5" }, EU: { text: "43" }, CM: { value: 28 } },
-    ]
+    instructions
   );
   console.log("Created Women's Footwear");
 
-  // WOMEN'S GLOVES
-  await createSizeChart(
+  // WOMEN'S ACCESSORIES
+  await createSizeChartFromTemplate(
+    glovesTemplate,
     "Gloves",
     "womens-gloves",
-    "Women's training and running gloves",
     [womensGloves.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Hand Circumference", columnType: ColumnType.MEASUREMENT },
-      { name: "Hand Length", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "XS" }, "Hand Circumference": { min: 5.75, max: 6.25 }, "Hand Length": { min: 6, max: 6.25 } },
-      { Size: { text: "SM" }, "Hand Circumference": { min: 6.375, max: 6.875 }, "Hand Length": { min: 6.375, max: 6.625 } },
-      { Size: { text: "MD" }, "Hand Circumference": { min: 7, max: 7.5 }, "Hand Length": { min: 6.75, max: 7 } },
-      { Size: { text: "LG" }, "Hand Circumference": { min: 7.625, max: 8.125 }, "Hand Length": { min: 7.125, max: 7.375 } },
-    ]
+    instructions,
+    glovesTemplate.variants?.womens?.rows
   );
   console.log("Created Women's Gloves");
 
-  // WOMEN'S HEADWEAR
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    headwearTemplate,
     "Headwear",
     "womens-headwear",
-    "Women's caps, beanies, and headbands",
     [womensHeadwear.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Head Circumference", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "OSFM" }, "Head Circumference": { min: 20.875, max: 22.125 } },
-      { Size: { text: "S/M" }, "Head Circumference": { min: 21.25, max: 22.5 } },
-      { Size: { text: "M/L" }, "Head Circumference": { min: 22, max: 23.25 } },
-    ]
+    instructions,
+    headwearTemplate.variants?.womens?.rows
   );
   console.log("Created Women's Headwear");
 
-  // WOMEN'S SOCKS
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    socksTemplate,
     "Socks",
     "womens-socks",
-    "Women's athletic and training socks",
     [womensSocks.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "US Shoe Size", columnType: ColumnType.TEXT },
-    ],
-    [
-      { Size: { text: "SM" }, "US Shoe Size": { text: "4-6" } },
-      { Size: { text: "MD" }, "US Shoe Size": { text: "6-10" } },
-      { Size: { text: "LG" }, "US Shoe Size": { text: "10-14" } },
-    ]
+    instructions,
+    socksTemplate.variants?.womens?.rows
   );
   console.log("Created Women's Socks");
 
-  // ============================================
-  // YOUTH CHARTS - Shared between Boys and Girls
-  // This demonstrates the many-to-many relationship
-  // ============================================
-
-  // YOUTH BIG KIDS TOPS - Shared by Boys and Girls
-  await createSizeChart(
+  // YOUTH - Shared between Boys and Girls
+  await createSizeChartFromTemplate(
+    getTemplate("youth-big-kids-tops"),
     "Big Kids (8-20)",
     "youth-big-kids-tops",
-    "Youth tops for ages 8-20",
-    [boysTops.id, girlsTops.id], // Shared!
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Chest", columnType: ColumnType.MEASUREMENT },
-      { name: "Waist", columnType: ColumnType.MEASUREMENT },
-      { name: "Hip", columnType: ColumnType.MEASUREMENT },
-      { name: "Height", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "YXS (7)" }, Chest: { min: 25, max: 26 }, Waist: { min: 23, max: 24 }, Hip: { min: 26, max: 27 }, Height: { min: 47, max: 50.5 } },
-      { Size: { text: "YSM (8)" }, Chest: { min: 26, max: 27 }, Waist: { min: 24, max: 25 }, Hip: { min: 27, max: 28 }, Height: { min: 50.5, max: 53 } },
-      { Size: { text: "YMD (10-12)" }, Chest: { min: 27, max: 29 }, Waist: { min: 25, max: 27 }, Hip: { min: 28, max: 31 }, Height: { min: 53, max: 59 } },
-      { Size: { text: "YLG (14-16)" }, Chest: { min: 29, max: 32.5 }, Waist: { min: 27, max: 30 }, Hip: { min: 31, max: 34 }, Height: { min: 59, max: 65 } },
-      { Size: { text: "YXL (18-20)" }, Chest: { min: 32.5, max: 35.5 }, Waist: { min: 30, max: 33 }, Hip: { min: 34, max: 37 }, Height: { min: 65, max: 70 } },
-    ]
+    [boysTops.id, girlsTops.id],
+    instructions
   );
   console.log("Created Youth Big Kids Tops (Boys & Girls)");
 
-  // YOUTH BIG KIDS BOTTOMS - Shared by Boys and Girls
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    getTemplate("youth-big-kids-bottoms"),
     "Big Kids (8-20)",
     "youth-big-kids-bottoms",
-    "Youth bottoms for ages 8-20",
-    [boysBottoms.id, girlsBottoms.id], // Shared!
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Waist", columnType: ColumnType.MEASUREMENT },
-      { name: "Hip", columnType: ColumnType.MEASUREMENT },
-      { name: "Height", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "YXS (7)" }, Waist: { min: 23, max: 24 }, Hip: { min: 26, max: 27 }, Height: { min: 47, max: 50.5 } },
-      { Size: { text: "YSM (8)" }, Waist: { min: 24, max: 25 }, Hip: { min: 27, max: 28 }, Height: { min: 50.5, max: 53 } },
-      { Size: { text: "YMD (10-12)" }, Waist: { min: 25, max: 27 }, Hip: { min: 28, max: 31 }, Height: { min: 53, max: 59 } },
-      { Size: { text: "YLG (14-16)" }, Waist: { min: 27, max: 30 }, Hip: { min: 31, max: 34 }, Height: { min: 59, max: 65 } },
-      { Size: { text: "YXL (18-20)" }, Waist: { min: 30, max: 33 }, Hip: { min: 34, max: 37 }, Height: { min: 65, max: 70 } },
-    ]
+    [boysBottoms.id, girlsBottoms.id],
+    instructions
   );
   console.log("Created Youth Big Kids Bottoms (Boys & Girls)");
 
-  // YOUTH LITTLE KIDS - Shared
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    getTemplate("youth-little-kids"),
     "Little Kids (4-7)",
     "youth-little-kids",
-    "Youth clothing for ages 4-7",
-    [boysTops.id, girlsTops.id, boysBottoms.id, girlsBottoms.id], // Shared across 4 subcategories!
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Chest", columnType: ColumnType.MEASUREMENT },
-      { name: "Waist", columnType: ColumnType.MEASUREMENT },
-      { name: "Hip", columnType: ColumnType.MEASUREMENT },
-      { name: "Height", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "4" }, Chest: { min: 21.5, max: 22.5 }, Waist: { min: 21.5, max: 22.5 }, Hip: { min: 22.5, max: 23.5 }, Height: { min: 38, max: 41 } },
-      { Size: { text: "5" }, Chest: { min: 22.5, max: 23.5 }, Waist: { min: 22, max: 23 }, Hip: { min: 23.5, max: 24.5 }, Height: { min: 41, max: 44 } },
-      { Size: { text: "6" }, Chest: { min: 22.5, max: 24.5 }, Waist: { min: 22.5, max: 23.5 }, Hip: { min: 24.5, max: 25.5 }, Height: { min: 44, max: 46.5 } },
-      { Size: { text: "7" }, Chest: { min: 24.5, max: 26 }, Waist: { min: 23, max: 24 }, Hip: { min: 25.5, max: 26.5 }, Height: { min: 46.5, max: 50 } },
-    ]
+    [boysTops.id, girlsTops.id, boysBottoms.id, girlsBottoms.id],
+    instructions
   );
   console.log("Created Youth Little Kids (shared)");
 
-  // YOUTH TODDLER - Shared
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    getTemplate("youth-toddler"),
     "Toddler (2T-4T)",
     "youth-toddler",
-    "Toddler clothing",
     [boysTops.id, girlsTops.id, boysBottoms.id, girlsBottoms.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Chest", columnType: ColumnType.MEASUREMENT },
-      { name: "Waist", columnType: ColumnType.MEASUREMENT },
-      { name: "Height", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "2T" }, Chest: { min: 20, max: 21 }, Waist: { min: 20.5, max: 21.5 }, Height: { min: 33, max: 35 } },
-      { Size: { text: "3T" }, Chest: { min: 20.5, max: 21.5 }, Waist: { min: 21, max: 22 }, Height: { min: 35, max: 38 } },
-      { Size: { text: "4T" }, Chest: { min: 21.5, max: 22.5 }, Waist: { min: 21.5, max: 22.5 }, Height: { min: 38, max: 41 } },
-    ]
+    instructions
   );
   console.log("Created Youth Toddler (shared)");
 
-  // YOUTH INFANT - Shared
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    getTemplate("youth-infant"),
     "Infant (0-24M)",
     "youth-infant",
-    "Infant clothing",
     [boysTops.id, girlsTops.id, boysBottoms.id, girlsBottoms.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Chest", columnType: ColumnType.MEASUREMENT },
-      { name: "Height", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "0-3M" }, Chest: { min: 15.5, max: 17 }, Height: { min: 20.5, max: 24 } },
-      { Size: { text: "3-6M" }, Chest: { min: 17, max: 18 }, Height: { min: 24, max: 27 } },
-      { Size: { text: "6-9M" }, Chest: { min: 18, max: 18.5 }, Height: { min: 27, max: 29 } },
-      { Size: { text: "12M" }, Chest: { min: 18.5, max: 19 }, Height: { min: 29, max: 30 } },
-      { Size: { text: "18M" }, Chest: { min: 19, max: 20 }, Height: { min: 30.5, max: 33 } },
-      { Size: { text: "24M" }, Chest: { min: 20, max: 21 }, Height: { min: 33, max: 35 } },
-    ]
+    instructions
   );
   console.log("Created Youth Infant (shared)");
 
-  // YOUTH FOOTWEAR - Shared
-  await createSizeChart(
+  // YOUTH FOOTWEAR
+  await createSizeChartFromTemplate(
+    getTemplate("footwear-kids"),
     "Youth Footwear",
     "youth-footwear",
-    "Youth athletic shoes",
     [boysFootwear.id, girlsFootwear.id],
-    [
-      { name: "US", columnType: ColumnType.SHOE_SIZE },
-      { name: "UK", columnType: ColumnType.SHOE_SIZE },
-      { name: "EU", columnType: ColumnType.SHOE_SIZE },
-      { name: "CM", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { US: { text: "3.5Y" }, UK: { text: "3" }, EU: { text: "35.5" }, CM: { value: 22.5 } },
-      { US: { text: "4Y" }, UK: { text: "3.5" }, EU: { text: "36" }, CM: { value: 23 } },
-      { US: { text: "4.5Y" }, UK: { text: "4" }, EU: { text: "36.5" }, CM: { value: 23.5 } },
-      { US: { text: "5Y" }, UK: { text: "4.5" }, EU: { text: "37.5" }, CM: { value: 24 } },
-      { US: { text: "5.5Y" }, UK: { text: "5" }, EU: { text: "38" }, CM: { value: 24.5 } },
-      { US: { text: "6Y" }, UK: { text: "5.5" }, EU: { text: "38.5" }, CM: { value: 25 } },
-      { US: { text: "6.5Y" }, UK: { text: "6" }, EU: { text: "39" }, CM: { value: 25.5 } },
-      { US: { text: "7Y" }, UK: { text: "6.5" }, EU: { text: "40" }, CM: { value: 26 } },
-    ]
+    instructions
   );
   console.log("Created Youth Footwear (shared)");
 
-  // YOUTH GLOVES - Shared
-  await createSizeChart(
+  // YOUTH ACCESSORIES
+  await createSizeChartFromTemplate(
+    glovesTemplate,
     "Youth Gloves",
     "youth-gloves",
-    "Youth training and sport gloves",
     [boysGloves.id, girlsGloves.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Hand Length", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "YSM" }, "Hand Length": { min: 6.25, max: 6.5 } },
-      { Size: { text: "YMD" }, "Hand Length": { min: 6.5, max: 6.75 } },
-      { Size: { text: "YLG" }, "Hand Length": { min: 6.75, max: 7 } },
-    ]
+    instructions,
+    glovesTemplate.variants?.youth?.rows
   );
   console.log("Created Youth Gloves (shared)");
 
-  // YOUTH HEADWEAR - Shared
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    headwearTemplate,
     "Youth Headwear",
     "youth-headwear",
-    "Youth caps, beanies, and headbands",
     [boysHeadwear.id, girlsHeadwear.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "Head Circumference", columnType: ColumnType.MEASUREMENT },
-    ],
-    [
-      { Size: { text: "OSFM" }, "Head Circumference": { min: 20, max: 21.5 } },
-      { Size: { text: "S/M" }, "Head Circumference": { min: 19.5, max: 21 } },
-      { Size: { text: "M/L" }, "Head Circumference": { min: 20.5, max: 22 } },
-    ]
+    instructions,
+    headwearTemplate.variants?.youth?.rows
   );
   console.log("Created Youth Headwear (shared)");
 
-  // YOUTH SOCKS - Shared
-  await createSizeChart(
+  await createSizeChartFromTemplate(
+    socksTemplate,
     "Youth Socks",
     "youth-socks",
-    "Youth athletic and training socks",
     [boysSocks.id, girlsSocks.id],
-    [
-      { name: "Size", columnType: ColumnType.SIZE_LABEL },
-      { name: "US Shoe Size", columnType: ColumnType.TEXT },
-    ],
-    [
-      { Size: { text: "YSM" }, "US Shoe Size": { text: "13.5K-4Y" } },
-      { Size: { text: "YMD" }, "US Shoe Size": { text: "4Y-7Y" } },
-      { Size: { text: "YLG" }, "US Shoe Size": { text: "1Y-4Y" } },
-    ]
+    instructions,
+    socksTemplate.variants?.youth?.rows
   );
   console.log("Created Youth Socks (shared)");
 
@@ -892,8 +679,9 @@ async function main() {
   console.log("\nSummary:");
   console.log("- 4 Categories (Men's, Women's, Boys, Girls)");
   console.log("- 24 Subcategories");
-  console.log("- 22 Size Charts (consolidated, with many-to-many relationships)");
+  console.log("- 22 Size Charts (created from templates)");
   console.log("- 70+ Size Labels (for translation keys)");
+  console.log(`- ${templates.length} Templates loaded`);
 }
 
 main()

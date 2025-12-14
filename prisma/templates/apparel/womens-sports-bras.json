@@ -1,0 +1,26 @@
+{
+  "id": "womens-sports-bras",
+  "name": "Women's Sports Bras",
+  "description": "Sports bras sized by band and cup",
+  "category": "apparel",
+  "tags": ["womens", "bras", "sports-bras", "athletic"],
+  "suggestedCategories": ["womens/bras"],
+  "measurementInstructions": ["band_size", "cup_size"],
+  "columns": [
+    { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Band Size", "type": "BAND_SIZE" },
+    { "name": "Cup Size", "type": "CUP_SIZE" }
+  ],
+  "rows": [
+    { "Size": "XXS", "Band Size": "30", "Cup Size": "A" },
+    { "Size": "XS", "Band Size": "30-32", "Cup Size": "A-B" },
+    { "Size": "SM", "Band Size": "32-34", "Cup Size": "B-C" },
+    { "Size": "MD", "Band Size": "34-36", "Cup Size": "C-D" },
+    { "Size": "LG", "Band Size": "36-38", "Cup Size": "D-DD" },
+    { "Size": "XL", "Band Size": "38-40", "Cup Size": "DD-DDD" },
+    { "Size": "XXL", "Band Size": "40-42", "Cup Size": "DDD" },
+    { "Size": "1X", "Band Size": "40-42", "Cup Size": "DDD-G" },
+    { "Size": "2X", "Band Size": "42-44", "Cup Size": "G-H" },
+    { "Size": "3X", "Band Size": "44-46", "Cup Size": "H" }
+  ]
+}

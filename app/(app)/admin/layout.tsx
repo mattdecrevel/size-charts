@@ -2,6 +2,8 @@
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/admin/app-sidebar";
+import { DemoBanner } from "@/components/admin/demo-banner";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -31,6 +33,8 @@ function getBreadcrumbs(pathname: string) {
       breadcrumbs.push({ label: "Categories" });
     } else if (segments[1] === "labels") {
       breadcrumbs.push({ label: "Labels" });
+    } else if (segments[1] === "templates") {
+      breadcrumbs.push({ label: "Templates" });
     } else if (segments[1] === "api-keys") {
       breadcrumbs.push({ label: "API Keys" });
     } else if (segments[1] === "docs") {
@@ -39,6 +43,13 @@ function getBreadcrumbs(pathname: string) {
         breadcrumbs.push({ label: "Getting Started" });
       } else if (segments[2] === "api") {
         breadcrumbs.push({ label: "API Reference" });
+      } else if (segments[2] === "demos") {
+        breadcrumbs.push({ label: "Demos", href: "/admin/docs/demos" });
+        if (segments[3] === "embed") {
+          breadcrumbs.push({ label: "Embed Examples" });
+        } else if (segments[3] === "live") {
+          breadcrumbs.push({ label: "Live Builder" });
+        }
       } else if (segments[2] === "changelog") {
         breadcrumbs.push({ label: "Changelog" });
       }
@@ -55,12 +66,16 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const breadcrumbs = getBreadcrumbs(pathname);
+  const { isDemoMode } = useDemoMode();
 
   return (
-    <div className="h-svh overflow-hidden">
-      <SidebarProvider>
+    <div className="h-svh overflow-hidden flex">
+      <SidebarProvider className="h-full min-h-0">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="min-h-0 max-h-full md:peer-data-[variant=inset]:m-0 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none">
+        {/* Demo Banner */}
+        {isDemoMode && <DemoBanner className="shrink-0" />}
+
         {/* Admin Header */}
         <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
           {/* Mobile menu trigger */}
@@ -102,7 +117,7 @@ export default function AdminLayout({
         </header>
 
         {/* Content Area - single scroll container */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto min-h-0 p-4">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
         </div>
         </SidebarInset>

@@ -1,0 +1,22 @@
+{
+  "id": "youth-big-kids-bottoms",
+  "name": "Youth Big Kids Bottoms (8-20)",
+  "description": "Youth bottoms for ages 8-20",
+  "category": "youth",
+  "tags": ["youth", "kids", "boys", "girls", "bottoms"],
+  "suggestedCategories": ["boys/bottoms", "girls/bottoms"],
+  "measurementInstructions": ["waist", "hip", "height"],
+  "columns": [
+    { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Waist", "type": "MEASUREMENT" },
+    { "name": "Hip", "type": "MEASUREMENT" },
+    { "name": "Height", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "Size": "YXS (7)", "Waist": { "min": 23, "max": 24 }, "Hip": { "min": 26, "max": 27 }, "Height": { "min": 47, "max": 50.5 } },
+    { "Size": "YSM (8)", "Waist": { "min": 24, "max": 25 }, "Hip": { "min": 27, "max": 28 }, "Height": { "min": 50.5, "max": 53 } },
+    { "Size": "YMD (10-12)", "Waist": { "min": 25, "max": 27 }, "Hip": { "min": 28, "max": 31 }, "Height": { "min": 53, "max": 59 } },
+    { "Size": "YLG (14-16)", "Waist": { "min": 27, "max": 30 }, "Hip": { "min": 31, "max": 34 }, "Height": { "min": 59, "max": 65 } },
+    { "Size": "YXL (18-20)", "Waist": { "min": 30, "max": 33 }, "Hip": { "min": 34, "max": 37 }, "Height": { "min": 65, "max": 70 } }
+  ]
+}

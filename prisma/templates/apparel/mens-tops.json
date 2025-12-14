@@ -1,0 +1,25 @@
+{
+  "id": "mens-tops",
+  "name": "Men's Tops",
+  "description": "Men's shirts, t-shirts, polos, and jackets",
+  "category": "apparel",
+  "tags": ["mens", "tops", "shirts", "jackets"],
+  "suggestedCategories": ["mens/tops"],
+  "measurementInstructions": ["chest", "waist"],
+  "columns": [
+    { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Chest", "type": "MEASUREMENT" },
+    { "name": "Waist", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "Size": "XS", "Chest": { "min": 31, "max": 34 }, "Waist": { "min": 28, "max": 29 } },
+    { "Size": "SM", "Chest": { "min": 34, "max": 37 }, "Waist": { "min": 29, "max": 31 } },
+    { "Size": "MD", "Chest": { "min": 37, "max": 41 }, "Waist": { "min": 31, "max": 34 } },
+    { "Size": "LG", "Chest": { "min": 41, "max": 44 }, "Waist": { "min": 34, "max": 37 } },
+    { "Size": "XL", "Chest": { "min": 44, "max": 48 }, "Waist": { "min": 37, "max": 41 } },
+    { "Size": "XXL", "Chest": { "min": 48, "max": 52 }, "Waist": { "min": 41, "max": 45.5 } },
+    { "Size": "3XL", "Chest": { "min": 52, "max": 56 }, "Waist": { "min": 45.5, "max": 50 } },
+    { "Size": "4XL", "Chest": { "min": 56, "max": 60 }, "Waist": { "min": 50, "max": 54.5 } },
+    { "Size": "5XL", "Chest": { "min": 60, "max": 64 }, "Waist": { "min": 54.5, "max": 59 } }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "womens-plus-sizes",
+  "name": "Women's Plus Sizes",
+  "description": "Women's plus size tops and bottoms",
+  "category": "apparel",
+  "tags": ["womens", "plus-sizes", "extended"],
+  "suggestedCategories": ["womens/plus-sizes"],
+  "measurementInstructions": ["chest", "waist", "hip"],
+  "columns": [
+    { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Bust", "type": "MEASUREMENT" },
+    { "name": "Waist", "type": "MEASUREMENT" },
+    { "name": "Hip", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "Size": "1X", "Bust": { "min": 44, "max": 47.5 }, "Waist": { "min": 39, "max": 43.5 }, "Hip": { "min": 47, "max": 50.5 } },
+    { "Size": "2X", "Bust": { "min": 47.5, "max": 51.5 }, "Waist": { "min": 43.5, "max": 48.5 }, "Hip": { "min": 50.5, "max": 54.5 } },
+    { "Size": "3X", "Bust": { "min": 51.5, "max": 55 }, "Waist": { "min": 48.5, "max": 53 }, "Hip": { "min": 54.5, "max": 58 } }
+  ]
+}

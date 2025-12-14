@@ -1,0 +1,50 @@
+{
+  "id": "accessories-headwear",
+  "name": "Headwear",
+  "description": "Caps, beanies, and headbands",
+  "category": "accessories",
+  "tags": ["headwear", "caps", "beanies", "accessories"],
+  "suggestedCategories": ["mens/headwear", "womens/headwear"],
+  "measurementInstructions": ["head_circumference"],
+  "variants": {
+    "mens": {
+      "name": "Men's Headwear",
+      "description": "Men's caps, beanies, and headbands",
+      "rows": [
+        { "Size": "OSFM", "Head Circumference": { "min": 21.625, "max": 23.875 } },
+        { "Size": "S/M", "Head Circumference": { "min": 21.25, "max": 22.5 } },
+        { "Size": "M/L", "Head Circumference": { "min": 22, "max": 23.25 } },
+        { "Size": "L/XL", "Head Circumference": { "min": 22.75, "max": 24 } },
+        { "Size": "XL/XXL", "Head Circumference": { "min": 23.5, "max": 25 } }
+      ]
+    },
+    "womens": {
+      "name": "Women's Headwear",
+      "description": "Women's caps, beanies, and headbands",
+      "rows": [
+        { "Size": "OSFM", "Head Circumference": { "min": 20.875, "max": 22.125 } },
+        { "Size": "S/M", "Head Circumference": { "min": 21.25, "max": 22.5 } },
+        { "Size": "M/L", "Head Circumference": { "min": 22, "max": 23.25 } }
+      ]
+    },
+    "youth": {
+      "name": "Youth Headwear",
+      "description": "Youth caps, beanies, and headbands",
+      "rows": [
+        { "Size": "OSFM", "Head Circumference": { "min": 20, "max": 21.5 } },
+        { "Size": "S/M", "Head Circumference": { "min": 19.5, "max": 21 } },
+        { "Size": "M/L", "Head Circumference": { "min": 20.5, "max": 22 } }
+      ]
+    }
+  },
+  "columns": [
+    { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Head Circumference", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "Size": "OSFM", "Head Circumference": { "min": 21.625, "max": 23.875 } },
+    { "Size": "S/M", "Head Circumference": { "min": 21.25, "max": 22.5 } },
+    { "Size": "M/L", "Head Circumference": { "min": 22, "max": 23.25 } },
+    { "Size": "L/XL", "Head Circumference": { "min": 22.75, "max": 24 } }
+  ]
+}
