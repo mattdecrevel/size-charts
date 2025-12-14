@@ -1,25 +1,25 @@
 {
   "id": "mens-bottoms",
   "name": "Men's Bottoms",
-  "description": "Men's pants, shorts, and joggers",
+  "description": "Men's pants, shorts, joggers, and athletic bottoms. Based on Nike, Adidas, Under Armour, and Lululemon sizing standards.",
   "category": "apparel",
-  "tags": ["mens", "bottoms", "pants", "shorts"],
-  "suggestedCategories": ["mens/bottoms"],
-  "measurementInstructions": ["waist", "hip"],
+  "tags": ["mens", "bottoms", "pants", "shorts", "joggers", "athletic"],
+  "suggestedCategories": ["mens/bottoms", "mens/pants", "mens/shorts"],
+  "measurementInstructions": ["waist", "hips", "inseam"],
   "columns": [
     { "name": "Size", "type": "SIZE_LABEL" },
     { "name": "Waist", "type": "MEASUREMENT" },
-    { "name": "Hip", "type": "MEASUREMENT" }
+    { "name": "Hips", "type": "MEASUREMENT" },
+    { "name": "Inseam", "type": "MEASUREMENT" }
   ],
   "rows": [
-    { "Size": "XS", "Waist": { "value": 28 }, "Hip": { "min": 33, "max": 34 } },
-    { "Size": "SM", "Waist": { "value": 30 }, "Hip": { "min": 34, "max": 36 } },
-    { "Size": "MD", "Waist": { "min": 32, "max": 33 }, "Hip": { "min": 36, "max": 39 } },
-    { "Size": "LG", "Waist": { "min": 34, "max": 36 }, "Hip": { "min": 39, "max": 42 } },
-    { "Size": "XL", "Waist": { "min": 38, "max": 40 }, "Hip": { "min": 42, "max": 46 } },
-    { "Size": "XXL", "Waist": { "min": 42, "max": 44 }, "Hip": { "min": 46, "max": 50 } },
-    { "Size": "3XL", "Waist": { "min": 46, "max": 48 }, "Hip": { "min": 50, "max": 54 } },
-    { "Size": "4XL", "Waist": { "min": 50, "max": 52 }, "Hip": { "min": 54, "max": 58 } },
-    { "Size": "5XL", "Waist": { "min": 54, "max": 56 }, "Hip": { "min": 58, "max": 62 } }
+    { "Size": "XS", "Waist": { "min": 26, "max": 29 }, "Hips": { "min": 32, "max": 35 }, "Inseam": { "value": 31 } },
+    { "Size": "S", "Waist": { "min": 29, "max": 32 }, "Hips": { "min": 35, "max": 37.5 }, "Inseam": { "value": 32 } },
+    { "Size": "M", "Waist": { "min": 32, "max": 35 }, "Hips": { "min": 37.5, "max": 41 }, "Inseam": { "value": 32.5 } },
+    { "Size": "L", "Waist": { "min": 35, "max": 38 }, "Hips": { "min": 41, "max": 44 }, "Inseam": { "value": 32.75 } },
+    { "Size": "XL", "Waist": { "min": 38, "max": 43 }, "Hips": { "min": 44, "max": 47 }, "Inseam": { "value": 33 } },
+    { "Size": "2XL", "Waist": { "min": 43, "max": 47.5 }, "Hips": { "min": 47, "max": 50.5 }, "Inseam": { "value": 33.25 } },
+    { "Size": "3XL", "Waist": { "min": 47.5, "max": 52.5 }, "Hips": { "min": 50.5, "max": 53.5 }, "Inseam": { "value": 33.5 } },
+    { "Size": "4XL", "Waist": { "min": 52.5, "max": 56 }, "Hips": { "min": 53.5, "max": 56.5 }, "Inseam": { "value": 33.75 } }
   ]
 }

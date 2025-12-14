@@ -1,10 +1,10 @@
 {
   "id": "footwear-kids",
-  "name": "Youth Footwear",
-  "description": "Youth athletic shoes",
+  "name": "Kids' Footwear",
+  "description": "Kids' and youth athletic shoes. Based on Nike and Adidas sizing standards. Includes Big Kids (3.5Y-7Y) sizes.",
   "category": "footwear",
-  "tags": ["youth", "kids", "shoes", "footwear"],
-  "suggestedCategories": ["boys/footwear", "girls/footwear"],
+  "tags": ["youth", "kids", "shoes", "footwear", "boys", "girls"],
+  "suggestedCategories": ["boys/footwear", "girls/footwear", "kids/shoes"],
   "measurementInstructions": ["foot_length"],
   "columns": [
     { "name": "US", "type": "SHOE_SIZE" },
@@ -13,6 +13,11 @@
     { "name": "CM", "type": "MEASUREMENT" }
   ],
   "rows": [
+    { "US": "1Y", "UK": "13.5", "EU": "32", "CM": { "value": 20 } },
+    { "US": "1.5Y", "UK": "1", "EU": "33", "CM": { "value": 20.5 } },
+    { "US": "2Y", "UK": "1.5", "EU": "33.5", "CM": { "value": 21 } },
+    { "US": "2.5Y", "UK": "2", "EU": "34", "CM": { "value": 21.5 } },
+    { "US": "3Y", "UK": "2.5", "EU": "35", "CM": { "value": 22 } },
     { "US": "3.5Y", "UK": "3", "EU": "35.5", "CM": { "value": 22.5 } },
     { "US": "4Y", "UK": "3.5", "EU": "36", "CM": { "value": 23 } },
     { "US": "4.5Y", "UK": "4", "EU": "36.5", "CM": { "value": 23.5 } },
@@ -20,6 +25,6 @@
     { "US": "5.5Y", "UK": "5", "EU": "38", "CM": { "value": 24.5 } },
     { "US": "6Y", "UK": "5.5", "EU": "38.5", "CM": { "value": 25 } },
     { "US": "6.5Y", "UK": "6", "EU": "39", "CM": { "value": 25.5 } },
-    { "US": "7Y", "UK": "6.5", "EU": "40", "CM": { "value": 26 } }
+    { "US": "7Y", "UK": "6", "EU": "40", "CM": { "value": 26 } }
   ]
 }

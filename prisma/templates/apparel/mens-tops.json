@@ -1,10 +1,10 @@
 {
   "id": "mens-tops",
   "name": "Men's Tops",
-  "description": "Men's shirts, t-shirts, polos, and jackets",
+  "description": "Men's shirts, t-shirts, polos, hoodies, and jackets. Based on Nike, Adidas, Under Armour, and Lululemon sizing standards.",
   "category": "apparel",
-  "tags": ["mens", "tops", "shirts", "jackets"],
-  "suggestedCategories": ["mens/tops"],
+  "tags": ["mens", "tops", "shirts", "jackets", "hoodies", "athletic"],
+  "suggestedCategories": ["mens/tops", "mens/outerwear"],
   "measurementInstructions": ["chest", "waist"],
   "columns": [
     { "name": "Size", "type": "SIZE_LABEL" },
@@ -12,14 +12,13 @@
     { "name": "Waist", "type": "MEASUREMENT" }
   ],
   "rows": [
-    { "Size": "XS", "Chest": { "min": 31, "max": 34 }, "Waist": { "min": 28, "max": 29 } },
-    { "Size": "SM", "Chest": { "min": 34, "max": 37 }, "Waist": { "min": 29, "max": 31 } },
-    { "Size": "MD", "Chest": { "min": 37, "max": 41 }, "Waist": { "min": 31, "max": 34 } },
-    { "Size": "LG", "Chest": { "min": 41, "max": 44 }, "Waist": { "min": 34, "max": 37 } },
-    { "Size": "XL", "Chest": { "min": 44, "max": 48 }, "Waist": { "min": 37, "max": 41 } },
-    { "Size": "XXL", "Chest": { "min": 48, "max": 52 }, "Waist": { "min": 41, "max": 45.5 } },
-    { "Size": "3XL", "Chest": { "min": 52, "max": 56 }, "Waist": { "min": 45.5, "max": 50 } },
-    { "Size": "4XL", "Chest": { "min": 56, "max": 60 }, "Waist": { "min": 50, "max": 54.5 } },
-    { "Size": "5XL", "Chest": { "min": 60, "max": 64 }, "Waist": { "min": 54.5, "max": 59 } }
+    { "Size": "XS", "Chest": { "min": 31.5, "max": 35 }, "Waist": { "min": 25.5, "max": 29 } },
+    { "Size": "S", "Chest": { "min": 35, "max": 37.5 }, "Waist": { "min": 29, "max": 32 } },
+    { "Size": "M", "Chest": { "min": 37.5, "max": 41 }, "Waist": { "min": 32, "max": 35 } },
+    { "Size": "L", "Chest": { "min": 41, "max": 44 }, "Waist": { "min": 35, "max": 38 } },
+    { "Size": "XL", "Chest": { "min": 44, "max": 48.5 }, "Waist": { "min": 38, "max": 43 } },
+    { "Size": "2XL", "Chest": { "min": 48.5, "max": 53.5 }, "Waist": { "min": 43, "max": 47.5 } },
+    { "Size": "3XL", "Chest": { "min": 53.5, "max": 58 }, "Waist": { "min": 47.5, "max": 52.5 } },
+    { "Size": "4XL", "Chest": { "min": 58, "max": 62 }, "Waist": { "min": 52.5, "max": 56 } }
   ]
 }

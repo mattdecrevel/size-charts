@@ -1,20 +1,21 @@
 {
   "id": "youth-toddler",
-  "name": "Youth Toddler (2T-4T)",
-  "description": "Toddler clothing",
+  "name": "Toddler (2T-4T)",
+  "description": "Toddler clothing for ages 2-4. Based on Nike and Adidas sizing standards.",
   "category": "youth",
   "tags": ["youth", "toddler", "boys", "girls"],
   "suggestedCategories": ["boys/tops", "girls/tops", "boys/bottoms", "girls/bottoms"],
   "measurementInstructions": ["chest", "waist", "height"],
   "columns": [
     { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Age", "type": "TEXT" },
     { "name": "Chest", "type": "MEASUREMENT" },
     { "name": "Waist", "type": "MEASUREMENT" },
     { "name": "Height", "type": "MEASUREMENT" }
   ],
   "rows": [
-    { "Size": "2T", "Chest": { "min": 20, "max": 21 }, "Waist": { "min": 20.5, "max": 21.5 }, "Height": { "min": 33, "max": 35 } },
-    { "Size": "3T", "Chest": { "min": 20.5, "max": 21.5 }, "Waist": { "min": 21, "max": 22 }, "Height": { "min": 35, "max": 38 } },
-    { "Size": "4T", "Chest": { "min": 21.5, "max": 22.5 }, "Waist": { "min": 21.5, "max": 22.5 }, "Height": { "min": 38, "max": 41 } }
+    { "Size": "2T", "Age": "1-2 years", "Chest": { "min": 20, "max": 21 }, "Waist": { "min": 20, "max": 21 }, "Height": { "min": 33, "max": 35 } },
+    { "Size": "3T", "Age": "2-3 years", "Chest": { "min": 20.5, "max": 21.5 }, "Waist": { "min": 20.5, "max": 21.5 }, "Height": { "min": 35, "max": 38 } },
+    { "Size": "4T", "Age": "3-4 years", "Chest": { "min": 21, "max": 22 }, "Waist": { "min": 21, "max": 22 }, "Height": { "min": 38, "max": 41 } }
   ]
 }

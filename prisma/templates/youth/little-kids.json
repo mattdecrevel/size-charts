@@ -1,22 +1,23 @@
 {
   "id": "youth-little-kids",
-  "name": "Youth Little Kids (4-7)",
-  "description": "Youth clothing for ages 4-7",
+  "name": "Little Kids (4-7)",
+  "description": "Youth clothing for ages 4-7. Based on Nike and Adidas sizing standards.",
   "category": "youth",
   "tags": ["youth", "kids", "boys", "girls", "little-kids"],
   "suggestedCategories": ["boys/tops", "girls/tops", "boys/bottoms", "girls/bottoms"],
-  "measurementInstructions": ["chest", "waist", "hip", "height"],
+  "measurementInstructions": ["chest", "waist", "hips", "height"],
   "columns": [
     { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Age", "type": "TEXT" },
     { "name": "Chest", "type": "MEASUREMENT" },
     { "name": "Waist", "type": "MEASUREMENT" },
-    { "name": "Hip", "type": "MEASUREMENT" },
+    { "name": "Hips", "type": "MEASUREMENT" },
     { "name": "Height", "type": "MEASUREMENT" }
   ],
   "rows": [
-    { "Size": "4", "Chest": { "min": 21.5, "max": 22.5 }, "Waist": { "min": 21.5, "max": 22.5 }, "Hip": { "min": 22.5, "max": 23.5 }, "Height": { "min": 38, "max": 41 } },
-    { "Size": "5", "Chest": { "min": 22.5, "max": 23.5 }, "Waist": { "min": 22, "max": 23 }, "Hip": { "min": 23.5, "max": 24.5 }, "Height": { "min": 41, "max": 44 } },
-    { "Size": "6", "Chest": { "min": 22.5, "max": 24.5 }, "Waist": { "min": 22.5, "max": 23.5 }, "Hip": { "min": 24.5, "max": 25.5 }, "Height": { "min": 44, "max": 46.5 } },
-    { "Size": "7", "Chest": { "min": 24.5, "max": 26 }, "Waist": { "min": 23, "max": 24 }, "Hip": { "min": 25.5, "max": 26.5 }, "Height": { "min": 46.5, "max": 50 } }
+    { "Size": "4", "Age": "3-4", "Chest": { "min": 21, "max": 22 }, "Waist": { "min": 21, "max": 22 }, "Hips": { "min": 22, "max": 23 }, "Height": { "min": 38, "max": 41 } },
+    { "Size": "5", "Age": "4-5", "Chest": { "min": 22, "max": 23 }, "Waist": { "min": 21.5, "max": 22.5 }, "Hips": { "min": 23, "max": 24 }, "Height": { "min": 41, "max": 44 } },
+    { "Size": "6", "Age": "5-6", "Chest": { "min": 23, "max": 24 }, "Waist": { "min": 22, "max": 23 }, "Hips": { "min": 24, "max": 25 }, "Height": { "min": 44, "max": 47 } },
+    { "Size": "7", "Age": "6-7", "Chest": { "min": 24, "max": 25 }, "Waist": { "min": 22.5, "max": 23.5 }, "Hips": { "min": 25, "max": 26 }, "Height": { "min": 47, "max": 50 } }
   ]
 }
