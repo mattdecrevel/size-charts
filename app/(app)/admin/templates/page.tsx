@@ -245,15 +245,15 @@ export default function TemplatesPage() {
 
               {/* Template detail */}
               <Card>
-                <CardHeader>
-                  <CardTitle>{selectedTemplate.name}</CardTitle>
-                  <CardDescription>{selectedTemplate.description}</CardDescription>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {selectedTemplate.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      {categoryIcons[selectedTemplate.category as CategoryFilter] || <LayoutTemplate className="h-5 w-5" />}
+                    </div>
+                    <div>
+                      <CardTitle>{selectedTemplate.name}</CardTitle>
+                      <CardDescription>{selectedTemplate.description}</CardDescription>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -315,27 +315,12 @@ export default function TemplatesPage() {
                   </div>
 
                   {/* Template info */}
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Columns</p>
-                      <p className="font-medium">{selectedTemplate.columns.length}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Rows</p>
-                      <p className="font-medium">
-                        {selectedVariant
-                          ? selectedTemplate.variants?.[selectedVariant]?.rows.length
-                          : selectedTemplate.rows.length}
-                      </p>
-                    </div>
-                    {selectedTemplate.measurementInstructions.length > 0 && (
-                      <div className="col-span-2">
-                        <p className="text-muted-foreground">Measurement Instructions</p>
-                        <p className="font-medium capitalize">
-                          {selectedTemplate.measurementInstructions.join(", ")}
-                        </p>
-                      </div>
-                    )}
+                  <div className="flex flex-wrap gap-1">
+                    {selectedTemplate.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
 
                   {/* Use template button */}
@@ -357,51 +342,38 @@ export default function TemplatesPage() {
               </Card>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               {filteredTemplates.map((template) => (
-                <Card
+                <button
                   key={template.id}
-                  className="cursor-pointer transition-colors hover:border-primary"
+                  className="group text-left rounded-lg border bg-card p-3 transition-all hover:border-primary hover:shadow-sm"
                   onClick={() => {
                     setSelectedTemplate(template);
                     setSelectedVariant(undefined);
                   }}
                 >
-                  <CardHeader className="p-4 pb-2">
-                    <div className="flex items-start justify-between">
-                      <CardTitle className="text-sm">{template.name}</CardTitle>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      {categoryIcons[template.category as CategoryFilter] || <LayoutTemplate className="h-4 w-4" />}
                     </div>
-                    <CardDescription className="text-xs line-clamp-2">
-                      {template.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                      <span>{template.columns.length} columns</span>
-                      <span>-</span>
-                      <span>{template.rows.length} sizes</span>
-                      {template.variants && (
-                        <>
-                          <span>-</span>
-                          <span>{Object.keys(template.variants).length} variants</span>
-                        </>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {template.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                      {template.tags.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{template.tags.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <p className="font-medium text-sm leading-tight mb-1 line-clamp-1">{template.name}</p>
+                  <p className="text-xs text-muted-foreground leading-tight line-clamp-2 mb-2">
+                    {template.description.split(".")[0]}
+                  </p>
+                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                    <span>{template.rows.length} sizes</span>
+                    <span className="opacity-50">|</span>
+                    <span>{template.columns.length} cols</span>
+                    {template.variants && Object.keys(template.variants).length > 0 && (
+                      <>
+                        <span className="opacity-50">|</span>
+                        <span>{Object.keys(template.variants).length} var</span>
+                      </>
+                    )}
+                  </div>
+                </button>
               ))}
               {filteredTemplates.length === 0 && (
                 <div className="col-span-full text-center py-8 text-muted-foreground">
