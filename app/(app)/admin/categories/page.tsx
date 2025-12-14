@@ -25,7 +25,6 @@ import {
 	ExternalLink,
 	Pencil,
 	Trash2,
-	MoreVertical,
 } from "lucide-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 

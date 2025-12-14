@@ -62,7 +62,7 @@ export default function LabelsPage() {
 	const { data: labels, isLoading } = useLabels({
 		type: filterType as LabelType | undefined,
 	});
-	const { data: labelTypeConfigs, isLoading: isLoadingConfigs } = useLabelTypeConfigs();
+	const { data: labelTypeConfigs } = useLabelTypeConfigs();
 	const createMutation = useCreateLabel();
 	const updateMutation = useUpdateLabel();
 	const deleteMutation = useDeleteLabel();
