@@ -4,7 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.x.x   | :white_check_mark: |
+| 1.x.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
@@ -15,10 +15,11 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 1. **Do NOT create a public GitHub issue** for security vulnerabilities.
 
 2. **Email the maintainers** directly with:
-   - A description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Any suggested fixes (optional)
+
+   -  A description of the vulnerability
+   -  Steps to reproduce
+   -  Potential impact
+   -  Any suggested fixes (optional)
 
 3. **Allow time for response** - We aim to respond within 48 hours.
 
@@ -31,32 +32,45 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 
 ## Security Best Practices for Deployment
 
-### Current Limitations
+### Production Configuration
 
-**Important:** The current version (0.x) does not include authentication. Before deploying to production, you should:
+Before deploying to production, ensure you:
 
-1. **Add API Authentication**
-   - Implement API key authentication for v1 endpoints
-   - Use rate limiting to prevent abuse
+1. **Enable Admin Authentication**
 
-2. **Configure CORS**
-   - Restrict allowed origins to your domains only
-   - Don't use `*` for allowed origins in production
+   -  Set `ADMIN_USERNAME` and `ADMIN_PASSWORD` environment variables
+   -  Sessions expire after 24 hours
 
-3. **Use HTTPS**
-   - Always deploy behind HTTPS
-   - Enable HSTS headers
+2. **Enable API Authentication** (optional)
 
-4. **Secure Database**
-   - Use strong passwords
-   - Enable SSL connections
-   - Restrict network access
+   -  Set `API_AUTH_REQUIRED=true` for v1 endpoints
+   -  Create API keys via the admin panel
+
+3. **Configure CORS**
+
+   -  Set `CORS_ALLOWED_ORIGINS` to your domains only
+   -  Don't use `*` for allowed origins in production
+
+4. **Configure Rate Limiting**
+
+   -  `RATE_LIMIT_PER_MINUTE` defaults to 100
+   -  `RATE_LIMIT_WRITE_PER_MINUTE` defaults to 30
+
+5. **Use HTTPS**
+
+   -  Always deploy behind HTTPS
+   -  Enable HSTS headers
+
+6. **Secure Database**
+   -  Use strong passwords
+   -  Enable SSL connections
+   -  Restrict network access
 
 ### Environment Variables
 
-- **Never commit `.env` files** to version control
-- **Rotate secrets** regularly
-- **Use different credentials** for development and production
+-  **Never commit `.env` files** to version control
+-  **Rotate secrets** regularly
+-  **Use different credentials** for development and production
 
 ### Recommended Headers
 
@@ -72,36 +86,29 @@ Content-Security-Policy: default-src 'self'
 
 ### Database Security
 
-- Enable row-level security if using Supabase
-- Use connection pooling for production
-- Regular backups with encryption
+-  Enable row-level security if using Supabase
+-  Use connection pooling for production
+-  Regular backups with encryption
 
 ## Known Security Considerations
 
-### No Authentication (v0.x)
+### Session Storage
 
-The current version does not include authentication. All API endpoints are publicly accessible. This is by design for the MVP, but should be addressed before production deployment.
-
-**Mitigation:**
-- Deploy behind a reverse proxy with authentication
-- Use network-level restrictions (VPN, IP allowlisting)
-- Implement custom authentication middleware
-
-### No Rate Limiting
-
-API endpoints do not have rate limiting. High request volumes could impact performance.
+Admin sessions are stored in memory and expire after 24 hours. This means sessions are lost on server restart.
 
 **Mitigation:**
-- Use a reverse proxy with rate limiting (nginx, Cloudflare)
-- Implement Redis-based rate limiting middleware
+
+-  Consider implementing persistent session storage for high-availability deployments
+-  Use database or Redis-based session storage
 
 ### No Audit Trail
 
 Changes to data are not logged. There's no way to track who changed what.
 
 **Mitigation:**
-- Implement audit logging before production use
-- Use database triggers for critical tables
+
+-  Implement audit logging before production use
+-  Use database triggers for critical tables
 
 ## Dependency Security
 

@@ -19,8 +19,8 @@ npm install
 # Copy environment file
 cp .env.example .env
 
-# Set up database
-npm run db:push
+# Set up database (push schema and seed data)
+npx prisma db push
 npm run db:seed
 
 # Start development server
@@ -29,22 +29,22 @@ npm run dev
 
 ## Code Style
 
-- Use TypeScript for all new code
-- Follow existing code patterns and conventions
-- Use meaningful variable and function names
-- Add comments for complex logic
+-  Use TypeScript for all new code
+-  Follow existing code patterns and conventions
+-  Use meaningful variable and function names
+-  Add comments for complex logic
 
 ## Commit Messages
 
 We follow conventional commits:
 
-- `feat:` New features
-- `fix:` Bug fixes
-- `docs:` Documentation changes
-- `style:` Code style changes (formatting, etc.)
-- `refactor:` Code refactoring
-- `test:` Adding or updating tests
-- `chore:` Maintenance tasks
+-  `feat:` New features
+-  `fix:` Bug fixes
+-  `docs:` Documentation changes
+-  `style:` Code style changes (formatting, etc.)
+-  `refactor:` Code refactoring
+-  `test:` Adding or updating tests
+-  `chore:` Maintenance tasks
 
 Example: `feat: add bulk import functionality`
 
@@ -61,18 +61,18 @@ Example: `feat: add bulk import functionality`
 
 When reporting issues, please include:
 
-- A clear description of the problem
-- Steps to reproduce
-- Expected vs actual behavior
-- Your environment (OS, Node version, etc.)
+-  A clear description of the problem
+-  Steps to reproduce
+-  Expected vs actual behavior
+-  Your environment (OS, Node version, etc.)
 
 ## Feature Requests
 
 Feature requests are welcome! Please:
 
-- Check existing issues first
-- Describe the use case
-- Explain why it would be useful
+-  Check existing issues first
+-  Describe the use case
+-  Explain why it would be useful
 
 ## Testing
 
