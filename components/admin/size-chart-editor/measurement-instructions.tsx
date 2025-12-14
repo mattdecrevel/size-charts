@@ -80,9 +80,9 @@ export function MeasurementInstructionsSelector({
 							onClick={() => toggleInstruction(instruction.id)}
 							className={cn(
 								"group relative flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all",
-								"border focus:outline-none focus:ring-2 focus:ring-sky-500",
+								"border focus:outline-none focus:ring-2 focus:ring-primary",
 								isSelected
-									? "bg-sky-50 border-sky-300 text-sky-700 dark:bg-sky-900/30 dark:border-sky-700 dark:text-sky-300"
+									? "bg-primary/10 border-primary/50 text-primary dark:bg-primary/20 dark:border-primary/50 dark:text-primary"
 									: "bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-neutral-600 dark:hover:bg-neutral-700/50"
 							)}
 						>
@@ -90,7 +90,7 @@ export function MeasurementInstructionsSelector({
 								className={cn(
 									"flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
 									isSelected
-										? "bg-sky-500 border-sky-500 text-white"
+										? "bg-primary border-primary text-primary-foreground"
 										: "border-neutral-300 dark:border-neutral-600"
 								)}
 							>
