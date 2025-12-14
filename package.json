@@ -1,6 +1,25 @@
 {
   "name": "size-charts",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Open-source size chart management system for e-commerce platforms",
+  "author": "Matt Decrevel",
+  "license": "MIT",
+  "homepage": "https://sizecharts.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattdecrevel/size-charts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mattdecrevel/size-charts/issues"
+  },
+  "keywords": [
+    "size-chart",
+    "e-commerce",
+    "sizing",
+    "next.js",
+    "prisma",
+    "tailwind"
+  ],
   "private": true,
   "scripts": {
     "dev": "next dev",

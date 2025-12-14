@@ -21,8 +21,30 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Size Charts Manager",
-  description: "Manage size charts for your e-commerce platform",
+  title: {
+    default: "Size Charts - Open Source Size Chart Management",
+    template: "%s | Size Charts",
+  },
+  description: "Open-source size chart management system for e-commerce. Create, manage, and embed size charts with a REST API and embeddable widget.",
+  keywords: ["size chart", "e-commerce", "sizing guide", "clothing sizes", "open source"],
+  authors: [{ name: "Matt Decrevel" }],
+  metadataBase: new URL("https://sizecharts.dev"),
+  openGraph: {
+    title: "Size Charts - Open Source Size Chart Management",
+    description: "Create, manage, and embed size charts for your e-commerce platform. Free and open source.",
+    url: "https://sizecharts.dev",
+    siteName: "Size Charts",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Size Charts - Open Source Size Chart Management",
+    description: "Create, manage, and embed size charts for your e-commerce platform.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
