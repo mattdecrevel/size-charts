@@ -194,7 +194,7 @@ export default async function DemoPage() {
 				</p>
 				<pre className="rounded-lg bg-zinc-950 p-4 text-sm text-zinc-100 overflow-x-auto">
 					<code>{`<div data-chart="mens-tops"></div>
-<script src="https://sizecharts.dev/embed/size-charts.js" data-api="https://sizecharts.dev"></script>`}</code>
+<script src="https://www.sizecharts.dev/embed/size-charts.js" data-api="https://www.sizecharts.dev"></script>`}</code>
 				</pre>
 			</div>
 		</div>

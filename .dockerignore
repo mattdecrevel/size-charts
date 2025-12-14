@@ -1,18 +1,16 @@
 # Dependencies
 node_modules
 npm-debug.log
-yarn-error.log
 
-# Build output
+# Build outputs
 .next
 out
-build
 dist
+build
 
-# Environment files
-.env
-.env.local
-.env.*.local
+# Git
+.git
+.gitignore
 
 # IDE
 .idea
@@ -20,28 +18,26 @@ dist
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
+# Environment files
+.env
+.env.local
+.env.*.local
 
-# Git
-.git
-.gitignore
-
-# Docker
-Dockerfile*
-docker-compose*
-.docker
+# Test files
+coverage
+__tests__
+e2e
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+playwright-report
+test-results
 
 # Documentation
 *.md
 !README.md
 
-# Tests
-coverage
-.nyc_output
-
 # Misc
-*.log
-*.tmp
-*.temp
+.DS_Store
+Thumbs.db
