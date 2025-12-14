@@ -25,16 +25,17 @@ export function getAdminCredentials(): { username: string; password: string } | 
 
 /**
  * Check if admin authentication is enabled
+ * Note: Demo mode bypasses auth entirely (public demo site)
  */
 export function isAdminAuthEnabled(): boolean {
+	// Demo mode bypasses all auth - anyone can access admin
+	if (isDemoModeEnabled()) {
+		return false;
+	}
+
 	// Auth is enabled if admin credentials are set
 	const creds = getAdminCredentials();
 	if (creds !== null && creds.username.length > 0 && creds.password.length > 0) {
-		return true;
-	}
-
-	// Or if demo mode is enabled
-	if (isDemoModeEnabled()) {
 		return true;
 	}
 
@@ -49,36 +50,15 @@ export function isDemoModeEnabled(): boolean {
 }
 
 /**
- * Get demo credentials from environment variables
- */
-export function getDemoCredentials(): { username: string; password: string } | null {
-	if (!isDemoModeEnabled()) return null;
-
-	const username = process.env.DEMO_USER || "demo";
-	const password = process.env.DEMO_PASSWORD || "demo";
-
-	return { username, password };
-}
-
-/**
  * Validate admin credentials
  */
 export function validateCredentials(username: string, password: string): boolean {
 	const creds = getAdminCredentials();
 
-	// Check admin credentials first
 	if (creds) {
 		const validUsername = creds.username === username;
 		const validPassword = creds.password === password;
 		if (validUsername && validPassword) return true;
-	}
-
-	// Check demo credentials if demo mode is enabled
-	const demoCreds = getDemoCredentials();
-	if (demoCreds) {
-		const validDemoUsername = demoCreds.username === username;
-		const validDemoPassword = demoCreds.password === password;
-		if (validDemoUsername && validDemoPassword) return true;
 	}
 
 	return false;
