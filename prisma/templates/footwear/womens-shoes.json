@@ -1,0 +1,27 @@
+{
+  "id": "footwear-womens",
+  "name": "Women's Footwear",
+  "description": "Women's athletic shoes and sneakers",
+  "category": "footwear",
+  "tags": ["womens", "shoes", "footwear", "sneakers"],
+  "suggestedCategories": ["womens/footwear"],
+  "measurementInstructions": ["foot_length"],
+  "columns": [
+    { "name": "US", "type": "SHOE_SIZE" },
+    { "name": "UK", "type": "SHOE_SIZE" },
+    { "name": "EU", "type": "SHOE_SIZE" },
+    { "name": "CM", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "US": "5", "UK": "2.5", "EU": "35.5", "CM": { "value": 22 } },
+    { "US": "5.5", "UK": "3", "EU": "36", "CM": { "value": 22.5 } },
+    { "US": "6", "UK": "3.5", "EU": "36.5", "CM": { "value": 23 } },
+    { "US": "6.5", "UK": "4", "EU": "37.5", "CM": { "value": 23.5 } },
+    { "US": "7", "UK": "4.5", "EU": "38", "CM": { "value": 24 } },
+    { "US": "7.5", "UK": "5", "EU": "38.5", "CM": { "value": 24.5 } },
+    { "US": "8", "UK": "5.5", "EU": "39", "CM": { "value": 25 } },
+    { "US": "9", "UK": "6.5", "EU": "40.5", "CM": { "value": 26 } },
+    { "US": "10", "UK": "7.5", "EU": "42", "CM": { "value": 27 } },
+    { "US": "11", "UK": "8.5", "EU": "43", "CM": { "value": 28 } }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "footwear-kids",
+  "name": "Youth Footwear",
+  "description": "Youth athletic shoes",
+  "category": "footwear",
+  "tags": ["youth", "kids", "shoes", "footwear"],
+  "suggestedCategories": ["boys/footwear", "girls/footwear"],
+  "measurementInstructions": ["foot_length"],
+  "columns": [
+    { "name": "US", "type": "SHOE_SIZE" },
+    { "name": "UK", "type": "SHOE_SIZE" },
+    { "name": "EU", "type": "SHOE_SIZE" },
+    { "name": "CM", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "US": "3.5Y", "UK": "3", "EU": "35.5", "CM": { "value": 22.5 } },
+    { "US": "4Y", "UK": "3.5", "EU": "36", "CM": { "value": 23 } },
+    { "US": "4.5Y", "UK": "4", "EU": "36.5", "CM": { "value": 23.5 } },
+    { "US": "5Y", "UK": "4.5", "EU": "37.5", "CM": { "value": 24 } },
+    { "US": "5.5Y", "UK": "5", "EU": "38", "CM": { "value": 24.5 } },
+    { "US": "6Y", "UK": "5.5", "EU": "38.5", "CM": { "value": 25 } },
+    { "US": "6.5Y", "UK": "6", "EU": "39", "CM": { "value": 25.5 } },
+    { "US": "7Y", "UK": "6.5", "EU": "40", "CM": { "value": 26 } }
+  ]
+}

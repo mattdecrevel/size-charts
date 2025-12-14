@@ -3,14 +3,22 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, InputWithLabel } from "@/components/ui";
-import { Ruler, AlertCircle, Loader2 } from "lucide-react";
+import { useDemoMode } from "@/hooks/use-demo-mode";
+import { Ruler, AlertCircle, Loader2, Info } from "lucide-react";
 
 export default function AdminLoginPage() {
 	const router = useRouter();
+	const { isDemoMode } = useDemoMode();
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+
+	// Auto-fill demo credentials
+	const fillDemoCredentials = () => {
+		setUsername("demo");
+		setPassword("demo");
+	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -53,6 +61,21 @@ export default function AdminLoginPage() {
 				</div>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
+					{isDemoMode && (
+						<div className="rounded-lg border bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900 p-3">
+							<div className="flex items-start gap-2">
+								<Info className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+								<div className="text-sm">
+									<p className="font-medium text-amber-800 dark:text-amber-200">Demo Mode</p>
+									<p className="text-amber-700 dark:text-amber-300 mt-1">
+										Use <button type="button" onClick={fillDemoCredentials} className="font-mono underline hover:no-underline">demo / demo</button> to log in.
+										Data resets every 6 hours.
+									</p>
+								</div>
+							</div>
+						</div>
+					)}
+
 					{error && (
 						<div className="rounded-lg border bg-destructive/10 border-destructive/20 p-3 flex items-center gap-2">
 							<AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />

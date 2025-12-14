@@ -1,0 +1,25 @@
+{
+  "id": "mens-bottoms",
+  "name": "Men's Bottoms",
+  "description": "Men's pants, shorts, and joggers",
+  "category": "apparel",
+  "tags": ["mens", "bottoms", "pants", "shorts"],
+  "suggestedCategories": ["mens/bottoms"],
+  "measurementInstructions": ["waist", "hip"],
+  "columns": [
+    { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Waist", "type": "MEASUREMENT" },
+    { "name": "Hip", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "Size": "XS", "Waist": { "value": 28 }, "Hip": { "min": 33, "max": 34 } },
+    { "Size": "SM", "Waist": { "value": 30 }, "Hip": { "min": 34, "max": 36 } },
+    { "Size": "MD", "Waist": { "min": 32, "max": 33 }, "Hip": { "min": 36, "max": 39 } },
+    { "Size": "LG", "Waist": { "min": 34, "max": 36 }, "Hip": { "min": 39, "max": 42 } },
+    { "Size": "XL", "Waist": { "min": 38, "max": 40 }, "Hip": { "min": 42, "max": 46 } },
+    { "Size": "XXL", "Waist": { "min": 42, "max": 44 }, "Hip": { "min": 46, "max": 50 } },
+    { "Size": "3XL", "Waist": { "min": 46, "max": 48 }, "Hip": { "min": 50, "max": 54 } },
+    { "Size": "4XL", "Waist": { "min": 50, "max": 52 }, "Hip": { "min": 54, "max": 58 } },
+    { "Size": "5XL", "Waist": { "min": 54, "max": 56 }, "Hip": { "min": 58, "max": 62 } }
+  ]
+}

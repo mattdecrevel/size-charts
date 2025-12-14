@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, InputWithLabel, SelectWithLabel } from "@/components/ui";
-import { SizeChartEditor, MeasurementInstructionsSelector, type EditorState } from "@/components/admin/size-chart-editor";
+import { SizeChartEditor, MeasurementInstructionsSelector, type EditorState, type EditorColumn, type EditorRow, type EditorCell } from "@/components/admin/size-chart-editor";
+import { TemplatePicker } from "@/components/admin/template-picker";
 import { useCategories } from "@/hooks/use-categories";
 import { useLabels } from "@/hooks/use-labels";
 import { useToast } from "@/components/ui/toast";
-import { ArrowLeft, Save, Eye } from "lucide-react";
+import { ArrowLeft, Save, Eye, LayoutTemplate, Plus } from "lucide-react";
 
 const initialState: EditorState = {
   name: "",
@@ -24,6 +25,44 @@ const initialState: EditorState = {
   rows: [],
 };
 
+// Map template column types to editor column types
+function mapTemplateColumnType(type: string): EditorColumn["columnType"] {
+  switch (type) {
+    case "SIZE_LABEL":
+      return "SIZE_LABEL";
+    case "SHOE_SIZE":
+      return "SHOE_SIZE";
+    case "MEASUREMENT":
+      return "MEASUREMENT";
+    case "BAND_SIZE":
+      return "BAND_SIZE";
+    case "CUP_SIZE":
+      return "CUP_SIZE";
+    case "TEXT":
+    default:
+      return "TEXT";
+  }
+}
+
+// Helper to convert inches to cm
+function inToCm(inches: number): number {
+  return Math.round(inches * 2.54 * 10) / 10;
+}
+
+// Template type for type safety
+interface TemplateData {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  tags: string[];
+  suggestedCategories: string[];
+  measurementInstructions: string[];
+  columns: Array<{ name: string; type: string }>;
+  rows: Array<Record<string, unknown>>;
+  variants?: Record<string, { name: string; description: string; rows: Array<Record<string, unknown>> }>;
+}
+
 export default function NewSizeChartPage() {
   const router = useRouter();
   const { addToast } = useToast();
@@ -34,6 +73,84 @@ export default function NewSizeChartPage() {
   const [saving, setSaving] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [customSlug, setCustomSlug] = useState("");
+  const [fromTemplate, setFromTemplate] = useState(false);
+
+  // Handle template selection
+  const handleTemplateSelect = (template: TemplateData, variantKey?: string) => {
+    // Get the rows to use
+    const templateRows = variantKey && template.variants?.[variantKey]
+      ? template.variants[variantKey].rows
+      : template.rows;
+
+    // Map template columns to editor columns
+    const columns: EditorColumn[] = template.columns.map((col, idx) => ({
+      name: col.name,
+      columnType: mapTemplateColumnType(col.type),
+      displayOrder: idx,
+    }));
+
+    // Map template rows to editor rows with cells
+    const rows: EditorRow[] = templateRows.map((templateRow, rowIdx) => {
+      const cells: EditorCell[] = columns.map((col, colIdx) => {
+        const cellValue = templateRow[col.name];
+
+        // Initialize cell with all required properties
+        const cell: EditorCell = {
+          columnIndex: colIdx,
+          valueInches: null,
+          valueCm: null,
+          valueText: null,
+          valueMinInches: null,
+          valueMaxInches: null,
+          valueMinCm: null,
+          valueMaxCm: null,
+          labelId: null,
+        };
+
+        if (typeof cellValue === "string") {
+          cell.valueText = cellValue;
+        } else if (typeof cellValue === "object" && cellValue !== null) {
+          if ("min" in cellValue && "max" in cellValue) {
+            const range = cellValue as { min: number; max: number };
+            cell.valueMinInches = range.min;
+            cell.valueMaxInches = range.max;
+            cell.valueMinCm = inToCm(range.min);
+            cell.valueMaxCm = inToCm(range.max);
+          } else if ("value" in cellValue) {
+            const single = cellValue as { value: number };
+            cell.valueInches = single.value;
+            cell.valueCm = inToCm(single.value);
+          }
+        }
+
+        return cell;
+      });
+
+      return { displayOrder: rowIdx, cells };
+    });
+
+    // Set the state with template data
+    setState({
+      name: template.name + (variantKey ? ` (${variantKey})` : ""),
+      description: template.description,
+      subcategoryIds: [],
+      measurementInstructionIds: [],
+      isPublished: false,
+      columns,
+      rows,
+    });
+
+    setFromTemplate(true);
+    addToast(`Loaded template: ${template.name}`, "success");
+  };
+
+  // Reset to blank state
+  const handleStartBlank = () => {
+    setState(initialState);
+    setFromTemplate(false);
+    setSelectedCategory("");
+    setCustomSlug("");
+  };
 
   const subcategories = selectedCategory
     ? categories?.find((c) => c.id === selectedCategory)?.subcategories || []
@@ -123,10 +240,32 @@ export default function NewSizeChartPage() {
           Back to Size Charts
         </Link>
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">
-            New Size Chart
-          </h1>
+          <div>
+            <h1 className="text-2xl font-bold">
+              New Size Chart
+            </h1>
+            {fromTemplate && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Created from template - customize as needed
+              </p>
+            )}
+          </div>
           <div className="flex items-center gap-2">
+            <TemplatePicker
+              onSelect={handleTemplateSelect}
+              trigger={
+                <Button variant="outline">
+                  <LayoutTemplate className="h-4 w-4" />
+                  {fromTemplate ? "Change Template" : "Start from Template"}
+                </Button>
+              }
+            />
+            {fromTemplate && (
+              <Button variant="ghost" onClick={handleStartBlank}>
+                <Plus className="h-4 w-4" />
+                Start Blank
+              </Button>
+            )}
             <Button variant="outline" onClick={() => handleSave(false)} disabled={saving}>
               <Save className="h-4 w-4" />
               Save as Draft

@@ -27,8 +27,37 @@ export function getAdminCredentials(): { username: string; password: string } | 
  * Check if admin authentication is enabled
  */
 export function isAdminAuthEnabled(): boolean {
+	// Auth is enabled if admin credentials are set
 	const creds = getAdminCredentials();
-	return creds !== null && creds.username.length > 0 && creds.password.length > 0;
+	if (creds !== null && creds.username.length > 0 && creds.password.length > 0) {
+		return true;
+	}
+
+	// Or if demo mode is enabled
+	if (isDemoModeEnabled()) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Check if demo mode is enabled
+ */
+export function isDemoModeEnabled(): boolean {
+	return process.env.DEMO_MODE === "true";
+}
+
+/**
+ * Get demo credentials from environment variables
+ */
+export function getDemoCredentials(): { username: string; password: string } | null {
+	if (!isDemoModeEnabled()) return null;
+
+	const username = process.env.DEMO_USER || "demo";
+	const password = process.env.DEMO_PASSWORD || "demo";
+
+	return { username, password };
 }
 
 /**
@@ -36,13 +65,23 @@ export function isAdminAuthEnabled(): boolean {
  */
 export function validateCredentials(username: string, password: string): boolean {
 	const creds = getAdminCredentials();
-	if (!creds) return false;
 
-	// Use constant-time comparison to prevent timing attacks
-	const validUsername = creds.username === username;
-	const validPassword = creds.password === password;
+	// Check admin credentials first
+	if (creds) {
+		const validUsername = creds.username === username;
+		const validPassword = creds.password === password;
+		if (validUsername && validPassword) return true;
+	}
 
-	return validUsername && validPassword;
+	// Check demo credentials if demo mode is enabled
+	const demoCreds = getDemoCredentials();
+	if (demoCreds) {
+		const validDemoUsername = demoCreds.username === username;
+		const validDemoPassword = demoCreds.password === password;
+		if (validDemoUsername && validDemoPassword) return true;
+	}
+
+	return false;
 }
 
 /**

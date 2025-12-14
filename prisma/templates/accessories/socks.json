@@ -1,0 +1,49 @@
+{
+  "id": "accessories-socks",
+  "name": "Socks",
+  "description": "Athletic and training socks",
+  "category": "accessories",
+  "tags": ["socks", "athletic", "accessories"],
+  "suggestedCategories": ["mens/socks", "womens/socks"],
+  "measurementInstructions": [],
+  "variants": {
+    "mens": {
+      "name": "Men's Socks",
+      "description": "Men's athletic and training socks",
+      "rows": [
+        { "Size": "SM", "US Shoe Size": "4-8.5" },
+        { "Size": "MD", "US Shoe Size": "7-8.5" },
+        { "Size": "LG", "US Shoe Size": "8.5-13" },
+        { "Size": "XL", "US Shoe Size": "13-16" }
+      ]
+    },
+    "womens": {
+      "name": "Women's Socks",
+      "description": "Women's athletic and training socks",
+      "rows": [
+        { "Size": "SM", "US Shoe Size": "4-6" },
+        { "Size": "MD", "US Shoe Size": "6-10" },
+        { "Size": "LG", "US Shoe Size": "10-14" }
+      ]
+    },
+    "youth": {
+      "name": "Youth Socks",
+      "description": "Youth athletic and training socks",
+      "rows": [
+        { "Size": "YSM", "US Shoe Size": "13.5K-4Y" },
+        { "Size": "YMD", "US Shoe Size": "4Y-7Y" },
+        { "Size": "YLG", "US Shoe Size": "1Y-4Y" }
+      ]
+    }
+  },
+  "columns": [
+    { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "US Shoe Size", "type": "TEXT" }
+  ],
+  "rows": [
+    { "Size": "SM", "US Shoe Size": "4-8.5" },
+    { "Size": "MD", "US Shoe Size": "7-8.5" },
+    { "Size": "LG", "US Shoe Size": "8.5-13" },
+    { "Size": "XL", "US Shoe Size": "13-16" }
+  ]
+}

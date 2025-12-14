@@ -315,7 +315,7 @@ export default function CategoriesPage() {
 
 					return (
 						<div key={category.id} className="rounded-lg border bg-card">
-							<div className="flex items-center justify-between px-4 py-3 hover:bg-accent/50">
+							<div className="flex items-center justify-between px-4 py-3 hover:bg-muted">
 								<div
 									className="flex flex-1 cursor-pointer items-center gap-3"
 									onClick={() => toggleExpand(category.id)}
@@ -373,7 +373,7 @@ export default function CategoriesPage() {
 
 												return (
 													<div key={subcategory.id}>
-														<div className="flex items-center justify-between px-8 py-3 hover:bg-accent/50">
+														<div className="flex items-center justify-between px-8 py-3 hover:bg-muted">
 															<div
 																className="flex flex-1 cursor-pointer items-center gap-3"
 																onClick={() => hasCharts && toggleSubcategoryExpand(subcategory.id)}
@@ -423,7 +423,7 @@ export default function CategoriesPage() {
 																{charts.map(({ sizeChart }) => (
 																	<div
 																		key={sizeChart.id}
-																		className="flex items-center justify-between px-16 py-2 hover:bg-accent/50"
+																		className="flex items-center justify-between px-16 py-2 hover:bg-muted"
 																	>
 																		<div className="flex items-center gap-3">
 																			<FileText className="h-3.5 w-3.5 text-muted-foreground" />

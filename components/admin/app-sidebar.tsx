@@ -15,6 +15,8 @@ import {
   History,
   KeyRound,
   LogOut,
+  LayoutTemplate,
+  Play,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,6 +35,7 @@ import {
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutGrid },
   { name: "Size Charts", href: "/admin/size-charts", icon: TableProperties },
+  { name: "Templates", href: "/admin/templates", icon: LayoutTemplate },
   { name: "Categories", href: "/admin/categories", icon: FolderTree },
   { name: "Labels", href: "/admin/labels", icon: Tag },
   { name: "API Keys", href: "/admin/api-keys", icon: KeyRound },
@@ -41,6 +44,7 @@ const navigation = [
 const docs = [
   { name: "Getting Started", href: "/admin/docs/getting-started", icon: BookOpen },
   { name: "API Reference", href: "/admin/docs/api", icon: Code },
+  { name: "Demos", href: "/admin/docs/demos", icon: Play },
   { name: "Changelog", href: "/admin/docs/changelog", icon: History },
 ];
 

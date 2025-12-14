@@ -1,0 +1,52 @@
+{
+  "id": "accessories-gloves",
+  "name": "Gloves",
+  "description": "Training and running gloves",
+  "category": "accessories",
+  "tags": ["gloves", "training", "accessories"],
+  "suggestedCategories": ["mens/gloves", "womens/gloves"],
+  "measurementInstructions": ["hand_circumference", "hand_length"],
+  "variants": {
+    "mens": {
+      "name": "Men's Gloves",
+      "description": "Men's training and running gloves",
+      "rows": [
+        { "Size": "SM", "Hand Circumference": { "min": 7, "max": 7.5 }, "Hand Length": { "min": 6.875, "max": 7.125 } },
+        { "Size": "MD", "Hand Circumference": { "min": 7.625, "max": 8.125 }, "Hand Length": { "min": 7.25, "max": 7.5 } },
+        { "Size": "LG", "Hand Circumference": { "min": 8.25, "max": 8.75 }, "Hand Length": { "min": 7.625, "max": 7.875 } },
+        { "Size": "XL", "Hand Circumference": { "min": 8.875, "max": 9.375 }, "Hand Length": { "min": 8, "max": 8.25 } },
+        { "Size": "XXL", "Hand Circumference": { "min": 9.5, "max": 10 }, "Hand Length": { "min": 8.375, "max": 8.625 } }
+      ]
+    },
+    "womens": {
+      "name": "Women's Gloves",
+      "description": "Women's training and running gloves",
+      "rows": [
+        { "Size": "XS", "Hand Circumference": { "min": 5.75, "max": 6.25 }, "Hand Length": { "min": 6, "max": 6.25 } },
+        { "Size": "SM", "Hand Circumference": { "min": 6.375, "max": 6.875 }, "Hand Length": { "min": 6.375, "max": 6.625 } },
+        { "Size": "MD", "Hand Circumference": { "min": 7, "max": 7.5 }, "Hand Length": { "min": 6.75, "max": 7 } },
+        { "Size": "LG", "Hand Circumference": { "min": 7.625, "max": 8.125 }, "Hand Length": { "min": 7.125, "max": 7.375 } }
+      ]
+    },
+    "youth": {
+      "name": "Youth Gloves",
+      "description": "Youth training and sport gloves",
+      "rows": [
+        { "Size": "YSM", "Hand Length": { "min": 6.25, "max": 6.5 } },
+        { "Size": "YMD", "Hand Length": { "min": 6.5, "max": 6.75 } },
+        { "Size": "YLG", "Hand Length": { "min": 6.75, "max": 7 } }
+      ]
+    }
+  },
+  "columns": [
+    { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Hand Circumference", "type": "MEASUREMENT" },
+    { "name": "Hand Length", "type": "MEASUREMENT" }
+  ],
+  "rows": [
+    { "Size": "SM", "Hand Circumference": { "min": 7, "max": 7.5 }, "Hand Length": { "min": 6.875, "max": 7.125 } },
+    { "Size": "MD", "Hand Circumference": { "min": 7.625, "max": 8.125 }, "Hand Length": { "min": 7.25, "max": 7.5 } },
+    { "Size": "LG", "Hand Circumference": { "min": 8.25, "max": 8.75 }, "Hand Length": { "min": 7.625, "max": 7.875 } },
+    { "Size": "XL", "Hand Circumference": { "min": 8.875, "max": 9.375 }, "Hand Length": { "min": 8, "max": 8.25 } }
+  ]
+}
