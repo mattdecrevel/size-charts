@@ -145,8 +145,8 @@ export default function ApiKeysPage() {
 			</div>
 
 			{/* Info Box */}
-			<div className="mb-6 rounded-lg border bg-blue-500/5 border-blue-500/20 p-4">
-				<h3 className="font-medium text-blue-600 mb-2">Using API Keys</h3>
+			<div className="mb-6 rounded-lg border bg-primary/5 border-primary/20 p-4">
+				<h3 className="font-medium text-primary mb-2">Using API Keys</h3>
 				<p className="text-sm text-muted-foreground mb-2">
 					Include your API key in requests using one of these methods:
 				</p>
