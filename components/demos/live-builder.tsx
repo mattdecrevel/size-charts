@@ -14,7 +14,7 @@ export function LiveBuilder() {
 
   const getBaseUrl = () => {
     if (typeof window !== "undefined") return window.location.origin;
-    return "https://your-domain.com";
+    return "https://sizecharts.dev";
   };
 
   const embedCode = `<div data-chart="${chartSlug}"${theme !== "light" ? ` data-theme="${theme}"` : ""}${unit !== "in" ? ` data-unit="${unit}"` : ""}${compact ? ' data-compact="true"' : ""}></div>

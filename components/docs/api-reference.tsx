@@ -183,7 +183,7 @@ const sizeChartsEndpoints: EndpointProps[] = [
     ],
     example: {
       request: `curl -H "X-API-Key: sc_xxxx" \\
-  "https://example.com/api/v1/size-charts?slug=mens-tops"`,
+  "https://sizecharts.dev/api/v1/size-charts?slug=mens-tops"`,
       response: `{
   "id": "abc123",
   "name": "Tops",
@@ -219,7 +219,7 @@ const categoriesEndpoints: EndpointProps[] = [
     path: "/api/v1/categories",
     description: "Get category tree",
     example: {
-      request: `curl -H "X-API-Key: sc_xxxx" "https://example.com/api/v1/categories"`,
+      request: `curl -H "X-API-Key: sc_xxxx" "https://sizecharts.dev/api/v1/categories"`,
       response: `[
   {
     "id": "cat1",
@@ -244,7 +244,7 @@ const labelsEndpoints: EndpointProps[] = [
       { name: "type", type: "string", description: "Filter by label type (ALPHA_SIZE, NUMERIC_SIZE, etc.)" },
     ],
     example: {
-      request: `curl -H "X-API-Key: sc_xxxx" "https://example.com/api/v1/labels"`,
+      request: `curl -H "X-API-Key: sc_xxxx" "https://sizecharts.dev/api/v1/labels"`,
       response: `[
   {
     "key": "SIZE_SM",
@@ -329,7 +329,7 @@ curl -H "Authorization: Bearer sc_live_xxxxxxxxxxxx" ...`}</code>
       <section id="base-url" className="mb-10 scroll-mt-20">
         <h2 className="text-lg font-semibold text-foreground mb-4">Base URL</h2>
         <div className="rounded-xl border border-border bg-muted/30 p-4">
-          <code className="text-sm font-mono text-foreground">https://your-domain.com/api/v1</code>
+          <code className="text-sm font-mono text-foreground">https://sizecharts.dev/api/v1</code>
         </div>
       </section>
 

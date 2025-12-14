@@ -19,7 +19,7 @@ export function EmbedGuideContent({ showTitle = true, className = "", apiBaseUrl
   const getBaseUrl = () => {
     if (apiBaseUrl) return apiBaseUrl;
     if (typeof window !== "undefined") return window.location.origin;
-    return "https://your-domain.com";
+    return "https://sizecharts.dev";
   };
 
   const embedCode = `<!-- Size Chart Widget -->
@@ -173,7 +173,7 @@ SizeCharts.init();
 SizeCharts.render(document.getElementById("my-chart"));
 
 // Set API URL at runtime
-SizeCharts.setApiUrl("https://api.example.com");`}
+SizeCharts.setApiUrl("https://sizecharts.dev");`}
           </pre>
         </div>
       </section>
