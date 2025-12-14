@@ -9,7 +9,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui";
-import { Button, Input, Skeleton } from "@/components/ui";
+import { Button, Badge, Input, Skeleton } from "@/components/ui";
 import {
 	Table,
 	TableBody,
@@ -298,24 +298,41 @@ export function TemplatePicker({ onSelect, trigger }: TemplatePickerProps) {
 									</Button>
 								</div>
 							) : (
-								<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+								<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
 									{filteredTemplates.map((template) => (
 										<button
 											key={template.id}
-											className="group text-left rounded-lg border bg-card p-2.5 transition-all hover:border-primary hover:shadow-sm"
+											className="group text-left rounded-lg border bg-card p-3 transition-all hover:border-primary hover:shadow-sm"
 											onClick={() => handleSelectTemplate(template)}
 										>
-											<div className="flex items-center gap-2 mb-1.5">
-												<div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-													{categoryIcons[template.category as CategoryFilter] || <LayoutTemplate className="h-3.5 w-3.5" />}
+											<div className="flex items-center gap-2.5 mb-2">
+												<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+													{categoryIcons[template.category as CategoryFilter] || <LayoutTemplate className="h-4 w-4" />}
 												</div>
-												<ChevronRight className="h-3.5 w-3.5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+												<div className="flex-1 min-w-0">
+													<p className="font-medium text-sm leading-tight truncate">{template.name}</p>
+													<p className="text-xs text-muted-foreground">
+														{template.rows.length} sizes · {template.columns.length} cols
+														{template.variants && ` · ${Object.keys(template.variants).length} var`}
+													</p>
+												</div>
+												<ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
 											</div>
-											<p className="font-medium text-xs leading-tight mb-0.5 line-clamp-1">{template.name}</p>
-											<p className="text-[10px] text-muted-foreground leading-tight line-clamp-1">
-												{template.rows.length} sizes · {template.columns.length} cols
-												{template.variants && ` · ${Object.keys(template.variants).length} var`}
+											<p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-2">
+												{template.description}
 											</p>
+											<div className="flex flex-wrap gap-1">
+												{template.tags.slice(0, 3).map((tag) => (
+													<Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0">
+														{tag}
+													</Badge>
+												))}
+												{template.tags.length > 3 && (
+													<Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+														+{template.tags.length - 3}
+													</Badge>
+												)}
+											</div>
 										</button>
 									))}
 									{filteredTemplates.length === 0 && (
