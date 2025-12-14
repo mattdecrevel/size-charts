@@ -271,7 +271,7 @@ export default async function HomePage() {
 						</div>
 						<pre>
 							<code>{`<div data-chart="mens-tops"></div>
-<script src="https://sizecharts.dev/embed/size-charts.js" data-api="https://sizecharts.dev"></script>`}</code>
+<script src="https://www.sizecharts.dev/embed/size-charts.js" data-api="https://www.sizecharts.dev"></script>`}</code>
 						</pre>
 					</div>
 
@@ -282,7 +282,7 @@ export default async function HomePage() {
 						</div>
 						<pre>
 							<code>{`curl -H "X-API-Key: sc_live_xxxx" \\
-  "https://sizecharts.dev/api/v1/size-charts?slug=mens-tops"`}</code>
+  "https://www.sizecharts.dev/api/v1/size-charts?slug=mens-tops"`}</code>
 						</pre>
 					</div>
 				</div>
