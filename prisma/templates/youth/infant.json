@@ -1,22 +1,24 @@
 {
   "id": "youth-infant",
-  "name": "Youth Infant (0-24M)",
-  "description": "Infant clothing",
+  "name": "Infant (0-24M)",
+  "description": "Infant clothing for ages 0-24 months. Based on Nike and Adidas sizing standards.",
   "category": "youth",
   "tags": ["youth", "infant", "baby", "boys", "girls"],
   "suggestedCategories": ["boys/tops", "girls/tops", "boys/bottoms", "girls/bottoms"],
-  "measurementInstructions": ["chest", "height"],
+  "measurementInstructions": ["chest", "height", "weight"],
   "columns": [
     { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Age", "type": "TEXT" },
     { "name": "Chest", "type": "MEASUREMENT" },
-    { "name": "Height", "type": "MEASUREMENT" }
+    { "name": "Height", "type": "MEASUREMENT" },
+    { "name": "Weight (lbs)", "type": "MEASUREMENT" }
   ],
   "rows": [
-    { "Size": "0-3M", "Chest": { "min": 15.5, "max": 17 }, "Height": { "min": 20.5, "max": 24 } },
-    { "Size": "3-6M", "Chest": { "min": 17, "max": 18 }, "Height": { "min": 24, "max": 27 } },
-    { "Size": "6-9M", "Chest": { "min": 18, "max": 18.5 }, "Height": { "min": 27, "max": 29 } },
-    { "Size": "12M", "Chest": { "min": 18.5, "max": 19 }, "Height": { "min": 29, "max": 30 } },
-    { "Size": "18M", "Chest": { "min": 19, "max": 20 }, "Height": { "min": 30.5, "max": 33 } },
-    { "Size": "24M", "Chest": { "min": 20, "max": 21 }, "Height": { "min": 33, "max": 35 } }
+    { "Size": "0-3M", "Age": "0-3 months", "Chest": { "min": 15.5, "max": 17 }, "Height": { "min": 21, "max": 24 }, "Weight (lbs)": { "min": 7, "max": 12 } },
+    { "Size": "3-6M", "Age": "3-6 months", "Chest": { "min": 17, "max": 18 }, "Height": { "min": 24, "max": 27 }, "Weight (lbs)": { "min": 12, "max": 17 } },
+    { "Size": "6-9M", "Age": "6-9 months", "Chest": { "min": 18, "max": 18.5 }, "Height": { "min": 27, "max": 29 }, "Weight (lbs)": { "min": 17, "max": 20 } },
+    { "Size": "12M", "Age": "9-12 months", "Chest": { "min": 18.5, "max": 19 }, "Height": { "min": 29, "max": 30 }, "Weight (lbs)": { "min": 20, "max": 22 } },
+    { "Size": "18M", "Age": "12-18 months", "Chest": { "min": 19, "max": 20 }, "Height": { "min": 30, "max": 33 }, "Weight (lbs)": { "min": 22, "max": 26 } },
+    { "Size": "24M", "Age": "18-24 months", "Chest": { "min": 20, "max": 21 }, "Height": { "min": 33, "max": 35 }, "Weight (lbs)": { "min": 26, "max": 29 } }
   ]
 }

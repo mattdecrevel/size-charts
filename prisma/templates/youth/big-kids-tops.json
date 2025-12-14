@@ -1,23 +1,23 @@
 {
   "id": "youth-big-kids-tops",
-  "name": "Youth Big Kids Tops (8-20)",
-  "description": "Youth tops for ages 8-20",
+  "name": "Big Kids Tops (XS-XL)",
+  "description": "Youth tops for ages 6-16. Based on Nike and Adidas sizing standards.",
   "category": "youth",
-  "tags": ["youth", "kids", "boys", "girls", "tops"],
+  "tags": ["youth", "kids", "boys", "girls", "tops", "athletic"],
   "suggestedCategories": ["boys/tops", "girls/tops"],
-  "measurementInstructions": ["chest", "waist", "hip", "height"],
+  "measurementInstructions": ["chest", "waist", "height"],
   "columns": [
     { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "Age", "type": "TEXT" },
     { "name": "Chest", "type": "MEASUREMENT" },
     { "name": "Waist", "type": "MEASUREMENT" },
-    { "name": "Hip", "type": "MEASUREMENT" },
     { "name": "Height", "type": "MEASUREMENT" }
   ],
   "rows": [
-    { "Size": "YXS (7)", "Chest": { "min": 25, "max": 26 }, "Waist": { "min": 23, "max": 24 }, "Hip": { "min": 26, "max": 27 }, "Height": { "min": 47, "max": 50.5 } },
-    { "Size": "YSM (8)", "Chest": { "min": 26, "max": 27 }, "Waist": { "min": 24, "max": 25 }, "Hip": { "min": 27, "max": 28 }, "Height": { "min": 50.5, "max": 53 } },
-    { "Size": "YMD (10-12)", "Chest": { "min": 27, "max": 29 }, "Waist": { "min": 25, "max": 27 }, "Hip": { "min": 28, "max": 31 }, "Height": { "min": 53, "max": 59 } },
-    { "Size": "YLG (14-16)", "Chest": { "min": 29, "max": 32.5 }, "Waist": { "min": 27, "max": 30 }, "Hip": { "min": 31, "max": 34 }, "Height": { "min": 59, "max": 65 } },
-    { "Size": "YXL (18-20)", "Chest": { "min": 32.5, "max": 35.5 }, "Waist": { "min": 30, "max": 33 }, "Hip": { "min": 34, "max": 37 }, "Height": { "min": 65, "max": 70 } }
+    { "Size": "XS", "Age": "6-7", "Chest": { "min": 24, "max": 25 }, "Waist": { "min": 22, "max": 23 }, "Height": { "min": 48, "max": 50 } },
+    { "Size": "S", "Age": "8-9", "Chest": { "min": 25, "max": 27 }, "Waist": { "min": 23, "max": 24 }, "Height": { "min": 50, "max": 54 } },
+    { "Size": "M", "Age": "10-11", "Chest": { "min": 27, "max": 29 }, "Waist": { "min": 24, "max": 26 }, "Height": { "min": 54, "max": 58 } },
+    { "Size": "L", "Age": "12-13", "Chest": { "min": 29, "max": 32 }, "Waist": { "min": 26, "max": 28 }, "Height": { "min": 58, "max": 62 } },
+    { "Size": "XL", "Age": "14-16", "Chest": { "min": 32, "max": 35 }, "Waist": { "min": 28, "max": 30 }, "Height": { "min": 62, "max": 67 } }
   ]
 }

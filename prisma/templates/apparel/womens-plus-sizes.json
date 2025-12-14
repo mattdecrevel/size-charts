@@ -1,20 +1,23 @@
 {
   "id": "womens-plus-sizes",
   "name": "Women's Plus Sizes",
-  "description": "Women's plus size tops and bottoms",
+  "description": "Women's plus size tops and bottoms. Extended sizing based on Nike, Adidas, and Under Armour standards.",
   "category": "apparel",
-  "tags": ["womens", "plus-sizes", "extended"],
+  "tags": ["womens", "plus-sizes", "extended", "inclusive"],
   "suggestedCategories": ["womens/plus-sizes"],
-  "measurementInstructions": ["chest", "waist", "hip"],
+  "measurementInstructions": ["bust", "waist", "hips"],
   "columns": [
     { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "US Size", "type": "TEXT" },
     { "name": "Bust", "type": "MEASUREMENT" },
     { "name": "Waist", "type": "MEASUREMENT" },
-    { "name": "Hip", "type": "MEASUREMENT" }
+    { "name": "Hips", "type": "MEASUREMENT" }
   ],
   "rows": [
-    { "Size": "1X", "Bust": { "min": 44, "max": 47.5 }, "Waist": { "min": 39, "max": 43.5 }, "Hip": { "min": 47, "max": 50.5 } },
-    { "Size": "2X", "Bust": { "min": 47.5, "max": 51.5 }, "Waist": { "min": 43.5, "max": 48.5 }, "Hip": { "min": 50.5, "max": 54.5 } },
-    { "Size": "3X", "Bust": { "min": 51.5, "max": 55 }, "Waist": { "min": 48.5, "max": 53 }, "Hip": { "min": 54.5, "max": 58 } }
+    { "Size": "1X", "US Size": "14-16", "Bust": { "min": 41, "max": 44 }, "Waist": { "min": 34, "max": 37 }, "Hips": { "min": 44, "max": 47 } },
+    { "Size": "2X", "US Size": "18-20", "Bust": { "min": 44, "max": 48 }, "Waist": { "min": 37, "max": 41 }, "Hips": { "min": 47, "max": 51 } },
+    { "Size": "3X", "US Size": "22-24", "Bust": { "min": 48, "max": 52 }, "Waist": { "min": 41, "max": 45 }, "Hips": { "min": 51, "max": 55 } },
+    { "Size": "4X", "US Size": "26-28", "Bust": { "min": 52, "max": 56 }, "Waist": { "min": 45, "max": 49 }, "Hips": { "min": 55, "max": 59 } },
+    { "Size": "5X", "US Size": "30-32", "Bust": { "min": 56, "max": 60 }, "Waist": { "min": 49, "max": 53 }, "Hips": { "min": 59, "max": 63 } }
   ]
 }

@@ -1,23 +1,26 @@
 {
   "id": "womens-tops",
   "name": "Women's Tops",
-  "description": "Women's shirts, tanks, and jackets",
+  "description": "Women's shirts, t-shirts, tanks, hoodies, and jackets. Based on Nike, Adidas, Under Armour, and Lululemon sizing standards.",
   "category": "apparel",
-  "tags": ["womens", "tops", "shirts", "tanks"],
-  "suggestedCategories": ["womens/tops"],
-  "measurementInstructions": ["chest", "waist"],
+  "tags": ["womens", "tops", "shirts", "jackets", "hoodies", "athletic"],
+  "suggestedCategories": ["womens/tops", "womens/outerwear"],
+  "measurementInstructions": ["bust", "waist", "hips"],
   "columns": [
     { "name": "Size", "type": "SIZE_LABEL" },
+    { "name": "US Size", "type": "TEXT" },
     { "name": "Bust", "type": "MEASUREMENT" },
-    { "name": "Waist", "type": "MEASUREMENT" }
+    { "name": "Waist", "type": "MEASUREMENT" },
+    { "name": "Hips", "type": "MEASUREMENT" }
   ],
   "rows": [
-    { "Size": "XXS", "Bust": { "min": 31, "max": 32.5 }, "Waist": { "min": 24.5, "max": 25.5 } },
-    { "Size": "XS", "Bust": { "min": 32.5, "max": 33.5 }, "Waist": { "min": 25.5, "max": 27 } },
-    { "Size": "SM", "Bust": { "min": 33.5, "max": 36 }, "Waist": { "min": 27, "max": 29 } },
-    { "Size": "MD", "Bust": { "min": 36, "max": 38 }, "Waist": { "min": 29, "max": 31 } },
-    { "Size": "LG", "Bust": { "min": 38, "max": 41 }, "Waist": { "min": 31, "max": 34 } },
-    { "Size": "XL", "Bust": { "min": 41, "max": 44 }, "Waist": { "min": 34, "max": 37 } },
-    { "Size": "XXL", "Bust": { "min": 44, "max": 47 }, "Waist": { "min": 37, "max": 40 } }
+    { "Size": "XXS", "US Size": "00", "Bust": { "min": 28, "max": 29.5 }, "Waist": { "min": 21, "max": 23.5 }, "Hips": { "min": 31, "max": 33 } },
+    { "Size": "XS", "US Size": "0-2", "Bust": { "min": 29.5, "max": 32.5 }, "Waist": { "min": 23.5, "max": 26 }, "Hips": { "min": 33, "max": 35.5 } },
+    { "Size": "S", "US Size": "4-6", "Bust": { "min": 32.5, "max": 35.5 }, "Waist": { "min": 26, "max": 29 }, "Hips": { "min": 35.5, "max": 38.5 } },
+    { "Size": "M", "US Size": "8-10", "Bust": { "min": 35.5, "max": 38 }, "Waist": { "min": 29, "max": 31.5 }, "Hips": { "min": 38.5, "max": 41 } },
+    { "Size": "L", "US Size": "12-14", "Bust": { "min": 38, "max": 41 }, "Waist": { "min": 31.5, "max": 34.5 }, "Hips": { "min": 41, "max": 44 } },
+    { "Size": "XL", "US Size": "16-18", "Bust": { "min": 41, "max": 44.5 }, "Waist": { "min": 34.5, "max": 38.5 }, "Hips": { "min": 44, "max": 47 } },
+    { "Size": "2XL", "US Size": "20-22", "Bust": { "min": 44.5, "max": 48.5 }, "Waist": { "min": 38.5, "max": 42.5 }, "Hips": { "min": 47, "max": 50 } },
+    { "Size": "3XL", "US Size": "24-26", "Bust": { "min": 48.5, "max": 52.5 }, "Waist": { "min": 42.5, "max": 46.5 }, "Hips": { "min": 50, "max": 53 } }
   ]
 }
