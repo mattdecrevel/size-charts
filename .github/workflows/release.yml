@@ -153,6 +153,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Sync main with production
+        if: steps.check_tag.outputs.exists != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git merge origin/production --no-edit -m "chore: sync main with production after ${{ steps.next_version.outputs.version }}"
+          git push origin main
+
       - name: Summary
         run: |
           if [ "${{ steps.check_tag.outputs.exists }}" = "true" ]; then
@@ -166,4 +176,6 @@ jobs:
             echo "**Bump Type:** ${{ steps.next_version.outputs.bump_type }}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "View the release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.next_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Main branch has been synced with production." >> $GITHUB_STEP_SUMMARY
           fi
