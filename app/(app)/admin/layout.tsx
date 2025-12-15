@@ -76,7 +76,7 @@ export default function AdminLayout({
       <div className="flex-1 overflow-hidden flex min-h-0">
         <SidebarProvider className={`h-full min-h-0 !min-h-0 [&>[data-slot=sidebar-wrapper]]:min-h-0 ${isDemoMode ? '[&_[data-slot=sidebar-container]]:top-[42px] [&_[data-slot=sidebar-container]]:h-[calc(100svh-42px)]' : ''}`}>
           <AppSidebar />
-          <SidebarInset className="min-h-0 max-h-full md:peer-data-[variant=inset]:m-0 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none">
+          <SidebarInset className="min-h-0 max-h-full md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm">
 
           {/* Admin Header */}
         <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">

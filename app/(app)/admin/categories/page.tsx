@@ -314,7 +314,7 @@ export default function CategoriesPage() {
 
 					return (
 						<div key={category.id} className="rounded-lg border bg-card">
-							<div className="flex items-center justify-between px-4 py-3 hover:bg-muted">
+							<div className="flex items-center justify-between px-4 py-3 hover:bg-muted rounded-lg">
 								<div
 									className="flex flex-1 cursor-pointer items-center gap-3"
 									onClick={() => toggleExpand(category.id)}
