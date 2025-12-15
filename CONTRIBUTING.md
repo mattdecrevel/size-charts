@@ -2,13 +2,28 @@
 
 Thank you for your interest in contributing to Size Charts! This document provides guidelines and instructions for contributing.
 
+## Branch Strategy
+
+We use a two-branch workflow:
+
+| Branch | Purpose | Deploys To |
+|--------|---------|------------|
+| `main` | Development branch. All PRs target this branch. | Preview/Staging |
+| `production` | Production releases. Only release PRs merge here. | Production |
+
+**Workflow:**
+1. Create feature branches from `main`
+2. Open PRs against `main`
+3. After review and merge, changes go to staging
+4. When ready to release, create a Release PR from `main` → `production`
+
 ## Getting Started
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/size-charts.git`
 3. Install dependencies: `npm install`
 4. Set up your database (see README.md)
-5. Create a branch: `git checkout -b feature/your-feature`
+5. Create a branch from `main`: `git checkout -b feature/your-feature`
 
 ## Development Setup
 
@@ -86,6 +101,48 @@ npm run test:coverage
 # Run E2E tests
 npm run test:e2e
 ```
+
+## Release Process
+
+Releases are created by merging `main` into `production`. This triggers automatic version tagging and GitHub release creation.
+
+### Creating a Release
+
+**Option 1: Manual PR**
+```bash
+# Ensure main is up to date
+git checkout main
+git pull origin main
+
+# Create release PR
+gh pr create --base production --head main --title "Release vX.Y.Z"
+```
+
+**Option 2: Automated Workflow** (recommended)
+1. Go to Actions → "Create Release PR"
+2. Click "Run workflow"
+3. Select version bump type (patch/minor/major)
+4. Review and merge the created PR
+
+### Version Bumping
+
+We follow [Semantic Versioning](https://semver.org/):
+
+- **patch** (1.0.0 → 1.0.1): Bug fixes, minor changes
+- **minor** (1.0.0 → 1.1.0): New features, backward compatible
+- **major** (1.0.0 → 2.0.0): Breaking changes
+
+The release workflow auto-detects version bump from commit messages:
+- `feat:` commits → minor bump
+- `fix:` commits → patch bump
+- `BREAKING CHANGE` or `feat!:` → major bump
+
+### After Release
+
+Once the PR is merged to `production`:
+1. A git tag is automatically created (e.g., `v1.2.0`)
+2. A GitHub Release is created with auto-generated changelog
+3. Vercel deploys the production branch to the live site
 
 ## Questions?
 
