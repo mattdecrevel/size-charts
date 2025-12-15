@@ -1,356 +1,204 @@
+<div align="center">
+
 # Size Charts
 
-> Open-source size chart management system for e-commerce platforms
+**Open-source size chart management for e-commerce**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-7-2D3748)](https://www.prisma.io/)
-[![GitHub](https://img.shields.io/github/stars/mattdecrevel/size-charts?style=social)](https://github.com/mattdecrevel/size-charts)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://www.sizecharts.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/mattdecrevel/size-charts?style=social)](https://github.com/mattdecrevel/size-charts)
 
-**[Documentation](https://github.com/mattdecrevel/size-charts#readme)** | **[Issues](https://github.com/mattdecrevel/size-charts/issues)** | **[Discussions](https://github.com/mattdecrevel/size-charts/discussions)**
+[Live Demo](https://www.sizecharts.dev) · [Documentation](https://www.sizecharts.dev/docs) · [Report Bug](https://github.com/mattdecrevel/size-charts/issues)
 
-A production-ready size chart CRUD system with an admin interface and REST API. Built for e-commerce platforms that need to manage clothing, footwear, and accessory sizing across multiple regions and categories.
+</div>
+
+---
+
+A production-ready size chart system with an admin panel, REST API, and embeddable widget. Built for e-commerce platforms that need to manage clothing, footwear, and accessory sizing.
+
+<div align="center">
+
+![Size Charts Homepage](docs/images/homepage.png)
+
+</div>
 
 ## Features
 
-- **Dynamic Size Charts** - Create charts with custom columns (measurements, size labels, regional sizes)
-- **Multi-Category Support** - Assign one chart to multiple categories to avoid duplication
-- **Dual Unit Storage** - Store both inches and centimeters for all measurements
-- **Translatable Labels** - Standardized size keys (e.g., `SIZE_SM`) for i18n integration
-- **Spreadsheet-like Editor** - Inline editing with keyboard navigation
-- **REST API** - Clean, versioned v1 API for headless integration
-- **OpenAPI/Swagger** - Interactive API documentation at `/api/docs`
-- **Dark Mode** - Full dark mode support with system preference detection
+| Feature | Description |
+|---------|-------------|
+| **Spreadsheet Editor** | Excel-like editing with keyboard navigation |
+| **Multi-Category** | One chart can appear in multiple categories |
+| **Dual Units** | All measurements in inches + centimeters |
+| **REST API** | Full CRUD with OpenAPI documentation |
+| **Embeddable Widget** | One script tag, zero dependencies |
+| **API Keys** | Scoped authentication with rate limiting |
+| **Dark Mode** | Full dark mode support |
+| **Templates** | Pre-built charts for common use cases |
 
-## Tech Stack
+<div align="center">
 
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript 5
-- **Database**: PostgreSQL with Prisma 7 ORM
-- **Styling**: Tailwind CSS 4 + shadcn/ui
-- **State**: React Query (TanStack Query)
+<img src="docs/images/admin-editor.png" alt="Admin Editor" width="80%">
+
+*Spreadsheet-style editor with inline editing and keyboard navigation*
+
+</div>
 
 ## Quick Start
 
-### Prerequisites
+### Option 1: Deploy to Vercel (Recommended)
 
-- Node.js 18+
-- PostgreSQL 14+ (or use Docker)
-- npm, yarn, or pnpm
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/mattdecrevel/size-charts&env=DATABASE_URL&envDescription=PostgreSQL%20connection%20string&envLink=https://github.com/mattdecrevel/size-charts%23environment-variables)
 
-### Option 1: Docker (Recommended)
+1. Click the button above
+2. Connect a PostgreSQL database ([Neon](https://neon.tech), [Supabase](https://supabase.com), or [Railway](https://railway.app))
+3. Set `DATABASE_URL` environment variable
+4. Deploy!
 
-```bash
-# Clone the repository
-git clone https://github.com/mattdecrevel/size-charts.git
-cd size-charts
-
-# Start PostgreSQL and the app
-docker-compose up -d
-
-# Open the app
-open http://localhost:3000
-```
-
-### Option 2: Manual Setup
+### Option 2: Local Development
 
 ```bash
-# Clone the repository
+# Clone and install
 git clone https://github.com/mattdecrevel/size-charts.git
 cd size-charts
-
-# Install dependencies
 npm install
 
-# Copy environment file
+# Setup database
 cp .env.example .env
+# Edit .env with your DATABASE_URL
 
-# Edit .env with your database URL
-# DATABASE_URL="postgresql://username@localhost:5432/size_charts?schema=public"
-
-# Push schema to database
+# Initialize and seed
 npm run db:push
-
-# Seed with sample data
 npm run db:seed
 
-# Start development server
+# Start dev server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the app.
+Open [http://localhost:3000](http://localhost:3000)
+
+## Usage
+
+### Embed Widget
+
+Add size charts to any website with one script tag:
+
+```html
+<div data-chart="mens-tops"></div>
+<script src="https://www.sizecharts.dev/embed/size-charts.js"
+        data-api="https://www.sizecharts.dev">
+</script>
+```
+
+### REST API
+
+```bash
+# Get all size charts
+curl https://www.sizecharts.dev/api/v1/size-charts
+
+# Get specific chart
+curl https://www.sizecharts.dev/api/v1/size-charts?slug=mens-tops
+
+# With authentication (when enabled)
+curl -H "X-API-Key: sc_live_xxxx" \
+  https://www.sizecharts.dev/api/v1/size-charts
+```
+
+See [API Documentation](https://www.sizecharts.dev/docs/api) for all endpoints.
+
+## Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Language**: [TypeScript 5](https://www.typescriptlang.org/)
+- **Database**: [PostgreSQL](https://www.postgresql.org/) + [Prisma 7](https://www.prisma.io/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+- **State**: [TanStack Query](https://tanstack.com/query)
+
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `DEMO_MODE` | No | Enable public demo mode (`true`/`false`) |
+| `ADMIN_USERNAME` | No | Admin panel username (if not demo mode) |
+| `ADMIN_PASSWORD` | No | Admin panel password (if not demo mode) |
+| `API_AUTH_REQUIRED` | No | Require API key authentication |
+| `CORS_ALLOWED_ORIGINS` | No | Allowed CORS origins (comma-separated) |
+
+See [.env.example](.env.example) for all options.
 
 ## Project Structure
 
 ```
-size-charts/
-├── app/
-│   ├── (marketing)/     # Marketing pages (deletable for self-hosting)
-│   │   ├── page.tsx     # Home page
-│   │   ├── demo/        # Widget demos
-│   │   └── docs/        # Public documentation
-│   ├── (app)/           # Core application
-│   │   ├── admin/       # Admin interface
-│   │   │   ├── categories/
-│   │   │   ├── labels/
-│   │   │   ├── size-charts/
-│   │   │   └── docs/    # Built-in documentation
-│   │   └── size-guide/  # Public size guide browser
-│   └── api/
-│       ├── v1/          # Public API (versioned)
-│       ├── categories/  # Admin API
-│       ├── labels/      # Labels API
-│       └── size-charts/ # Charts API
-├── components/
-│   ├── admin/           # Admin-specific components
-│   │   └── size-chart-editor/  # Spreadsheet editor
-│   ├── docs/            # Documentation components (deletable)
-│   └── ui/              # shadcn/ui components
-├── hooks/               # React hooks
-├── lib/                 # Utilities and helpers
-├── prisma/
-│   ├── schema.prisma    # Database schema
-│   └── seed.ts          # Seed data
-└── types/               # TypeScript types
+app/
+├── (marketing)/     # Landing page, docs, examples
+├── (app)/
+│   ├── admin/       # Admin panel
+│   └── size-guide/  # Public size guide
+└── api/
+    ├── v1/          # Public REST API
+    └── admin/       # Admin endpoints
+
+components/
+├── admin/           # Admin UI components
+├── public/          # Public-facing components
+└── ui/              # shadcn/ui components
+
+prisma/
+├── schema.prisma    # Database schema
+├── seed.ts          # Sample data
+└── templates/       # Chart templates
+```
+
+## Development
+
+```bash
+npm run dev          # Start dev server
+npm run build        # Production build
+npm run lint         # Run linter
+npm run typecheck    # Type check
+npm run test:run     # Run tests
+npm run test:e2e     # Run E2E tests
+npm run db:studio    # Open Prisma Studio
+npm run build:analyze # Analyze bundle size
 ```
 
 ## Self-Hosting
 
-This project is designed to be self-hostable. To run as a standalone size chart service without marketing pages:
+This project is designed to be self-hostable. To run as a standalone service:
 
-### Remove Marketing Content
+1. **Remove marketing content** (optional):
+   - Delete `app/(marketing)/` for a minimal installation
+   - The admin panel, API, and size guide will continue to work
 
-Delete these folders:
-- `app/(marketing)/` - Home page, demos, public docs
-- `components/docs/` - Documentation components
-- `public/demo/` - Demo HTML files
+2. **Configure authentication**:
+   - Set `DEMO_MODE=false`
+   - Set `ADMIN_USERNAME` and `ADMIN_PASSWORD`
+   - Optionally enable `API_AUTH_REQUIRED=true`
 
-After deletion, the following will continue to work:
-- **Admin Panel** (`/admin`) - Full chart management with built-in docs
-- **Size Guide** (`/size-guide`) - Customer-facing size charts
-- **REST API** (`/api/v1/*`) - Public API endpoints
-- **Embed Widget** (`/embed/size-charts.js`) - Embeddable widget
-
-## API Reference
-
-### Public API (v1)
-
-All public endpoints are prefixed with `/api/v1`.
-
-#### Get Size Charts
-
-```bash
-# Get all published charts
-GET /api/v1/size-charts
-
-# Get chart by slug
-GET /api/v1/size-charts?slug=mens-tops
-
-# Filter by category
-GET /api/v1/size-charts?category=mens&subcategory=tops
-```
-
-#### Get Categories
-
-```bash
-# Get category tree with chart counts
-GET /api/v1/categories
-```
-
-#### Get Labels
-
-```bash
-# Get all labels grouped by type
-GET /api/v1/labels
-
-# Filter by type
-GET /api/v1/labels?type=ALPHA_SIZE
-```
-
-### Response Format
-
-```json
-{
-  "id": "clx...",
-  "name": "Men's Tops",
-  "slug": "mens-tops",
-  "columns": [
-    { "id": "...", "name": "Size", "type": "SIZE_LABEL" },
-    { "id": "...", "name": "Chest", "type": "MEASUREMENT" }
-  ],
-  "rows": [
-    {
-      "cells": [
-        { "type": "label", "key": "SIZE_SM", "value": "SM" },
-        { "type": "range", "inches": { "min": 34, "max": 37 }, "cm": { "min": 86, "max": 94 } }
-      ]
-    }
-  ]
-}
-```
-
-See the [API Documentation](http://localhost:3000/admin/docs/api) for detailed endpoint information.
-
-## Database Schema
-
-The system uses the following main models:
-
-- **Category** - Top-level grouping (Men's, Women's, Kids)
-- **Subcategory** - Second-level grouping (Tops, Bottoms, Footwear)
-- **SizeChart** - The chart itself with name, slug, description
-- **SizeChartColumn** - Dynamic columns with type (MEASUREMENT, SIZE_LABEL, etc.)
-- **SizeChartRow** - Rows representing sizes
-- **SizeChartCell** - Cell values with dual unit storage
-- **SizeLabel** - Reusable size labels with standardized keys
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `NEXT_PUBLIC_APP_URL` | Application URL for API docs | No |
-
-### Label Types
-
-The system supports these label types:
-
-| Type | Description | Examples |
-|------|-------------|----------|
-| `ALPHA_SIZE` | Letter sizes | XS, S, M, L, XL |
-| `NUMERIC_SIZE` | Number sizes | 0, 2, 4, 6, 8 |
-| `YOUTH_SIZE` | Youth sizes | YS, YM, YL |
-| `BAND_SIZE` | Bra band sizes | 30, 32, 34 |
-| `CUP_SIZE` | Bra cup sizes | A, B, C, D |
-| `SHOE_SIZE_US` | US shoe sizes | 7, 8, 9, 10 |
-| `REGIONAL` | Regional codes | EU, UK, Asia |
-
-## Deployment
-
-### Vercel (Recommended)
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/mattdecrevel/size-charts)
-
-1. Click the button above
-2. Connect a PostgreSQL database (Neon, Supabase, or Railway)
-3. Set `DATABASE_URL` in environment variables
-4. Deploy!
-
-### Docker
-
-```bash
-# Build the image
-docker build -t size-charts .
-
-# Run with environment variables
-docker run -p 3000:3000 \
-  -e DATABASE_URL="postgresql://..." \
-  size-charts
-```
-
-### Self-Hosted
-
-See [deployment documentation](docs/deployment.md) for detailed self-hosting instructions.
-
-## Development
-
-### Commands
-
-```bash
-# Development server
-npm run dev
-
-# Type checking
-npm run typecheck
-
-# Linting
-npm run lint
-
-# Database operations
-npm run db:push      # Push schema changes
-npm run db:seed      # Seed sample data
-npm run db:studio    # Open Prisma Studio
-npm run db:migrate   # Run migrations (production)
-```
-
-### Adding New Seed Data
-
-Edit `prisma/seed.ts` to add new categories, charts, or labels:
-
-```typescript
-// Add a new category
-const newCategory = await prisma.category.create({
-  data: { name: "Kids", slug: "kids", displayOrder: 3 }
-});
-
-// Add a new label
-await prisma.sizeLabel.create({
-  data: {
-    key: "SIZE_XXXL",
-    displayValue: "3XL",
-    labelType: "ALPHA_SIZE",
-    sortOrder: 10
-  }
-});
-```
-
-## Internationalization
-
-Size labels use standardized keys for translation integration:
-
-```typescript
-// Your translation file (e.g., fr-CA.json)
-{
-  "SIZE_XXS": "TTP",
-  "SIZE_XS": "TP",
-  "SIZE_SM": "P",
-  "SIZE_MD": "M",
-  "SIZE_LG": "G",
-  "SIZE_XL": "TG"
-}
-
-// Usage in your app
-const translated = t(cell.key) || cell.value;
-```
-
-See [API docs](http://localhost:3000/admin/docs/api) for complete translation examples with unit preferences.
+3. **Deploy**:
+   - Docker: `docker build -t size-charts . && docker run -p 3000:3000 size-charts`
+   - Node: `npm run build && npm start`
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Development Setup
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/my-feature`
 3. Make your changes
-4. Run tests and linting
+4. Run tests: `npm run test:run && npm run lint`
 5. Submit a pull request
-
-## Roadmap
-
-See the [Changelog & Roadmap](http://localhost:3000/admin/docs/changelog) page for:
-
-- Completed features
-- Planned features
-- Known issues
-
-Key planned features:
-- [ ] API authentication (API keys)
-- [x] OpenAPI/Swagger documentation - Available at `/api/docs`
-- [ ] Webhooks for chart changes
-- [ ] Bulk import/export (CSV)
-- [ ] Version history
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) for details.
 
-## Acknowledgments
+---
 
-- Built with [Next.js](https://nextjs.org/)
-- UI components from [shadcn/ui](https://ui.shadcn.com/)
-- Database ORM by [Prisma](https://www.prisma.io/)
-- Icons from [Lucide](https://lucide.dev/)
+<div align="center">
+
+**[Website](https://www.sizecharts.dev)** · **[Documentation](https://www.sizecharts.dev/docs)** · **[GitHub](https://github.com/mattdecrevel/size-charts)**
+
+Built with [Next.js](https://nextjs.org/) · UI by [shadcn/ui](https://ui.shadcn.com/) · Database by [Prisma](https://www.prisma.io/)
+
+</div>

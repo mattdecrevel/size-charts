@@ -623,6 +623,136 @@
    .animate-pulse-gentle {
       animation: gentle-pulse 2s ease-in-out infinite;
    }
+
+   /* Gradient shimmer animation for hero text */
+   @keyframes gradient-shift {
+      0% {
+         background-position: 0% 50%;
+      }
+      50% {
+         background-position: 100% 50%;
+      }
+      100% {
+         background-position: 0% 50%;
+      }
+   }
+
+   .text-gradient-animated {
+      background: linear-gradient(
+         90deg,
+         oklch(0.55 0.28 295),
+         oklch(0.65 0.28 330),
+         oklch(0.6 0.25 280),
+         oklch(0.55 0.28 295)
+      );
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-shift 4s ease infinite;
+   }
+
+   .dark .text-gradient-animated {
+      background: linear-gradient(
+         90deg,
+         oklch(0.7 0.25 295),
+         oklch(0.72 0.25 330),
+         oklch(0.68 0.22 280),
+         oklch(0.7 0.25 295)
+      );
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+   }
+
+   /* Subtle floating animation */
+   @keyframes float {
+      0%,
+      100% {
+         transform: translateY(0);
+      }
+      50% {
+         transform: translateY(-4px);
+      }
+   }
+
+   .animate-float {
+      animation: float 3s ease-in-out infinite;
+   }
+
+   /* Glow pulse for badges */
+   @keyframes glow-pulse {
+      0%,
+      100% {
+         box-shadow: 0 0 0 0 oklch(0.55 0.28 295 / 0);
+      }
+      50% {
+         box-shadow: 0 0 20px 2px oklch(0.55 0.28 295 / 0.15);
+      }
+   }
+
+   .animate-glow-pulse {
+      animation: glow-pulse 3s ease-in-out infinite;
+   }
+
+   .dark .animate-glow-pulse {
+      animation: glow-pulse-dark 3s ease-in-out infinite;
+   }
+
+   @keyframes glow-pulse-dark {
+      0%,
+      100% {
+         box-shadow: 0 0 0 0 oklch(0.7 0.25 295 / 0);
+      }
+      50% {
+         box-shadow: 0 0 20px 4px oklch(0.7 0.25 295 / 0.2);
+      }
+   }
+
+   /* Sliding measurement lines */
+   @keyframes slide-right {
+      0% {
+         transform: translateX(-100%);
+         opacity: 0;
+      }
+      10% {
+         opacity: 1;
+      }
+      90% {
+         opacity: 1;
+      }
+      100% {
+         transform: translateX(calc(100vw + 100%));
+         opacity: 0;
+      }
+   }
+
+   @keyframes slide-left {
+      0% {
+         transform: translateX(100vw);
+         opacity: 0;
+      }
+      10% {
+         opacity: 1;
+      }
+      90% {
+         opacity: 1;
+      }
+      100% {
+         transform: translateX(calc(-100% - 100px));
+         opacity: 0;
+      }
+   }
+
+   .animate-slide-right {
+      animation: slide-right 12s linear infinite;
+   }
+
+   .animate-slide-left {
+      animation: slide-left 15s linear infinite;
+      animation-delay: 3s;
+   }
 }
 
 /* ============================================

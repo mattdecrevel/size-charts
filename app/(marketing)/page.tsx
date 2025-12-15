@@ -108,35 +108,92 @@ export default async function HomePage() {
 	return (
 		<div className="space-y-24">
 			{/* Hero Section */}
-			<section className="text-center pt-6 pb-8">
-				<div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8 animate-fade-up">
-					<Ruler className="h-4 w-4" />
-					<span>E-commerce Size Management</span>
+			<section className="relative text-center pt-6 pb-16 overflow-hidden">
+				{/* Background grid pattern */}
+				<div
+					className="absolute inset-0 pointer-events-none opacity-40"
+					style={{
+						backgroundImage: `
+							linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+							linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)
+						`,
+						backgroundSize: '3rem 3rem',
+					}}
+				/>
+
+				{/* Radial fade from center */}
+				<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background))_70%)] pointer-events-none" />
+
+				{/* Accent glow behind content */}
+				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+
+				{/* Ruler tick marks - left side */}
+				<div className="absolute left-6 sm:left-10 top-12 bottom-12 w-6 hidden md:flex flex-col justify-between opacity-30">
+					{Array.from({ length: 11 }).map((_, i) => (
+						<div key={`left-${i}`} className="flex items-center gap-1.5">
+							<div className={`h-px bg-foreground ${i % 5 === 0 ? 'w-5' : 'w-2'}`} />
+							{i % 5 === 0 && (
+								<span className="text-[10px] font-mono text-muted-foreground">{i * 10}</span>
+							)}
+						</div>
+					))}
 				</div>
 
-				<h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 tracking-tight animate-fade-up stagger-1">
-					Size Charts{" "}
-					<span className="text-gradient-warm">API</span>
-				</h1>
+				{/* Ruler tick marks - right side */}
+				<div className="absolute right-6 sm:right-10 top-12 bottom-12 w-6 hidden md:flex flex-col justify-between opacity-30">
+					{Array.from({ length: 11 }).map((_, i) => (
+						<div key={`right-${i}`} className="flex items-center justify-end gap-1.5">
+							{i % 5 === 0 && (
+								<span className="text-[10px] font-mono text-muted-foreground">{i * 10}</span>
+							)}
+							<div className={`h-px bg-foreground ${i % 5 === 0 ? 'w-5' : 'w-2'}`} />
+						</div>
+					))}
+				</div>
 
-				<p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-up stagger-2">
-					A complete solution for managing and displaying e-commerce size charts.
-					Use the API directly or embed the widget on any website.
-				</p>
+				{/* Animated measurement lines */}
+				<div className="absolute inset-0 overflow-hidden pointer-events-none">
+					{/* Horizontal line top */}
+					<div className="absolute top-[22%] left-0 right-0 h-px">
+						<div className="h-full w-32 bg-gradient-to-r from-transparent via-primary/40 to-transparent animate-slide-right" />
+					</div>
+					{/* Horizontal line bottom */}
+					<div className="absolute top-[78%] left-0 right-0 h-px">
+						<div className="h-full w-40 bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-slide-left" />
+					</div>
+				</div>
 
-				<div className="flex flex-wrap items-center justify-center gap-4 animate-fade-up stagger-3">
-					<Button asChild>
-						<Link href="/examples">
-							<Code2 className="h-4 w-4" />
-							View Examples
-						</Link>
-					</Button>
-					<Button variant="secondary" asChild>
-						<Link href="/docs">
-							<FileText className="h-4 w-4" />
-							Documentation
-						</Link>
-					</Button>
+				{/* Content */}
+				<div className="relative z-10">
+					<div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8 animate-fade-up animate-float animate-glow-pulse">
+						<Ruler className="h-4 w-4" />
+						<span>E-commerce Size Management</span>
+					</div>
+
+					<h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 tracking-tight animate-fade-up stagger-1">
+						Size Charts{" "}
+						<span className="text-gradient-animated">API</span>
+					</h1>
+
+					<p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-up stagger-2">
+						A complete solution for managing and displaying e-commerce size charts.
+						Use the API directly or embed the widget on any website.
+					</p>
+
+					<div className="flex flex-wrap items-center justify-center gap-4 animate-fade-up stagger-3">
+						<Button asChild>
+							<Link href="/examples">
+								<Code2 className="h-4 w-4" />
+								View Examples
+							</Link>
+						</Button>
+						<Button variant="secondary" asChild>
+							<Link href="/docs">
+								<FileText className="h-4 w-4" />
+								Documentation
+							</Link>
+						</Button>
+					</div>
 				</div>
 			</section>
 
