@@ -1,0 +1,150 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+          echo "Latest tag: $latest_tag"
+
+      - name: Calculate next version
+        id: next_version
+        run: |
+          latest="${{ steps.get_tag.outputs.latest_tag }}"
+          # Remove 'v' prefix
+          version="${latest#v}"
+
+          # Split into parts
+          IFS='.' read -r major minor patch <<< "$version"
+
+          # Determine bump type
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            bump_type="${{ inputs.version }}"
+          else
+            # Auto-detect from commit messages
+            commits=$(git log $latest..HEAD --pretty=format:"%s" 2>/dev/null || git log --pretty=format:"%s")
+            if echo "$commits" | grep -qiE "^(feat|feature)(\(.+\))?!:|BREAKING CHANGE"; then
+              bump_type="major"
+            elif echo "$commits" | grep -qiE "^feat(\(.+\))?:"; then
+              bump_type="minor"
+            else
+              bump_type="patch"
+            fi
+          fi
+
+          # Calculate new version
+          case $bump_type in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+
+          new_version="v${major}.${minor}.${patch}"
+          echo "version=$new_version" >> $GITHUB_OUTPUT
+          echo "bump_type=$bump_type" >> $GITHUB_OUTPUT
+          echo "New version: $new_version ($bump_type)"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          latest="${{ steps.get_tag.outputs.latest_tag }}"
+
+          # Generate changelog from commits
+          echo "## What's Changed" > changelog.md
+          echo "" >> changelog.md
+
+          # Features
+          features=$(git log $latest..HEAD --pretty=format:"- %s" --grep="^feat" 2>/dev/null || true)
+          if [ -n "$features" ]; then
+            echo "### Features" >> changelog.md
+            echo "$features" >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          # Fixes
+          fixes=$(git log $latest..HEAD --pretty=format:"- %s" --grep="^fix" 2>/dev/null || true)
+          if [ -n "$fixes" ]; then
+            echo "### Bug Fixes" >> changelog.md
+            echo "$fixes" >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          # Other changes
+          other=$(git log $latest..HEAD --pretty=format:"- %s" --grep="^docs\|^style\|^refactor\|^perf\|^test\|^chore" 2>/dev/null || true)
+          if [ -n "$other" ]; then
+            echo "### Other Changes" >> changelog.md
+            echo "$other" >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          # Full commit list as fallback
+          if [ ! -s changelog.md ] || [ "$(wc -l < changelog.md)" -le 3 ]; then
+            echo "## What's Changed" > changelog.md
+            echo "" >> changelog.md
+            git log $latest..HEAD --pretty=format:"- %s (%h)" 2>/dev/null >> changelog.md || \
+            git log -10 --pretty=format:"- %s (%h)" >> changelog.md
+          fi
+
+          echo "" >> changelog.md
+          echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/$latest...${{ steps.next_version.outputs.version }}" >> changelog.md
+
+          cat changelog.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.next_version.outputs.version }}
+          name: Release ${{ steps.next_version.outputs.version }}
+          body_path: changelog.md
+          draft: false
+          prerelease: false
+          target_commitish: production
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.next_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Bump Type:** ${{ steps.next_version.outputs.bump_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View the release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.next_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY

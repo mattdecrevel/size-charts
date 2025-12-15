@@ -1,0 +1,110 @@
+name: Create Release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type for this release'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-release-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version info
+        id: version
+        run: |
+          # Get latest tag
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          version="${latest_tag#v}"
+
+          IFS='.' read -r major minor patch <<< "$version"
+
+          case "${{ inputs.version_bump }}" in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+
+          new_version="v${major}.${minor}.${patch}"
+          echo "current=$latest_tag" >> $GITHUB_OUTPUT
+          echo "next=$new_version" >> $GITHUB_OUTPUT
+
+      - name: Generate PR body
+        id: pr_body
+        run: |
+          latest="${{ steps.version.outputs.current }}"
+          next="${{ steps.version.outputs.next }}"
+
+          cat << 'PREOF' > pr_body.md
+          ## Release ${{ steps.version.outputs.next }}
+
+          This PR merges `main` into `production` to create a new release.
+
+          ### Changes since ${{ steps.version.outputs.current }}
+
+          PREOF
+
+          # Add commit list
+          git log origin/production..origin/main --pretty=format:"- %s (%h)" >> pr_body.md || \
+          echo "- Initial release" >> pr_body.md
+
+          cat << 'PREOF' >> pr_body.md
+
+          ### Pre-merge checklist
+
+          - [ ] All CI checks pass
+          - [ ] Changes have been tested on staging/preview
+          - [ ] No breaking changes (or documented if any)
+          - [ ] Version bump type is correct: `${{ inputs.version_bump }}`
+
+          ### Post-merge
+
+          After merging, the [Release workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/release.yml) will automatically:
+          1. Create a git tag `${{ steps.version.outputs.next }}`
+          2. Generate a GitHub release with changelog
+          3. Vercel will deploy to production
+          PREOF
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+          base: production
+          title: "Release ${{ steps.version.outputs.next }}"
+          body-path: pr_body.md
+          labels: release
+
+      - name: Summary
+        run: |
+          echo "## Release PR Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "A pull request has been created to merge \`main\` into \`production\`." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Planned Version:** ${{ steps.version.outputs.next }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version Bump:** ${{ inputs.version_bump }}" >> $GITHUB_STEP_SUMMARY
