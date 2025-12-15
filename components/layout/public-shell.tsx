@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Settings, Code2, FileText, Ruler, Menu, X } from "lucide-react";
+import { Code2, FileText, Ruler, Menu, X, LayoutTemplate, Play } from "lucide-react";
 
 const navLinks = [
+	{ name: "Size Guide", href: "/size-guide", icon: Ruler },
+	{ name: "Templates", href: "/templates", icon: LayoutTemplate },
 	{ name: "Examples", href: "/examples", icon: Code2 },
 	{ name: "Docs", href: "/docs", icon: FileText },
-	{ name: "Admin", href: "/admin", icon: Settings },
 ];
 
 // GitHub icon as inline SVG
@@ -35,14 +36,20 @@ function NavLink({ href, name, icon: Icon, isActive }: { href: string; name: str
 	);
 }
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+export function PublicShell({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+	// Don't render public shell for admin routes
+	if (pathname.startsWith("/admin")) {
+		return <>{children}</>;
+	}
+
 	const isActive = (href: string) => {
-		if (href === "/admin") return pathname.startsWith("/admin");
 		if (href === "/docs") return pathname.startsWith("/docs");
 		if (href === "/examples") return pathname.startsWith("/examples");
+		if (href === "/size-guide") return pathname.startsWith("/size-guide");
+		if (href === "/templates") return pathname.startsWith("/templates");
 		return pathname === href;
 	};
 
@@ -85,7 +92,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
 					{/* Right side actions */}
 					<div className="flex items-center gap-2">
-						{/* GitHub Icon - hidden on mobile when menu is open */}
+						{/* GitHub Icon */}
 						<a
 							href="https://github.com/mattdecrevel/size-charts"
 							target="_blank"
@@ -95,6 +102,15 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 						>
 							<GitHubIcon className="h-5 w-5" />
 						</a>
+
+						{/* Demo CTA Button */}
+						<Link
+							href="/admin"
+							className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-soft"
+						>
+							<Play className="h-4 w-4" />
+							Try Demo
+						</Link>
 
 						{/* Mobile menu button */}
 						<button
@@ -134,6 +150,16 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 							</Link>
 						))}
 
+						{/* Demo button in mobile menu */}
+						<Link
+							href="/admin"
+							onClick={handleNavClick}
+							className="flex items-center gap-3 px-6 py-4 text-lg font-medium rounded-xl w-full max-w-xs bg-primary text-primary-foreground transition-colors"
+						>
+							<Play className="h-5 w-5" />
+							Try Demo
+						</Link>
+
 						{/* GitHub link in mobile menu */}
 						<a
 							href="https://github.com/mattdecrevel/size-charts"
@@ -163,6 +189,12 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 							<span>Size Charts API</span>
 						</div>
 						<div className="flex items-center gap-6 text-sm text-muted-foreground">
+							<Link href="/size-guide" className="hover:text-foreground transition-colors">
+								Size Guide
+							</Link>
+							<Link href="/templates" className="hover:text-foreground transition-colors">
+								Templates
+							</Link>
 							<Link href="/docs" className="hover:text-foreground transition-colors">
 								Docs
 							</Link>

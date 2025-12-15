@@ -3,6 +3,7 @@ import { Sora, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { DevToolbar } from "@/components/vercel-toolbar";
+import { PublicShell } from "@/components/layout/public-shell";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -58,7 +59,9 @@ export default function RootLayout({
 			<body
 				className={`${sora.variable} ${geistMono.variable} font-sans antialiased`}
 			>
-				<Providers>{children}</Providers>
+				<Providers>
+					<PublicShell>{children}</PublicShell>
+				</Providers>
 				<Analytics />
 				<SpeedInsights />
 				<DevToolbar />

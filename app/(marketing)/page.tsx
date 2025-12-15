@@ -9,44 +9,10 @@ import {
 	ArrowRight,
 	ChevronRight,
 	Ruler,
-	LayoutTemplate,
-	Shirt,
-	Footprints,
-	Users,
 } from "lucide-react";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
-
-const featuredTemplates = [
-	{
-		icon: Shirt,
-		name: "Men's Apparel",
-		description: "Tops, bottoms, and outerwear sizing with chest, waist, and hip measurements.",
-		chartCount: 2,
-		href: "/size-guide/mens",
-	},
-	{
-		icon: Shirt,
-		name: "Women's Apparel",
-		description: "Complete sizing including tops, bottoms, plus sizes, and sports bras.",
-		chartCount: 4,
-		href: "/size-guide/womens",
-	},
-	{
-		icon: Footprints,
-		name: "Footwear",
-		description: "Shoe sizes for men, women, and kids with US, UK, and EU conversions.",
-		chartCount: 3,
-		href: "/size-guide/mens/footwear",
-	},
-	{
-		icon: Users,
-		name: "Kids & Youth",
-		description: "Age-appropriate sizing from infant to teen with height-based guidance.",
-		chartCount: 5,
-		href: "/size-guide/boys",
-	},
-];
+import { TemplatePreview } from "@/components/templates/template-preview";
 
 const features = [
 	{
@@ -201,44 +167,8 @@ export default async function HomePage() {
 				</div>
 			</section>
 
-			{/* Featured Templates */}
-			<section>
-				<div className="flex items-center justify-between mb-10">
-					<div className="flex items-center gap-4">
-						<h2 className="text-2xl font-semibold text-foreground">Templates</h2>
-						<div className="hidden sm:block flex-1 h-px bg-gradient-to-r from-border to-transparent min-w-[40px]" />
-					</div>
-					<Link
-						href="/admin/templates"
-						className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
-					>
-						Browse all <ChevronRight className="h-4 w-4" />
-					</Link>
-				</div>
-
-				<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-					{featuredTemplates.map((template, index) => (
-						<Link
-							key={template.name}
-							href={template.href}
-							className={`group card-soft p-5 animate-fade-up stagger-${Math.min(index + 1, 4)}`}
-						>
-							<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/15 mb-4 transition-colors">
-								<template.icon className="h-5 w-5 text-primary" />
-							</div>
-							<h3 className="text-base font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-								{template.name}
-							</h3>
-							<p className="text-sm text-muted-foreground leading-relaxed mb-3">
-								{template.description}
-							</p>
-							<span className="text-xs text-muted-foreground/70">
-								{template.chartCount} templates
-							</span>
-						</Link>
-					))}
-				</div>
-			</section>
+			{/* Templates Preview */}
+			<TemplatePreview limit={4} />
 
 			{/* Size Charts */}
 			{categoriesWithCounts.length > 0 && (

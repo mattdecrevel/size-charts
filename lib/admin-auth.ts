@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { createHash, randomBytes } from "crypto";
-import { exampleMode } from "./flags";
+import { demoMode } from "./flags";
 
 // Session token configuration
 const SESSION_COOKIE_NAME = "admin_session";
@@ -26,11 +26,11 @@ export function getAdminCredentials(): { username: string; password: string } | 
 
 /**
  * Check if admin authentication is enabled
- * Note: Example mode bypasses auth entirely (public example site)
+ * Note: Demo mode bypasses auth entirely (public demo site)
  */
 export async function isAdminAuthEnabled(): Promise<boolean> {
-	// Example mode bypasses all auth - anyone can access admin
-	if (await isExampleModeEnabled()) {
+	// Demo mode bypasses all auth - anyone can access admin
+	if (await isDemoModeEnabled()) {
 		return false;
 	}
 
@@ -44,10 +44,10 @@ export async function isAdminAuthEnabled(): Promise<boolean> {
 }
 
 /**
- * Check if example mode is enabled (via Vercel feature flag)
+ * Check if demo mode is enabled (via Vercel feature flag)
  */
-export async function isExampleModeEnabled(): Promise<boolean> {
-	return await exampleMode();
+export async function isDemoModeEnabled(): Promise<boolean> {
+	return await demoMode();
 }
 
 /**
