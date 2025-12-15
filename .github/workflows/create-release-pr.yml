@@ -67,6 +67,13 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Ensure release label exists
+        if: steps.check_pr.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create release --description "Release PR" --color "0e8a16" 2>/dev/null || true
+
       - name: Create Pull Request
         if: steps.check_pr.outputs.exists != 'true'
         env:

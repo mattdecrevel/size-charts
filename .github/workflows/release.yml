@@ -32,9 +32,16 @@ jobs:
       - name: Get latest tag
         id: get_tag
         run: |
-          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          if git describe --tags --abbrev=0 2>/dev/null; then
+            latest_tag=$(git describe --tags --abbrev=0)
+            has_tags="true"
+          else
+            latest_tag="v0.0.0"
+            has_tags="false"
+          fi
           echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
-          echo "Latest tag: $latest_tag"
+          echo "has_tags=$has_tags" >> $GITHUB_OUTPUT
+          echo "Latest tag: $latest_tag (has_tags: $has_tags)"
 
       - name: Calculate next version
         id: next_version
@@ -50,8 +57,13 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             bump_type="${{ inputs.version }}"
           else
-            # Auto-detect from commit messages
-            commits=$(git log $latest..HEAD --pretty=format:"%s" 2>/dev/null || git log --pretty=format:"%s")
+            # Auto-detect from commit messages since last tag (or all commits if no tags)
+            if [ "${{ steps.get_tag.outputs.has_tags }}" = "true" ]; then
+              commits=$(git log $latest..HEAD --pretty=format:"%s" 2>/dev/null || echo "")
+            else
+              commits=$(git log --pretty=format:"%s" 2>/dev/null || echo "")
+            fi
+
             if echo "$commits" | grep -qiE "^(feat|feature)(\(.+\))?!:|BREAKING CHANGE"; then
               bump_type="major"
             elif echo "$commits" | grep -qiE "^feat(\(.+\))?:"; then
@@ -82,53 +94,53 @@ jobs:
           echo "bump_type=$bump_type" >> $GITHUB_OUTPUT
           echo "New version: $new_version ($bump_type)"
 
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          if git rev-parse "${{ steps.next_version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag ${{ steps.next_version.outputs.version }} already exists, skipping release"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Generate changelog
+        if: steps.check_tag.outputs.exists != 'true'
         id: changelog
         run: |
           latest="${{ steps.get_tag.outputs.latest_tag }}"
+          has_tags="${{ steps.get_tag.outputs.has_tags }}"
 
-          # Generate changelog from commits
           echo "## What's Changed" > changelog.md
           echo "" >> changelog.md
 
-          # Features
-          features=$(git log $latest..HEAD --pretty=format:"- %s" --grep="^feat" 2>/dev/null || true)
-          if [ -n "$features" ]; then
-            echo "### Features" >> changelog.md
-            echo "$features" >> changelog.md
-            echo "" >> changelog.md
+          if [ "$has_tags" = "true" ]; then
+            # Get commits since last tag
+            all_commits=$(git log $latest..HEAD --pretty=format:"- %s (%h)" 2>/dev/null || echo "")
+          else
+            # First release - get recent commits
+            all_commits=$(git log --pretty=format:"- %s (%h)" 2>/dev/null || echo "- Initial release")
           fi
 
-          # Fixes
-          fixes=$(git log $latest..HEAD --pretty=format:"- %s" --grep="^fix" 2>/dev/null || true)
-          if [ -n "$fixes" ]; then
-            echo "### Bug Fixes" >> changelog.md
-            echo "$fixes" >> changelog.md
-            echo "" >> changelog.md
-          fi
-
-          # Other changes
-          other=$(git log $latest..HEAD --pretty=format:"- %s" --grep="^docs\|^style\|^refactor\|^perf\|^test\|^chore" 2>/dev/null || true)
-          if [ -n "$other" ]; then
-            echo "### Other Changes" >> changelog.md
-            echo "$other" >> changelog.md
-            echo "" >> changelog.md
-          fi
-
-          # Full commit list as fallback
-          if [ ! -s changelog.md ] || [ "$(wc -l < changelog.md)" -le 3 ]; then
-            echo "## What's Changed" > changelog.md
-            echo "" >> changelog.md
-            git log $latest..HEAD --pretty=format:"- %s (%h)" 2>/dev/null >> changelog.md || \
-            git log -10 --pretty=format:"- %s (%h)" >> changelog.md
+          if [ -n "$all_commits" ]; then
+            echo "$all_commits" >> changelog.md
+          else
+            echo "- Initial release" >> changelog.md
           fi
 
           echo "" >> changelog.md
-          echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/$latest...${{ steps.next_version.outputs.version }}" >> changelog.md
 
+          if [ "$has_tags" = "true" ]; then
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/$latest...${{ steps.next_version.outputs.version }}" >> changelog.md
+          else
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/commits/${{ steps.next_version.outputs.version }}" >> changelog.md
+          fi
+
+          echo "=== Generated Changelog ==="
           cat changelog.md
 
       - name: Create Release
+        if: steps.check_tag.outputs.exists != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.next_version.outputs.version }}
@@ -137,14 +149,21 @@ jobs:
           draft: false
           prerelease: false
           target_commitish: production
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Summary
         run: |
-          echo "## Release Created" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** ${{ steps.next_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Bump Type:** ${{ steps.next_version.outputs.bump_type }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "View the release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.next_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_tag.outputs.exists }}" = "true" ]; then
+            echo "## Release Skipped" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Tag ${{ steps.next_version.outputs.version }} already exists." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Release Created" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Version:** ${{ steps.next_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Bump Type:** ${{ steps.next_version.outputs.bump_type }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "View the release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.next_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          fi
