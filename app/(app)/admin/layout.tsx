@@ -69,14 +69,16 @@ export default function AdminLayout({
   const { isDemoMode } = useDemoMode();
 
   return (
-    <div className="h-svh overflow-hidden flex">
-      <SidebarProvider className="h-full min-h-0">
-        <AppSidebar />
-        <SidebarInset className="min-h-0 max-h-full md:peer-data-[variant=inset]:m-0 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none">
-        {/* Demo Banner */}
-        {isDemoMode && <DemoBanner className="shrink-0" />}
+    <div className="h-svh overflow-hidden flex flex-col">
+      {/* Demo Banner - Full width above everything */}
+      {isDemoMode && <DemoBanner className="shrink-0" />}
 
-        {/* Admin Header */}
+      <div className="flex-1 overflow-hidden flex min-h-0">
+        <SidebarProvider className="h-full min-h-0">
+          <AppSidebar />
+          <SidebarInset className="min-h-0 max-h-full md:peer-data-[variant=inset]:m-0 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none">
+
+          {/* Admin Header */}
         <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
           {/* Mobile menu trigger */}
           <SidebarTrigger className="md:hidden">
@@ -116,12 +118,13 @@ export default function AdminLayout({
           </Breadcrumb>
         </header>
 
-        {/* Content Area - single scroll container */}
-        <div className="flex-1 overflow-y-auto min-h-0 p-4">
-          <div className="mx-auto w-full max-w-6xl">{children}</div>
-        </div>
-        </SidebarInset>
-      </SidebarProvider>
+          {/* Content Area - single scroll container */}
+          <div className="flex-1 overflow-y-auto min-h-0 p-4">
+            <div className="mx-auto w-full max-w-6xl">{children}</div>
+          </div>
+          </SidebarInset>
+        </SidebarProvider>
+      </div>
     </div>
   );
 }

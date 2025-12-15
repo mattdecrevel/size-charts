@@ -8,6 +8,7 @@ import {
   MeasurementRange,
   MeasurementValue,
 } from "@/prisma/templates";
+import { isDemoModeEnabled } from "@/lib/admin-auth";
 
 // Store last reset time in module scope (persists across warm function invocations)
 let lastResetTime: string | null = null;
@@ -171,8 +172,8 @@ async function createSizeChartFromTemplate(
 }
 
 export async function POST(request: NextRequest) {
-  // Check if demo mode is enabled
-  if (process.env.DEMO_MODE !== "true") {
+  // Check if demo mode is enabled via feature flag
+  if (!(await isDemoModeEnabled())) {
     return NextResponse.json(
       { error: "Demo mode is not enabled" },
       { status: 403 }
@@ -508,7 +509,9 @@ function getNextResetTime(): string {
 
 // Also support GET for health checks and demo status
 export async function GET() {
-  if (process.env.DEMO_MODE !== "true") {
+  const demoEnabled = await isDemoModeEnabled();
+
+  if (!demoEnabled) {
     return NextResponse.json({ demo_mode: false });
   }
 

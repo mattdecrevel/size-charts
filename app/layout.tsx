@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Sora, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { DevToolbar } from "@/components/vercel-toolbar";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -60,6 +61,7 @@ export default function RootLayout({
 				<Providers>{children}</Providers>
 				<Analytics />
 				<SpeedInsights />
+				<DevToolbar />
 			</body>
 		</html>
 	);

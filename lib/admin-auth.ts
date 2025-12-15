@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { createHash, randomBytes } from "crypto";
+import { demoMode } from "./flags";
 
 // Session token configuration
 const SESSION_COOKIE_NAME = "admin_session";
@@ -27,9 +28,9 @@ export function getAdminCredentials(): { username: string; password: string } | 
  * Check if admin authentication is enabled
  * Note: Demo mode bypasses auth entirely (public demo site)
  */
-export function isAdminAuthEnabled(): boolean {
+export async function isAdminAuthEnabled(): Promise<boolean> {
 	// Demo mode bypasses all auth - anyone can access admin
-	if (isDemoModeEnabled()) {
+	if (await isDemoModeEnabled()) {
 		return false;
 	}
 
@@ -43,10 +44,10 @@ export function isAdminAuthEnabled(): boolean {
 }
 
 /**
- * Check if demo mode is enabled
+ * Check if demo mode is enabled (via Vercel feature flag)
  */
-export function isDemoModeEnabled(): boolean {
-	return process.env.DEMO_MODE === "true";
+export async function isDemoModeEnabled(): Promise<boolean> {
+	return await demoMode();
 }
 
 /**
@@ -133,7 +134,7 @@ function cleanupExpiredSessions(): void {
  */
 export async function isAuthenticated(): Promise<boolean> {
 	// If auth is not enabled, always return true
-	if (!isAdminAuthEnabled()) {
+	if (!(await isAdminAuthEnabled())) {
 		return true;
 	}
 

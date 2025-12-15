@@ -7,6 +7,7 @@ const SESSION_COOKIE_NAME = "admin_session";
 const PUBLIC_PATHS = [
 	"/admin/login",
 	"/api/admin/auth",
+	"/.well-known/vercel/flags",
 ];
 
 // Paths that should never be protected (public site, public API)
@@ -41,6 +42,27 @@ export function middleware(request: NextRequest) {
 	for (const publicPath of PUBLIC_PATHS) {
 		if (pathname.startsWith(publicPath)) {
 			return NextResponse.next();
+		}
+	}
+
+	// Check if demo mode is enabled (bypasses all auth)
+	// Check env var first (production fallback)
+	const isDemoModeEnv = process.env.DEMO_MODE === "true";
+	if (isDemoModeEnv) {
+		return NextResponse.next();
+	}
+
+	// Check for feature flag override via cookie (set by Vercel toolbar)
+	// The flags package stores overrides in the "vercel-flag-overrides" cookie as JSON
+	const flagOverrides = request.cookies.get("vercel-flag-overrides");
+	if (flagOverrides?.value) {
+		try {
+			const overrides = JSON.parse(flagOverrides.value);
+			if (overrides["demo-mode"] === true) {
+				return NextResponse.next();
+			}
+		} catch {
+			// Invalid JSON, ignore
 		}
 	}
 

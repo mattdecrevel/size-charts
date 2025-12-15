@@ -13,7 +13,7 @@ import {
  */
 export async function POST(request: NextRequest) {
 	// If auth is not enabled, return success
-	if (!isAdminAuthEnabled()) {
+	if (!(await isAdminAuthEnabled())) {
 		return NextResponse.json({
 			success: true,
 			message: "Authentication not required",
@@ -100,6 +100,6 @@ export async function DELETE(request: NextRequest) {
  */
 export async function GET() {
 	return NextResponse.json({
-		authEnabled: isAdminAuthEnabled(),
+		authEnabled: await isAdminAuthEnabled(),
 	});
 }
