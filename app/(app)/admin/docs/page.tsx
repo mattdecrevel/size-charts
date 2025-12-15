@@ -81,17 +81,17 @@ export default function DocsPage() {
           <Link href="/admin/api-keys" className="text-sm text-primary hover:underline">
             → Manage API keys
           </Link>
-          <Link href="/size-guide" className="text-sm text-primary hover:underline" target="_blank">
-            → View public size guide <ExternalLink className="inline h-3 w-3 ml-1" />
+          <Link href="/size-guide" className="text-sm text-primary hover:underline">
+            → View public size guide
           </Link>
-          <Link href="/examples/embed" className="text-sm text-primary hover:underline" target="_blank">
-            → Frontend embed examples <ExternalLink className="inline h-3 w-3 ml-1" />
+          <Link href="/examples/embed" className="text-sm text-primary hover:underline">
+            → Frontend embed examples
           </Link>
-          <Link href="/examples/example.html" className="text-sm text-primary hover:underline" target="_blank">
+          <a href="/examples/example.html" className="text-sm text-primary hover:underline" target="_blank" rel="noopener noreferrer">
             → Standalone embed example <ExternalLink className="inline h-3 w-3 ml-1" />
-          </Link>
-          <Link href="/api/docs" className="text-sm text-primary hover:underline" target="_blank">
-            → Swagger API docs <ExternalLink className="inline h-3 w-3 ml-1" />
+          </a>
+          <Link href="/api/docs" className="text-sm text-primary hover:underline">
+            → Swagger API docs
           </Link>
         </div>
       </div>

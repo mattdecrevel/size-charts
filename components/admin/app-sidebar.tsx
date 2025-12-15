@@ -159,7 +159,7 @@ export function AppSidebar() {
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton asChild tooltip="View Site" className="transition-colors">
-							<Link href="/" target="_blank">
+							<Link href="/">
 								<ExternalLink className="size-4" />
 								<span>View Site</span>
 							</Link>
@@ -167,7 +167,7 @@ export function AppSidebar() {
 					</SidebarMenuItem>
 					<SidebarMenuItem>
 						<SidebarMenuButton asChild tooltip="Size Guide" className="transition-colors">
-							<Link href="/size-guide" target="_blank">
+							<Link href="/size-guide">
 								<Ruler className="size-4" />
 								<span>Size Guide</span>
 							</Link>

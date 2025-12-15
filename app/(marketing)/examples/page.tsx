@@ -1,6 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Code2, Wand2, ExternalLink, ArrowRight, ChevronRight } from "lucide-react";
 import { db } from "@/lib/db";
+
+export const metadata: Metadata = {
+	title: "Examples",
+	description: "Explore different ways to use the size chart widget. View pre-configured examples, use the live builder, or check out standalone HTML integration.",
+	openGraph: {
+		title: "Examples | Size Charts",
+		description: "Explore different ways to use the size chart widget with live examples and code snippets.",
+	},
+};
 
 const examples = [
 	{

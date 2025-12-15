@@ -1,6 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { ChevronRight } from "lucide-react";
+
+export const metadata: Metadata = {
+	title: "Size Guide",
+	description: "Find the perfect fit with our comprehensive size charts. Browse sizing guides by category for clothing, footwear, and accessories.",
+	openGraph: {
+		title: "Size Guide | Size Charts",
+		description: "Find the perfect fit with our comprehensive size charts for clothing, footwear, and accessories.",
+	},
+};
 
 export default async function SizeGuidePage() {
 	// Get all categories with published chart counts
