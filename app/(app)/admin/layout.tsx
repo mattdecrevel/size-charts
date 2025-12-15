@@ -69,12 +69,12 @@ export default function AdminLayout({
   const { isDemoMode } = useDemoMode();
 
   return (
-    <div className="h-svh overflow-hidden flex flex-col">
+    <div className="h-svh overflow-hidden flex flex-col" data-demo-mode={isDemoMode || undefined}>
       {/* Demo Banner - Full width above everything */}
       {isDemoMode && <DemoBanner className="shrink-0" />}
 
       <div className="flex-1 overflow-hidden flex min-h-0">
-        <SidebarProvider className="h-full min-h-0">
+        <SidebarProvider className={`h-full min-h-0 !min-h-0 [&>[data-slot=sidebar-wrapper]]:min-h-0 ${isDemoMode ? '[&_[data-slot=sidebar-container]]:top-[42px] [&_[data-slot=sidebar-container]]:h-[calc(100svh-42px)]' : ''}`}>
           <AppSidebar />
           <SidebarInset className="min-h-0 max-h-full md:peer-data-[variant=inset]:m-0 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none">
 
