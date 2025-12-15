@@ -14,7 +14,7 @@ on:
           - major
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 jobs:
@@ -54,57 +54,78 @@ jobs:
           echo "current=$latest_tag" >> $GITHUB_OUTPUT
           echo "next=$new_version" >> $GITHUB_OUTPUT
 
-      - name: Generate PR body
-        id: pr_body
+      - name: Check for existing PR
+        id: check_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing=$(gh pr list --base production --head main --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "number=$existing" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.check_pr.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           latest="${{ steps.version.outputs.current }}"
           next="${{ steps.version.outputs.next }}"
 
-          cat << 'PREOF' > pr_body.md
-          ## Release ${{ steps.version.outputs.next }}
+          # Generate commit list
+          commits=$(git log origin/production..origin/main --pretty=format:"- %s (%h)" 2>/dev/null || echo "- Initial release")
 
-          This PR merges `main` into `production` to create a new release.
+          gh pr create \
+            --base production \
+            --head main \
+            --title "Release ${next}" \
+            --label "release" \
+            --body "$(cat <<EOF
+          ## Release ${next}
 
-          ### Changes since ${{ steps.version.outputs.current }}
+          This PR merges \`main\` into \`production\` to create a new release.
 
-          PREOF
+          ### Changes since ${latest}
 
-          # Add commit list
-          git log origin/production..origin/main --pretty=format:"- %s (%h)" >> pr_body.md || \
-          echo "- Initial release" >> pr_body.md
-
-          cat << 'PREOF' >> pr_body.md
+          ${commits}
 
           ### Pre-merge checklist
 
           - [ ] All CI checks pass
           - [ ] Changes have been tested on staging/preview
           - [ ] No breaking changes (or documented if any)
-          - [ ] Version bump type is correct: `${{ inputs.version_bump }}`
+          - [ ] Version bump type is correct: \`${{ inputs.version_bump }}\`
 
           ### Post-merge
 
           After merging, the [Release workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/release.yml) will automatically:
-          1. Create a git tag `${{ steps.version.outputs.next }}`
+          1. Create a git tag \`${next}\`
           2. Generate a GitHub release with changelog
           3. Vercel will deploy to production
-          PREOF
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
-          base: production
-          title: "Release ${{ steps.version.outputs.next }}"
-          body-path: pr_body.md
-          labels: release
+          EOF
+          )"
 
       - name: Summary
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "## Release PR Created" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "A pull request has been created to merge \`main\` into \`production\`." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Planned Version:** ${{ steps.version.outputs.next }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Version Bump:** ${{ inputs.version_bump }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_pr.outputs.exists }}" = "true" ]; then
+            echo "## Release PR Already Exists" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "A release PR already exists: #${{ steps.check_pr.outputs.number }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "View it: ${{ github.server_url }}/${{ github.repository }}/pull/${{ steps.check_pr.outputs.number }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Release PR Created" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "A pull request has been created to merge \`main\` into \`production\`." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Planned Version:** ${{ steps.version.outputs.next }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Version Bump:** ${{ inputs.version_bump }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            pr_url=$(gh pr list --base production --head main --json url --jq '.[0].url')
+            echo "View it: ${pr_url}" >> $GITHUB_STEP_SUMMARY
+          fi
