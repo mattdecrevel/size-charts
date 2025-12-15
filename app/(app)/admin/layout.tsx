@@ -2,8 +2,8 @@
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/admin/app-sidebar";
-import { DemoBanner } from "@/components/admin/demo-banner";
-import { useDemoMode } from "@/hooks/use-demo-mode";
+import { ExampleBanner } from "@/components/admin/example-banner";
+import { useExampleMode } from "@/hooks/use-example-mode";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -43,8 +43,8 @@ function getBreadcrumbs(pathname: string) {
         breadcrumbs.push({ label: "Getting Started" });
       } else if (segments[2] === "api") {
         breadcrumbs.push({ label: "API Reference" });
-      } else if (segments[2] === "demos") {
-        breadcrumbs.push({ label: "Demos", href: "/admin/docs/demos" });
+      } else if (segments[2] === "examples") {
+        breadcrumbs.push({ label: "Examples", href: "/admin/docs/examples" });
         if (segments[3] === "embed") {
           breadcrumbs.push({ label: "Embed Examples" });
         } else if (segments[3] === "live") {
@@ -66,15 +66,15 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const breadcrumbs = getBreadcrumbs(pathname);
-  const { isDemoMode } = useDemoMode();
+  const { isExampleMode } = useExampleMode();
 
   return (
-    <div className="h-svh overflow-hidden flex flex-col" data-demo-mode={isDemoMode || undefined}>
-      {/* Demo Banner - Full width above everything */}
-      {isDemoMode && <DemoBanner className="shrink-0" />}
+    <div className="h-svh overflow-hidden flex flex-col" data-example-mode={isExampleMode || undefined}>
+      {/* Example Banner - Full width above everything */}
+      {isExampleMode && <ExampleBanner className="shrink-0" />}
 
       <div className="flex-1 overflow-hidden flex min-h-0">
-        <SidebarProvider className={`h-full min-h-0 !min-h-0 [&>[data-slot=sidebar-wrapper]]:min-h-0 ${isDemoMode ? '[&_[data-slot=sidebar-container]]:top-[42px] [&_[data-slot=sidebar-container]]:h-[calc(100svh-42px)]' : ''}`}>
+        <SidebarProvider className={`h-full min-h-0 !min-h-0 [&>[data-slot=sidebar-wrapper]]:min-h-0 ${isExampleMode ? '[&_[data-slot=sidebar-container]]:top-[42px] [&_[data-slot=sidebar-container]]:h-[calc(100svh-42px)]' : ''}`}>
           <AppSidebar />
           <SidebarInset className="min-h-0 max-h-full md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm">
 

@@ -237,8 +237,8 @@ GET /api/v1/categories`}</code>
               <Link href="/docs/api" className="text-sm text-primary hover:text-primary/80 transition-colors">
                 API Reference →
               </Link>
-              <Link href="/demo" className="text-sm text-primary hover:text-primary/80 transition-colors">
-                Widget Demo →
+              <Link href="/examples" className="text-sm text-primary hover:text-primary/80 transition-colors">
+                Widget Examples →
               </Link>
             </div>
           </div>
@@ -310,10 +310,10 @@ GET /api/v1/categories`}</code>
               </div>
               <p className="text-sm text-muted-foreground">Full API reference</p>
             </Link>
-            <Link href="/demo" className="group rounded-xl border border-border bg-card p-4 hover:border-primary/30 hover:bg-primary/5 transition-colors">
+            <Link href="/examples" className="group rounded-xl border border-border bg-card p-4 hover:border-primary/30 hover:bg-primary/5 transition-colors">
               <div className="flex items-center gap-3 mb-2">
                 <Code2 className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                <span className="font-medium text-foreground">Widget Demo</span>
+                <span className="font-medium text-foreground">Widget Examples</span>
               </div>
               <p className="text-sm text-muted-foreground">Embed widget examples</p>
             </Link>

@@ -1,21 +1,21 @@
 import { flag } from "flags/next";
 
 /**
- * Demo mode feature flag
+ * Example mode feature flag
  *
  * When enabled:
  * - Admin authentication is bypassed (no login required)
  * - Anyone can access and modify the admin panel
- * - Database resets on a schedule (for public demo site)
+ * - Database resets on a schedule (for public example site)
  *
  * Toggle via:
  * - Vercel toolbar in development
  * - Vercel dashboard in production
  * - FLAGS_SECRET cookie for local overrides
  */
-export const demoMode = flag<boolean>({
-	key: "demo-mode",
-	description: "Enable demo mode for public demo site",
+export const exampleMode = flag<boolean>({
+	key: "example-mode",
+	description: "Enable example mode for public example site",
 	defaultValue: false,
 	options: [
 		{ value: true, label: "Enabled" },
@@ -24,8 +24,8 @@ export const demoMode = flag<boolean>({
 	// Decide function - called on every request
 	async decide() {
 		// Check environment variable as fallback
-		// This allows DEMO_MODE=true to still work for backwards compatibility
-		if (process.env.DEMO_MODE === "true") {
+		// This allows EXAMPLE_MODE=true to still work for backwards compatibility
+		if (process.env.EXAMPLE_MODE === "true") {
 			return true;
 		}
 		return this.defaultValue as boolean;
@@ -33,4 +33,4 @@ export const demoMode = flag<boolean>({
 });
 
 // Export all flags for the toolbar
-export const flags = [demoMode] as const;
+export const flags = [exampleMode] as const;

@@ -436,8 +436,8 @@ X-RateLimit-Reset: 1702407600`}</code>
 				{content}
 			</div>
 
-			{/* Right sidebar navigation - sticky within scroll container */}
-			<aside className="hidden lg:block w-48 flex-shrink-0 sticky top-0 self-start">
+			{/* Right sidebar navigation - sticky below navbar */}
+			<aside className="hidden lg:block w-48 flex-shrink-0 sticky top-24 self-start">
 				<SectionNav activeSection={activeSection} />
 			</aside>
 		</div>

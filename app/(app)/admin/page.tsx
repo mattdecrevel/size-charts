@@ -61,8 +61,8 @@ export default async function AdminDashboard() {
   const quickActions = [
     { href: "/admin/templates", label: "Templates", icon: LayoutTemplate },
     { href: "/admin/docs/embed", label: "Embed Guide", icon: Code2 },
-    { href: "/demo/live", label: "Live Builder", icon: Wand2, external: true },
-    { href: "/demo/embed", label: "Widget Demos", icon: Play, external: true },
+    { href: "/examples/live", label: "Live Builder", icon: Wand2, external: true },
+    { href: "/examples/embed", label: "Widget Exampless", icon: Play, external: true },
     { href: "/size-guide", label: "Size Guide", icon: ExternalLink, external: true },
   ];
 

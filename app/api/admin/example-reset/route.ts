@@ -8,7 +8,7 @@ import {
   MeasurementRange,
   MeasurementValue,
 } from "@/prisma/templates";
-import { isDemoModeEnabled } from "@/lib/admin-auth";
+import { isExampleModeEnabled } from "@/lib/admin-auth";
 
 // Store last reset time in module scope (persists across warm function invocations)
 let lastResetTime: string | null = null;
@@ -172,10 +172,10 @@ async function createSizeChartFromTemplate(
 }
 
 export async function POST(request: NextRequest) {
-  // Check if demo mode is enabled via feature flag
-  if (!(await isDemoModeEnabled())) {
+  // Check if example mode is enabled via feature flag
+  if (!(await isExampleModeEnabled())) {
     return NextResponse.json(
-      { error: "Demo mode is not enabled" },
+      { error: "Example mode is not enabled" },
       { status: 403 }
     );
   }
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    console.log("Starting demo database reset...");
+    console.log("Starting example database reset...");
 
     // Load all templates
     const templates = getAllTemplates();
@@ -465,14 +465,14 @@ export async function POST(request: NextRequest) {
     await createSizeChartFromTemplate(headwearTemplate, "Youth Headwear", "youth-headwear", [boysHeadwear.id, girlsHeadwear.id], instructions, headwearTemplate.variants?.youth?.rows);
     await createSizeChartFromTemplate(socksTemplate, "Youth Socks", "youth-socks", [boysSocks.id, girlsSocks.id], instructions, socksTemplate.variants?.youth?.rows);
 
-    console.log("Demo database reset completed successfully!");
+    console.log("Example database reset completed successfully!");
 
     // Store the reset time
     lastResetTime = new Date().toISOString();
 
     return NextResponse.json({
       success: true,
-      message: "Demo database reset completed",
+      message: "Example database reset completed",
       timestamp: lastResetTime,
       data: {
         categories: 4,
@@ -482,9 +482,9 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error resetting demo database:", error);
+    console.error("Error resetting example database:", error);
     return NextResponse.json(
-      { error: "Failed to reset demo database" },
+      { error: "Failed to reset example database" },
       { status: 500 }
     );
   }
@@ -507,16 +507,16 @@ function getNextResetTime(): string {
   return nextReset.toISOString();
 }
 
-// Also support GET for health checks and demo status
+// Also support GET for health checks and example status
 export async function GET() {
-  const demoEnabled = await isDemoModeEnabled();
+  const exampleEnabled = await isExampleModeEnabled();
 
-  if (!demoEnabled) {
-    return NextResponse.json({ demo_mode: false });
+  if (!exampleEnabled) {
+    return NextResponse.json({ example_mode: false });
   }
 
   return NextResponse.json({
-    demo_mode: true,
+    example_mode: true,
     last_reset: lastResetTime,
     next_reset: getNextResetTime(),
     reset_interval_hours: 6,

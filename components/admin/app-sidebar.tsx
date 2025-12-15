@@ -44,7 +44,7 @@ const navigation = [
 const docs = [
 	{ name: "Getting Started", href: "/admin/docs/getting-started", icon: BookOpen },
 	{ name: "API Reference", href: "/admin/docs/api", icon: Code },
-	{ name: "Demos", href: "/admin/docs/demos", icon: Play },
+	{ name: "Examples", href: "/admin/docs/examples", icon: Play },
 	{ name: "Changelog", href: "/admin/docs/changelog", icon: History },
 ];
 

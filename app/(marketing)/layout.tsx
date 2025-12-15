@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Settings, Code2, FileText, Ruler, Menu, X } from "lucide-react";
 
 const navLinks = [
-	{ name: "Demo", href: "/demo", icon: Code2 },
+	{ name: "Examples", href: "/examples", icon: Code2 },
 	{ name: "Docs", href: "/docs", icon: FileText },
 	{ name: "Admin", href: "/admin", icon: Settings },
 ];
@@ -42,7 +42,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 	const isActive = (href: string) => {
 		if (href === "/admin") return pathname.startsWith("/admin");
 		if (href === "/docs") return pathname.startsWith("/docs");
-		if (href === "/demo") return pathname.startsWith("/demo");
+		if (href === "/examples") return pathname.startsWith("/examples");
 		return pathname === href;
 	};
 
@@ -166,8 +166,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 							<Link href="/docs" className="hover:text-foreground transition-colors">
 								Docs
 							</Link>
-							<Link href="/demo" className="hover:text-foreground transition-colors">
-								Demo
+							<Link href="/examples" className="hover:text-foreground transition-colors">
+								Examples
 							</Link>
 							<a
 								href="https://github.com/mattdecrevel/size-charts"

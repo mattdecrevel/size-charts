@@ -84,11 +84,11 @@ export default function DocsPage() {
           <Link href="/size-guide" className="text-sm text-primary hover:underline" target="_blank">
             → View public size guide <ExternalLink className="inline h-3 w-3 ml-1" />
           </Link>
-          <Link href="/size-guide/demo" className="text-sm text-primary hover:underline" target="_blank">
-            → Frontend embed demo <ExternalLink className="inline h-3 w-3 ml-1" />
+          <Link href="/examples/embed" className="text-sm text-primary hover:underline" target="_blank">
+            → Frontend embed examples <ExternalLink className="inline h-3 w-3 ml-1" />
           </Link>
-          <Link href="/embed/demo.html" className="text-sm text-primary hover:underline" target="_blank">
-            → Standalone embed demo <ExternalLink className="inline h-3 w-3 ml-1" />
+          <Link href="/examples/example.html" className="text-sm text-primary hover:underline" target="_blank">
+            → Standalone embed example <ExternalLink className="inline h-3 w-3 ml-1" />
           </Link>
           <Link href="/api/docs" className="text-sm text-primary hover:underline" target="_blank">
             → Swagger API docs <ExternalLink className="inline h-3 w-3 ml-1" />

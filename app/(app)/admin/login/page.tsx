@@ -3,21 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, InputWithLabel } from "@/components/ui";
-import { useDemoMode } from "@/hooks/use-demo-mode";
+import { useExampleMode } from "@/hooks/use-example-mode";
 import { Ruler, AlertCircle, Loader2, Info } from "lucide-react";
 
 export default function AdminLoginPage() {
 	const router = useRouter();
-	const { isDemoMode } = useDemoMode();
+	const { isExampleMode } = useExampleMode();
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Auto-fill demo credentials
-	const fillDemoCredentials = () => {
-		setUsername("demo");
-		setPassword("demo");
+	// Auto-fill example credentials
+	const fillExampleCredentials = () => {
+		setUsername("example");
+		setPassword("example");
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -61,14 +61,14 @@ export default function AdminLoginPage() {
 				</div>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
-					{isDemoMode && (
+					{isExampleMode && (
 						<div className="rounded-lg border bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900 p-3">
 							<div className="flex items-start gap-2">
 								<Info className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
 								<div className="text-sm">
-									<p className="font-medium text-amber-800 dark:text-amber-200">Demo Mode</p>
+									<p className="font-medium text-amber-800 dark:text-amber-200">Example Mode</p>
 									<p className="text-amber-700 dark:text-amber-300 mt-1">
-										Use <button type="button" onClick={fillDemoCredentials} className="font-mono underline hover:no-underline">demo / demo</button> to log in.
+										Use <button type="button" onClick={fillExampleCredentials} className="font-mono underline hover:no-underline">example / example</button> to log in.
 										Data resets every 6 hours.
 									</p>
 								</div>

@@ -178,12 +178,12 @@ SizeCharts.setApiUrl("https://www.sizecharts.dev");`}
 				</div>
 			</section>
 
-			{/* Demo Links */}
+			{/* Example Links */}
 			<section className="mb-8">
 				<h2 className="text-lg font-semibold mb-4">Live Demos</h2>
 				<div className="grid gap-4 md:grid-cols-3">
 					<a
-						href="/demo/embed"
+						href="/examples/embed"
 						className="rounded-lg border bg-card p-4 hover:border-primary/50 transition-colors flex items-center gap-3"
 					>
 						<ExternalLink className="h-5 w-5 text-muted-foreground" />
@@ -193,7 +193,7 @@ SizeCharts.setApiUrl("https://www.sizecharts.dev");`}
 						</div>
 					</a>
 					<a
-						href="/demo/live"
+						href="/examples/live"
 						className="rounded-lg border bg-card p-4 hover:border-primary/50 transition-colors flex items-center gap-3"
 					>
 						<ExternalLink className="h-5 w-5 text-muted-foreground" />
@@ -203,12 +203,12 @@ SizeCharts.setApiUrl("https://www.sizecharts.dev");`}
 						</div>
 					</a>
 					<a
-						href="/demo/standalone"
+						href="/examples/example.html"
 						className="rounded-lg border bg-card p-4 hover:border-primary/50 transition-colors flex items-center gap-3"
 					>
 						<ExternalLink className="h-5 w-5 text-muted-foreground" />
 						<div>
-							<div className="font-medium">Standalone Demo</div>
+							<div className="font-medium">Standalone Example</div>
 							<div className="text-sm text-muted-foreground">External embed example</div>
 						</div>
 					</a>

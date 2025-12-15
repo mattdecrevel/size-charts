@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Script from "next/script";
 
-export function EmbedDemo() {
+export function EmbedExample() {
   useEffect(() => {
     // @ts-expect-error - SizeCharts is loaded from external script
     if (typeof window !== "undefined" && window.SizeCharts) {
@@ -42,10 +42,10 @@ export function EmbedDemo() {
           <code className="text-xs bg-muted px-2 py-1 rounded">data-theme=&quot;dark&quot;</code>
         </div>
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-          <div data-chart="womens-bottoms" data-unit="cm" data-theme="dark"></div>
+          <div data-chart="womens-tops" data-unit="cm" data-theme="dark"></div>
         </div>
         <pre className="mt-3 rounded-lg bg-zinc-950 p-3 text-xs text-zinc-100 overflow-x-auto">
-          <code>{`<div data-chart="womens-bottoms" data-unit="cm" data-theme="dark"></div>`}</code>
+          <code>{`<div data-chart="womens-tops" data-unit="cm" data-theme="dark"></div>`}</code>
         </pre>
       </section>
 

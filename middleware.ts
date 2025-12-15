@@ -45,10 +45,10 @@ export function middleware(request: NextRequest) {
 		}
 	}
 
-	// Check if demo mode is enabled (bypasses all auth)
+	// Check if example mode is enabled (bypasses all auth)
 	// Check env var first (production fallback)
-	const isDemoModeEnv = process.env.DEMO_MODE === "true";
-	if (isDemoModeEnv) {
+	const isExampleModeEnv = process.env.EXAMPLE_MODE === "true";
+	if (isExampleModeEnv) {
 		return NextResponse.next();
 	}
 
@@ -58,7 +58,7 @@ export function middleware(request: NextRequest) {
 	if (flagOverrides?.value) {
 		try {
 			const overrides = JSON.parse(flagOverrides.value);
-			if (overrides["demo-mode"] === true) {
+			if (overrides["example-mode"] === true) {
 				return NextResponse.next();
 			}
 		} catch {
