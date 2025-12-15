@@ -6,10 +6,8 @@ interface LayoutProps {
 	params: Promise<{ category: string; subcategory: string; chart: string }>;
 }
 
-export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
-	const { category: categorySlug, subcategory: subcategorySlug, chart: chartSlug } = await params;
-
-	const chart = await db.sizeChart.findFirst({
+async function getChartData(categorySlug: string, subcategorySlug: string, chartSlug: string) {
+	return db.sizeChart.findFirst({
 		where: {
 			slug: chartSlug,
 			isPublished: true,
@@ -25,16 +23,22 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
 		select: {
 			name: true,
 			description: true,
+			updatedAt: true,
 			subcategories: {
 				take: 1,
 				include: {
 					subcategory: {
-						include: { category: { select: { name: true } } },
+						include: { category: { select: { name: true, slug: true } } },
 					},
 				},
 			},
 		},
 	});
+}
+
+export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
+	const { category: categorySlug, subcategory: subcategorySlug, chart: chartSlug } = await params;
+	const chart = await getChartData(categorySlug, subcategorySlug, chartSlug);
 
 	if (!chart) {
 		return { title: "Size Chart Not Found" };
@@ -53,6 +57,66 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
 	};
 }
 
-export default function ChartLayout({ children }: LayoutProps) {
-	return children;
+export default async function ChartLayout({ children, params }: LayoutProps) {
+	const { category: categorySlug, subcategory: subcategorySlug, chart: chartSlug } = await params;
+	const chart = await getChartData(categorySlug, subcategorySlug, chartSlug);
+
+	if (!chart) {
+		return children;
+	}
+
+	const categoryName = chart.subcategories[0]?.subcategory.category.name || "";
+	const subcategoryName = chart.subcategories[0]?.subcategory.name || "";
+	const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.sizecharts.dev";
+
+	const jsonLd = {
+		"@context": "https://schema.org",
+		"@type": "WebPage",
+		name: chart.name,
+		description: chart.description || `${categoryName} ${subcategoryName.toLowerCase()} size chart`,
+		url: `${baseUrl}/size-guide/${categorySlug}/${subcategorySlug}/${chartSlug}`,
+		dateModified: chart.updatedAt.toISOString(),
+		breadcrumb: {
+			"@type": "BreadcrumbList",
+			itemListElement: [
+				{
+					"@type": "ListItem",
+					position: 1,
+					name: "Size Guide",
+					item: `${baseUrl}/size-guide`,
+				},
+				{
+					"@type": "ListItem",
+					position: 2,
+					name: categoryName,
+					item: `${baseUrl}/size-guide/${categorySlug}`,
+				},
+				{
+					"@type": "ListItem",
+					position: 3,
+					name: subcategoryName,
+					item: `${baseUrl}/size-guide/${categorySlug}/${subcategorySlug}`,
+				},
+				{
+					"@type": "ListItem",
+					position: 4,
+					name: chart.name,
+				},
+			],
+		},
+		mainEntity: {
+			"@type": "Table",
+			about: `${categoryName} ${subcategoryName} sizing information`,
+		},
+	};
+
+	return (
+		<>
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+			/>
+			{children}
+		</>
+	);
 }

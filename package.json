@@ -24,11 +24,13 @@
    "scripts": {
       "dev": "next dev",
       "build": "prisma generate && next build",
+      "build:analyze": "ANALYZE=true npm run build",
       "start": "next start",
       "lint": "eslint",
       "typecheck": "tsc --noEmit",
       "postinstall": "prisma generate",
       "db:migrate": "prisma migrate deploy",
+      "db:push": "prisma db push",
       "db:seed": "npx tsx prisma/seed.ts",
       "db:reset": "npx prisma migrate reset --force",
       "db:studio": "npx prisma studio",
@@ -76,6 +78,7 @@
       "zod": "^4.1.13"
    },
    "devDependencies": {
+      "@next/bundle-analyzer": "^16.0.10",
       "@playwright/test": "^1.57.0",
       "@tailwindcss/postcss": "^4",
       "@testing-library/jest-dom": "^6.9.1",
