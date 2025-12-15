@@ -1,7 +1,7 @@
 {
   "id": "mens-bottoms",
   "name": "Men's Bottoms",
-  "description": "Men's pants, shorts, joggers, and athletic bottoms. Based on Nike, Adidas, Under Armour, and Lululemon sizing standards.",
+  "description": "Men's pants, shorts, joggers, and athletic bottoms. Based on standard athletic sizing.",
   "category": "apparel",
   "tags": ["mens", "bottoms", "pants", "shorts", "joggers", "athletic"],
   "suggestedCategories": ["mens/bottoms", "mens/pants", "mens/shorts"],

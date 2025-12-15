@@ -1,7 +1,7 @@
 {
   "id": "youth-infant",
   "name": "Infant (0-24M)",
-  "description": "Infant clothing for ages 0-24 months. Based on Nike and Adidas sizing standards.",
+  "description": "Infant clothing for ages 0-24 months. Based on standard athletic sizing.",
   "category": "youth",
   "tags": ["youth", "infant", "baby", "boys", "girls"],
   "suggestedCategories": ["boys/tops", "girls/tops", "boys/bottoms", "girls/bottoms"],

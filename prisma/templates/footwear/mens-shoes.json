@@ -1,7 +1,7 @@
 {
   "id": "footwear-mens",
   "name": "Men's Footwear",
-  "description": "Men's athletic shoes and sneakers. Based on Nike and Adidas sizing standards.",
+  "description": "Men's athletic shoes and sneakers. Based on standard athletic sizing.",
   "category": "footwear",
   "tags": ["mens", "shoes", "footwear", "sneakers", "athletic"],
   "suggestedCategories": ["mens/footwear", "mens/shoes"],

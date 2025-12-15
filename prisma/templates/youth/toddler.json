@@ -1,7 +1,7 @@
 {
   "id": "youth-toddler",
   "name": "Toddler (2T-4T)",
-  "description": "Toddler clothing for ages 2-4. Based on Nike and Adidas sizing standards.",
+  "description": "Toddler clothing for ages 2-4. Based on standard athletic sizing.",
   "category": "youth",
   "tags": ["youth", "toddler", "boys", "girls"],
   "suggestedCategories": ["boys/tops", "girls/tops", "boys/bottoms", "girls/bottoms"],

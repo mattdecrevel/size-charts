@@ -1,7 +1,7 @@
 {
   "id": "footwear-kids",
   "name": "Kids' Footwear",
-  "description": "Kids' and youth athletic shoes. Based on Nike and Adidas sizing standards. Includes Big Kids (3.5Y-7Y) sizes.",
+  "description": "Kids' and youth athletic shoes. Based on standard athletic sizing. Includes Big Kids (3.5Y-7Y) sizes.",
   "category": "footwear",
   "tags": ["youth", "kids", "shoes", "footwear", "boys", "girls"],
   "suggestedCategories": ["boys/footwear", "girls/footwear", "kids/shoes"],

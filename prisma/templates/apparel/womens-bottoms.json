@@ -1,7 +1,7 @@
 {
   "id": "womens-bottoms",
   "name": "Women's Bottoms",
-  "description": "Women's pants, leggings, shorts, and athletic bottoms. Based on Nike, Adidas, Under Armour, and Lululemon sizing standards.",
+  "description": "Women's pants, leggings, shorts, and athletic bottoms. Based on standard athletic sizing.",
   "category": "apparel",
   "tags": ["womens", "bottoms", "pants", "leggings", "shorts", "athletic"],
   "suggestedCategories": ["womens/bottoms", "womens/pants", "womens/leggings"],

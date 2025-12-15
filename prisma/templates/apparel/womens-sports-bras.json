@@ -1,7 +1,7 @@
 {
   "id": "womens-sports-bras",
   "name": "Women's Sports Bras",
-  "description": "Sports bras with band and cup sizing. Based on Nike, Under Armour, and Lululemon sizing standards.",
+  "description": "Sports bras with band and cup sizing. Based on standard athletic sizing.",
   "category": "apparel",
   "tags": ["womens", "bras", "sports-bras", "athletic", "activewear"],
   "suggestedCategories": ["womens/bras", "womens/activewear"],

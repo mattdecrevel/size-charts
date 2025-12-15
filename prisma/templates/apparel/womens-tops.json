@@ -1,7 +1,7 @@
 {
   "id": "womens-tops",
   "name": "Women's Tops",
-  "description": "Women's shirts, t-shirts, tanks, hoodies, and jackets. Based on Nike, Adidas, Under Armour, and Lululemon sizing standards.",
+  "description": "Women's shirts, t-shirts, tanks, hoodies, and jackets. Based on standard athletic sizing.",
   "category": "apparel",
   "tags": ["womens", "tops", "shirts", "jackets", "hoodies", "athletic"],
   "suggestedCategories": ["womens/tops", "womens/outerwear"],

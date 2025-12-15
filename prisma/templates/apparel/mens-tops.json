@@ -1,7 +1,7 @@
 {
   "id": "mens-tops",
   "name": "Men's Tops",
-  "description": "Men's shirts, t-shirts, polos, hoodies, and jackets. Based on Nike, Adidas, Under Armour, and Lululemon sizing standards.",
+  "description": "Men's shirts, t-shirts, polos, hoodies, and jackets. Based on standard athletic sizing.",
   "category": "apparel",
   "tags": ["mens", "tops", "shirts", "jackets", "hoodies", "athletic"],
   "suggestedCategories": ["mens/tops", "mens/outerwear"],

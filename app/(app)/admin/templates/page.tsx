@@ -236,7 +236,7 @@ export default function TemplatesPage() {
 						{filteredTemplates.map((template) => (
 							<button
 								key={template.id}
-								className="group text-left rounded-lg border bg-card p-4 transition-all hover:border-primary hover:shadow-sm"
+								className="group text-left rounded-lg border bg-card p-4 transition-all hover:border-primary hover:shadow-sm flex flex-col"
 								onClick={() => {
 									setSelectedTemplate(template);
 									setSelectedVariant(undefined);

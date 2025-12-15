@@ -1,7 +1,7 @@
 {
   "id": "footwear-womens",
   "name": "Women's Footwear",
-  "description": "Women's athletic shoes and sneakers. Based on Nike and Adidas sizing standards. Women's sizes are 1.5 sizes larger than men's.",
+  "description": "Women's athletic shoes and sneakers. Based on standard athletic sizing. Women's sizes are 1.5 sizes larger than men's.",
   "category": "footwear",
   "tags": ["womens", "shoes", "footwear", "sneakers", "athletic"],
   "suggestedCategories": ["womens/footwear", "womens/shoes"],
