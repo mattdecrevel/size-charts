@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Code2, FileText, Ruler, Menu, X, LayoutTemplate, Play } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const navLinks = [
 	{ name: "Size Guide", href: "/size-guide", icon: Ruler },
@@ -92,6 +93,9 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
 
 					{/* Right side actions */}
 					<div className="flex items-center gap-2">
+						{/* Theme Toggle */}
+						<ThemeToggle />
+
 						{/* GitHub Icon */}
 						<a
 							href="https://github.com/mattdecrevel/size-charts"
