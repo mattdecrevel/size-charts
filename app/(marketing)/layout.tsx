@@ -1,5 +1,9 @@
 import { FloatingHeader } from "@/components/layout/floating-header";
 
-export default function SizeGuideLayout({ children }: { children: React.ReactNode }) {
+export default function MarketingLayout({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
 	return <FloatingHeader>{children}</FloatingHeader>;
 }

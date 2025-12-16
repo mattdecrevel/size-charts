@@ -13,6 +13,10 @@ on:
           - minor
           - major
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   create-release-pr:
     runs-on: ubuntu-latest
@@ -50,24 +54,86 @@ jobs:
           echo "current=$latest_tag" >> $GITHUB_OUTPUT
           echo "next=$new_version" >> $GITHUB_OUTPUT
 
-      - name: Generate release info
+      - name: Generate changelog
+        id: changelog
         run: |
           latest="${{ steps.version.outputs.current }}"
           next="${{ steps.version.outputs.next }}"
 
-          echo "## Release $next" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Changes since $latest" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          git log origin/production..origin/main --pretty=format:"- %s (%h)" >> $GITHUB_STEP_SUMMARY || echo "- Initial release" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Create the PR manually" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Run this command locally:" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "gh pr create --base production --head main --title \"Release $next\"" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Or [create it on GitHub](https://github.com/${{ github.repository }}/compare/production...main?expand=1&title=Release%20$next)" >> $GITHUB_STEP_SUMMARY
+          body="## What's Changed in $next"
+          body="$body
+
+"
+          # Get commits between production and main
+          commits=$(git log origin/production..origin/main --pretty=format:"- %s (%h)" 2>/dev/null || echo "")
+
+          if [ -n "$commits" ]; then
+            body="$body$commits"
+          else
+            body="$body- No changes"
+          fi
+
+          body="$body
+
+---
+
+**Previous version:** $latest
+**New version:** $next"
+
+          # Save to output (handle multiline)
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$body" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Check for existing PR
+        id: check_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing_pr=$(gh pr list --base production --head main --json number,url --jq '.[0]' 2>/dev/null || echo "")
+          if [ -n "$existing_pr" ] && [ "$existing_pr" != "null" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "url=$(echo $existing_pr | jq -r '.url')" >> $GITHUB_OUTPUT
+            echo "number=$(echo $existing_pr | jq -r '.number')" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.check_pr.outputs.exists != 'true'
+        id: create_pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Release ${{ steps.version.outputs.next }}`,
+              head: 'main',
+              base: 'production',
+              body: `${{ steps.changelog.outputs.body }}`
+            });
+            core.setOutput('url', pr.html_url);
+            core.setOutput('number', pr.number);
+            return pr;
+
+      - name: Summary
+        run: |
+          next="${{ steps.version.outputs.next }}"
+
+          if [ "${{ steps.check_pr.outputs.exists }}" = "true" ]; then
+            echo "## Existing PR Found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "PR #${{ steps.check_pr.outputs.number }} already exists: ${{ steps.check_pr.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Release PR Created" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Version:** $next" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**PR:** ${{ steps.create_pr.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Merge this PR to trigger the release workflow which will:" >> $GITHUB_STEP_SUMMARY
+            echo "- Create a GitHub release with tag $next" >> $GITHUB_STEP_SUMMARY
+            echo "- Generate changelog" >> $GITHUB_STEP_SUMMARY
+            echo "- Sync main branch with production" >> $GITHUB_STEP_SUMMARY
+          fi

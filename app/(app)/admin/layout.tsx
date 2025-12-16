@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 function getBreadcrumbs(pathname: string) {
 	const segments = pathname.split("/").filter(Boolean);
@@ -121,6 +122,10 @@ export default function AdminLayout({
 									))}
 								</BreadcrumbList>
 							</Breadcrumb>
+							{/* Theme Toggle - far right */}
+							<div className="ml-auto">
+								<ThemeToggle />
+							</div>
 						</header>
 
 						{/* Content Area - single scroll container */}

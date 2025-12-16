@@ -804,3 +804,270 @@
       outline-offset: 2px;
    }
 }
+
+/* ============================================
+   ACETERNITY-INSPIRED EFFECTS
+   ============================================ */
+@layer utilities {
+   /* Noise texture overlay */
+   .noise-overlay {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+   }
+
+   /* Animated gradient border */
+   @keyframes gradient-border {
+      0%, 100% {
+         background-position: 0% 50%;
+      }
+      50% {
+         background-position: 100% 50%;
+      }
+   }
+
+   .gradient-border-animate {
+      background-size: 200% 200%;
+      animation: gradient-border 3s ease infinite;
+   }
+
+   /* Beam animation for tracing effects */
+   @keyframes beam {
+      0% {
+         transform: translateX(-100%) scaleX(0.5);
+         opacity: 0;
+      }
+      50% {
+         opacity: 1;
+      }
+      100% {
+         transform: translateX(100vw) scaleX(0.5);
+         opacity: 0;
+      }
+   }
+
+   .animate-beam {
+      animation: beam 8s ease-in-out infinite;
+   }
+
+   /* Spotlight pulse */
+   @keyframes spotlight-pulse {
+      0%, 100% {
+         opacity: 0.1;
+         transform: scale(1);
+      }
+      50% {
+         opacity: 0.15;
+         transform: scale(1.05);
+      }
+   }
+
+   .animate-spotlight {
+      animation: spotlight-pulse 4s ease-in-out infinite;
+   }
+
+   /* Aurora effect for backgrounds */
+   @keyframes aurora {
+      0%, 100% {
+         transform: translateY(0) rotate(0deg);
+         opacity: 0.5;
+      }
+      33% {
+         transform: translateY(-10px) rotate(1deg);
+         opacity: 0.7;
+      }
+      66% {
+         transform: translateY(5px) rotate(-1deg);
+         opacity: 0.6;
+      }
+   }
+
+   .animate-aurora {
+      animation: aurora 15s ease-in-out infinite;
+   }
+
+   /* Shimmer effect for buttons and highlights */
+   @keyframes shimmer {
+      0% {
+         transform: translateX(-100%);
+      }
+      100% {
+         transform: translateX(100%);
+      }
+   }
+
+   .animate-shimmer {
+      animation: shimmer 2s ease-in-out infinite;
+   }
+
+   /* Grid pattern background */
+   .bg-grid-pattern {
+      background-image:
+         linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+         linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px);
+      background-size: 4rem 4rem;
+   }
+
+   .bg-grid-pattern-sm {
+      background-size: 2rem 2rem;
+   }
+
+   /* Dot pattern background */
+   .bg-dot-pattern {
+      background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
+      background-size: 1.5rem 1.5rem;
+   }
+
+   /* Radial mask for fading edges */
+   .mask-radial-faded {
+      mask-image: radial-gradient(ellipse at center, black 40%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 70%);
+   }
+
+   .mask-fade-edges {
+      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+   }
+
+   /* 3D tilt effect on hover */
+   .hover-tilt {
+      transition: transform 0.3s ease;
+      transform-style: preserve-3d;
+   }
+
+   .hover-tilt:hover {
+      transform: perspective(1000px) rotateX(2deg) rotateY(-2deg);
+   }
+
+   /* Magnetic button effect base */
+   .magnetic-hover {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+   }
+
+   /* Text reveal animation */
+   @keyframes text-reveal {
+      0% {
+         clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+      }
+      100% {
+         clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      }
+   }
+
+   .animate-text-reveal {
+      animation: text-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+   }
+
+   /* Underline grow effect */
+   .underline-grow {
+      position: relative;
+   }
+
+   .underline-grow::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.3s ease;
+   }
+
+   .underline-grow:hover::after {
+      width: 100%;
+   }
+}
+
+/* ============================================
+   ENHANCED HERO SECTION STYLES
+   ============================================ */
+@layer components {
+   /* Hero with mesh gradient */
+   .hero-mesh {
+      background:
+         radial-gradient(ellipse 80% 50% at 50% -20%, oklch(0.55 0.28 295 / 0.2), transparent),
+         radial-gradient(ellipse 60% 40% at 100% 0%, oklch(0.65 0.28 330 / 0.15), transparent),
+         radial-gradient(ellipse 50% 30% at 0% 100%, oklch(0.55 0.28 295 / 0.1), transparent);
+   }
+
+   .dark .hero-mesh {
+      background:
+         radial-gradient(ellipse 80% 50% at 50% -20%, oklch(0.7 0.25 295 / 0.25), transparent),
+         radial-gradient(ellipse 60% 40% at 100% 0%, oklch(0.72 0.25 330 / 0.2), transparent),
+         radial-gradient(ellipse 50% 30% at 0% 100%, oklch(0.7 0.25 295 / 0.15), transparent);
+   }
+
+   /* Animated grid lines */
+   .animated-grid {
+      position: relative;
+   }
+
+   .animated-grid::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+         linear-gradient(90deg, transparent 49%, oklch(0.55 0.28 295 / 0.1) 50%, transparent 51%),
+         linear-gradient(0deg, transparent 49%, oklch(0.55 0.28 295 / 0.1) 50%, transparent 51%);
+      background-size: 4rem 4rem;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+   }
+
+   /* Floating orbs */
+   .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      pointer-events: none;
+   }
+
+   .orb-primary {
+      background: oklch(0.55 0.28 295 / 0.3);
+   }
+
+   .orb-accent {
+      background: oklch(0.65 0.28 330 / 0.25);
+   }
+
+   .dark .orb-primary {
+      background: oklch(0.7 0.25 295 / 0.35);
+   }
+
+   .dark .orb-accent {
+      background: oklch(0.72 0.25 330 / 0.3);
+   }
+
+   /* Glowing border card */
+   .card-glow {
+      @apply relative rounded-2xl bg-card border border-border overflow-hidden;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+   }
+
+   .card-glow::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, transparent, oklch(0.55 0.28 295 / 0.3), transparent);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: xor;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+   }
+
+   .card-glow:hover::before {
+      opacity: 1;
+   }
+
+   .card-glow:hover {
+      box-shadow: 0 0 40px oklch(0.55 0.28 295 / 0.1);
+   }
+
+   .dark .card-glow:hover {
+      box-shadow: 0 0 40px oklch(0.7 0.25 295 / 0.15);
+   }
+}
