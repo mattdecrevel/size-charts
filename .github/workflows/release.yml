@@ -7,14 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version bump type'
+        description: 'Version (e.g., v1.0.0)'
         required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+        type: string
 
 permissions:
   contents: write
@@ -29,111 +24,104 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get latest tag
-        id: get_tag
+      - name: Get version from PR title or input
+        id: get_version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if git describe --tags --abbrev=0 2>/dev/null; then
-            latest_tag=$(git describe --tags --abbrev=0)
-            has_tags="true"
-          else
-            latest_tag="v0.0.0"
-            has_tags="false"
-          fi
-          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
-          echo "has_tags=$has_tags" >> $GITHUB_OUTPUT
-          echo "Latest tag: $latest_tag (has_tags: $has_tags)"
-
-      - name: Calculate next version
-        id: next_version
-        run: |
-          latest="${{ steps.get_tag.outputs.latest_tag }}"
-          # Remove 'v' prefix
-          version="${latest#v}"
-
-          # Split into parts
-          IFS='.' read -r major minor patch <<< "$version"
-
-          # Determine bump type
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            bump_type="${{ inputs.version }}"
+            # Use the manually provided version
+            version="${{ inputs.version }}"
+            echo "Using manual version: $version"
           else
-            # Auto-detect from commit messages since last tag (or all commits if no tags)
-            if [ "${{ steps.get_tag.outputs.has_tags }}" = "true" ]; then
-              commits=$(git log $latest..HEAD --pretty=format:"%s" 2>/dev/null || echo "")
-            else
-              commits=$(git log --pretty=format:"%s" 2>/dev/null || echo "")
-            fi
+            # Get the merged PR that triggered this push
+            pr_title=$(gh pr list --state merged --base production --json title,mergedAt --jq 'sort_by(.mergedAt) | reverse | .[0].title' 2>/dev/null || echo "")
 
-            if echo "$commits" | grep -qiE "^(feat|feature)(\(.+\))?!:|BREAKING CHANGE"; then
-              bump_type="major"
-            elif echo "$commits" | grep -qiE "^feat(\(.+\))?:"; then
-              bump_type="minor"
+            echo "Most recent merged PR title: $pr_title"
+
+            # Extract version from PR title (expects "Release vX.Y.Z")
+            if [[ "$pr_title" =~ Release[[:space:]]+(v[0-9]+\.[0-9]+\.[0-9]+) ]]; then
+              version="${BASH_REMATCH[1]}"
+              echo "Extracted version from PR: $version"
             else
-              bump_type="patch"
+              echo "Could not extract version from PR title, falling back to auto-detect"
+
+              # Fallback: auto-detect from commits
+              latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+              ver="${latest_tag#v}"
+              IFS='.' read -r major minor patch <<< "$ver"
+
+              commits=$(git log $latest_tag..HEAD --pretty=format:"%s" 2>/dev/null || echo "")
+
+              if echo "$commits" | grep -qiE "^(feat|feature)(\(.+\))?!:|BREAKING CHANGE"; then
+                major=$((major + 1)); minor=0; patch=0
+              elif echo "$commits" | grep -qiE "^feat(\(.+\))?:"; then
+                minor=$((minor + 1)); patch=0
+              else
+                patch=$((patch + 1))
+              fi
+
+              version="v${major}.${minor}.${patch}"
+              echo "Auto-detected version: $version"
             fi
           fi
 
-          # Calculate new version
-          case $bump_type in
-            major)
-              major=$((major + 1))
-              minor=0
-              patch=0
-              ;;
-            minor)
-              minor=$((minor + 1))
-              patch=0
-              ;;
-            patch)
-              patch=$((patch + 1))
-              ;;
-          esac
-
-          new_version="v${major}.${minor}.${patch}"
-          echo "version=$new_version" >> $GITHUB_OUTPUT
-          echo "bump_type=$bump_type" >> $GITHUB_OUTPUT
-          echo "New version: $new_version ($bump_type)"
+          echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Check if tag already exists
         id: check_tag
         run: |
-          if git rev-parse "${{ steps.next_version.outputs.version }}" >/dev/null 2>&1; then
+          version="${{ steps.get_version.outputs.version }}"
+          if git rev-parse "$version" >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Tag ${{ steps.next_version.outputs.version }} already exists, skipping release"
+            echo "Tag $version already exists, skipping release"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Get previous tag for changelog
+        if: steps.check_tag.outputs.exists != 'true'
+        id: prev_tag
+        run: |
+          # Get the tag before the one we're creating
+          prev_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$prev_tag" ]; then
+            echo "tag=" >> $GITHUB_OUTPUT
+            echo "has_prev=false" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$prev_tag" >> $GITHUB_OUTPUT
+            echo "has_prev=true" >> $GITHUB_OUTPUT
+          fi
+          echo "Previous tag: $prev_tag"
+
       - name: Generate changelog
         if: steps.check_tag.outputs.exists != 'true'
-        id: changelog
         run: |
-          latest="${{ steps.get_tag.outputs.latest_tag }}"
-          has_tags="${{ steps.get_tag.outputs.has_tags }}"
+          version="${{ steps.get_version.outputs.version }}"
+          prev_tag="${{ steps.prev_tag.outputs.tag }}"
+          has_prev="${{ steps.prev_tag.outputs.has_prev }}"
 
           echo "## What's Changed" > changelog.md
           echo "" >> changelog.md
 
-          if [ "$has_tags" = "true" ]; then
-            # Get commits since last tag
-            all_commits=$(git log $latest..HEAD --pretty=format:"- %s (%h)" 2>/dev/null || echo "")
+          if [ "$has_prev" = "true" ]; then
+            all_commits=$(git log $prev_tag..HEAD --pretty=format:"- %s (%h)" 2>/dev/null || echo "")
           else
-            # First release - get recent commits
-            all_commits=$(git log --pretty=format:"- %s (%h)" 2>/dev/null || echo "- Initial release")
+            all_commits=$(git log --pretty=format:"- %s (%h)" -20 2>/dev/null || echo "- Initial release")
           fi
 
           if [ -n "$all_commits" ]; then
             echo "$all_commits" >> changelog.md
           else
-            echo "- Initial release" >> changelog.md
+            echo "- Release $version" >> changelog.md
           fi
 
           echo "" >> changelog.md
 
-          if [ "$has_tags" = "true" ]; then
-            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/$latest...${{ steps.next_version.outputs.version }}" >> changelog.md
+          if [ "$has_prev" = "true" ]; then
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/$prev_tag...$version" >> changelog.md
           else
-            echo "**Full Changelog**: https://github.com/${{ github.repository }}/commits/${{ steps.next_version.outputs.version }}" >> changelog.md
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/commits/$version" >> changelog.md
           fi
 
           echo "=== Generated Changelog ==="
@@ -143,8 +131,8 @@ jobs:
         if: steps.check_tag.outputs.exists != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.next_version.outputs.version }}
-          name: Release ${{ steps.next_version.outputs.version }}
+          tag_name: ${{ steps.get_version.outputs.version }}
+          name: Release ${{ steps.get_version.outputs.version }}
           body_path: changelog.md
           draft: false
           prerelease: false
@@ -160,22 +148,22 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
           git checkout main
-          git merge origin/production --no-edit -m "chore: sync main with production after ${{ steps.next_version.outputs.version }}"
+          git merge origin/production --no-edit -m "chore: sync main with production after release ${{ steps.get_version.outputs.version }}"
           git push origin main
 
       - name: Summary
         run: |
+          version="${{ steps.get_version.outputs.version }}"
           if [ "${{ steps.check_tag.outputs.exists }}" = "true" ]; then
             echo "## Release Skipped" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Tag ${{ steps.next_version.outputs.version }} already exists." >> $GITHUB_STEP_SUMMARY
+            echo "Tag $version already exists." >> $GITHUB_STEP_SUMMARY
           else
             echo "## Release Created" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Version:** ${{ steps.next_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Bump Type:** ${{ steps.next_version.outputs.bump_type }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Version:** $version" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "View the release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.next_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+            echo "View the release: https://github.com/${{ github.repository }}/releases/tag/$version" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Main branch has been synced with production." >> $GITHUB_STEP_SUMMARY
           fi
