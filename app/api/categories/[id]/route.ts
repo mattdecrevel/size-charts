@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { updateCategorySchema } from "@/lib/validations";
 import { generateSlug } from "@/lib/utils";
 import { z } from "zod";
+import { isDemoCategorySlug } from "@/lib/demo-slugs";
+import { isDemoModeEnabled } from "@/lib/admin-auth";
 
 interface RouteParams {
 	params: Promise<{ id: string }>;
@@ -51,6 +53,28 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 		// If name is changing, update slug too (unless slug is explicitly provided)
 		const updateData: Record<string, unknown> = {};
+
+		// Calculate what the new slug would be
+		let newSlug: string | undefined;
+		if (data.slug !== undefined) {
+			newSlug = data.slug;
+		} else if (data.name !== undefined) {
+			newSlug = generateSlug(data.name);
+		}
+
+		// Block slug changes for demo data in demo mode
+		if (newSlug !== undefined && newSlug !== existing.slug) {
+			const demoMode = await isDemoModeEnabled();
+			if (demoMode && isDemoCategorySlug(existing.slug)) {
+				return NextResponse.json(
+					{
+						error: "Cannot change slug of demo category in demo mode",
+						code: "DEMO_SLUG_PROTECTED",
+					},
+					{ status: 403 }
+				);
+			}
+		}
 
 		if (data.name !== undefined) {
 			updateData.name = data.name;
