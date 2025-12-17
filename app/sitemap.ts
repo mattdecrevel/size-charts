@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 
+// Generate sitemap at runtime since it requires database access
+export const dynamic = "force-dynamic";
+
 const BASE_URL = "https://www.sizecharts.dev";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
