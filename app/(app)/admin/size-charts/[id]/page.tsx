@@ -2,14 +2,15 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { Button, InputWithLabel, Badge, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui";
+import { Button, InputWithLabel, Badge, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui";
 import { SizeChartEditor, MeasurementInstructionsSelector, type EditorState } from "@/components/admin/size-chart-editor";
 import { useSizeChart } from "@/hooks/use-size-charts";
 import { useCategories } from "@/hooks/use-categories";
 import { useLabels } from "@/hooks/use-labels";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useToast } from "@/components/ui/toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Save, Eye, EyeOff, ExternalLink, Pencil, Check } from "lucide-react";
+import { ArrowLeft, Save, Eye, EyeOff, ExternalLink, Pencil, Check, Info } from "lucide-react";
 
 interface PageProps {
 	params: Promise<{ id: string }>;
@@ -22,6 +23,7 @@ export default function EditSizeChartPage({ params }: PageProps) {
 	const { data: chart, isLoading } = useSizeChart(id);
 	const { data: categories } = useCategories();
 	const { data: labels } = useLabels();
+	const { isProtectedSizeChartSlug } = useDemoMode();
 
 	const [state, setState] = useState<EditorState | null>(null);
 	const [saving, setSaving] = useState(false);
@@ -245,15 +247,33 @@ export default function EditSizeChartPage({ params }: PageProps) {
 							onChange={(e) => handleStateChange({ ...state, name: e.target.value })}
 							placeholder="e.g., Regular Fit, Contour Fit"
 						/>
-						<InputWithLabel
-							label="Chart ID (URL slug)"
-							value={slug}
-							onChange={(e) => {
-								setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"));
-								setHasChanges(true);
-							}}
-							placeholder="e.g., regular-fit"
-						/>
+						<div className="relative">
+							<InputWithLabel
+								label="Chart ID (URL slug)"
+								value={slug}
+								onChange={(e) => {
+									if (!isProtectedSizeChartSlug(chart?.slug || "")) {
+										setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"));
+										setHasChanges(true);
+									}
+								}}
+								placeholder="e.g., regular-fit"
+								disabled={isProtectedSizeChartSlug(chart?.slug || "")}
+								className={isProtectedSizeChartSlug(chart?.slug || "") ? "cursor-not-allowed" : ""}
+							/>
+							{isProtectedSizeChartSlug(chart?.slug || "") && (
+								<Tooltip>
+									<TooltipTrigger asChild>
+										<span className="absolute right-2 top-8 cursor-help">
+											<Info className="h-4 w-4 text-muted-foreground" />
+										</span>
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>Chart ID cannot be changed in demo mode.</p>
+									</TooltipContent>
+								</Tooltip>
+							)}
+						</div>
 						<div className="sm:col-span-2">
 							<InputWithLabel
 								label="Description (optional)"

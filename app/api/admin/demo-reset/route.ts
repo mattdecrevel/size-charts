@@ -2,523 +2,549 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { ColumnType, LabelType } from "@prisma/client";
 import {
-  getAllTemplates,
-  Template,
-  CellValue,
-  MeasurementRange,
-  MeasurementValue,
+	getAllTemplates,
+	Template,
+	CellValue,
+	MeasurementRange,
+	MeasurementValue,
 } from "@/prisma/templates";
 import { isDemoModeEnabled } from "@/lib/admin-auth";
+import { DEMO_SIZE_CHART_SLUGS } from "@/lib/demo-slugs";
+import * as Sentry from "@sentry/nextjs";
 
 // Store last reset time in module scope (persists across warm function invocations)
 let lastResetTime: string | null = null;
 
 // Helper to convert inches to cm
 function inToCm(inches: number): number {
-  return Math.round(inches * 2.54 * 10) / 10;
+	return Math.round(inches * 2.54 * 10) / 10;
 }
 
 // Map template column types to Prisma ColumnType enum
 function mapColumnType(type: string): ColumnType {
-  switch (type) {
-    case "SIZE_LABEL":
-      return ColumnType.SIZE_LABEL;
-    case "SHOE_SIZE":
-      return ColumnType.SHOE_SIZE;
-    case "MEASUREMENT":
-      return ColumnType.MEASUREMENT;
-    case "BAND_SIZE":
-      return ColumnType.BAND_SIZE;
-    case "CUP_SIZE":
-      return ColumnType.CUP_SIZE;
-    case "TEXT":
-    default:
-      return ColumnType.TEXT;
-  }
+	switch (type) {
+		case "SIZE_LABEL":
+			return ColumnType.SIZE_LABEL;
+		case "SHOE_SIZE":
+			return ColumnType.SHOE_SIZE;
+		case "MEASUREMENT":
+			return ColumnType.MEASUREMENT;
+		case "BAND_SIZE":
+			return ColumnType.BAND_SIZE;
+		case "CUP_SIZE":
+			return ColumnType.CUP_SIZE;
+		case "TEXT":
+		default:
+			return ColumnType.TEXT;
+	}
 }
 
 // Check if value is a measurement range
 function isMeasurementRange(value: CellValue): value is MeasurementRange {
-  return typeof value === "object" && "min" in value && "max" in value;
+	return typeof value === "object" && "min" in value && "max" in value;
 }
 
 // Check if value is a single measurement value
 function isMeasurementValue(value: CellValue): value is MeasurementValue {
-  return typeof value === "object" && "value" in value;
+	return typeof value === "object" && "value" in value;
 }
 
-// Create a size chart from a template
-async function createSizeChartFromTemplate(
-  template: Template,
-  name: string,
-  slug: string,
-  subcategoryIds: string[],
-  instructionMap: Record<string, string>,
-  rows?: Record<string, CellValue>[]
+// Upsert a category by slug
+async function upsertCategory(name: string, slug: string, displayOrder: number) {
+	return db.category.upsert({
+		where: { slug },
+		update: { name, displayOrder },
+		create: { name, slug, displayOrder },
+	});
+}
+
+// Upsert a subcategory by categoryId + slug
+async function upsertSubcategory(
+	name: string,
+	slug: string,
+	categoryId: string,
+	displayOrder: number
 ) {
-  const chart = await db.sizeChart.create({
-    data: {
-      name,
-      slug,
-      description: template.description,
-      isPublished: true,
-    },
-  });
+	const existing = await db.subcategory.findFirst({
+		where: { categoryId, slug },
+	});
 
-  // Create many-to-many relationships with subcategories
-  await Promise.all(
-    subcategoryIds.map((subcategoryId, index) =>
-      db.sizeChartSubcategory.create({
-        data: {
-          sizeChartId: chart.id,
-          subcategoryId,
-          displayOrder: index,
-        },
-      })
-    )
-  );
+	if (existing) {
+		return db.subcategory.update({
+			where: { id: existing.id },
+			data: { name, displayOrder },
+		});
+	}
 
-  const columns = template.columns.map((col) => ({
-    name: col.name,
-    columnType: mapColumnType(col.type),
-  }));
+	return db.subcategory.create({
+		data: { name, slug, categoryId, displayOrder },
+	});
+}
 
-  const createdColumns = await Promise.all(
-    columns.map((col, index) =>
-      db.sizeChartColumn.create({
-        data: {
-          name: col.name,
-          columnType: col.columnType,
-          displayOrder: index,
-          sizeChartId: chart.id,
-        },
-      })
-    )
-  );
+// Upsert or create a size chart from a template
+// If exists: delete related data, update basic info, recreate structure
+// If not: create new chart with structure
+async function upsertSizeChartFromTemplate(
+	template: Template,
+	name: string,
+	slug: string,
+	subcategoryIds: string[],
+	instructionMap: Record<string, string>,
+	rows?: Record<string, CellValue>[]
+) {
+	const existing = await db.sizeChart.findUnique({ where: { slug } });
 
-  const templateRows = rows || template.rows;
+	let chart;
+	if (existing) {
+		// Delete related data for this chart only
+		await db.sizeChartMeasurementInstruction.deleteMany({ where: { sizeChartId: existing.id } });
+		await db.sizeChartCell.deleteMany({ where: { row: { sizeChartId: existing.id } } });
+		await db.sizeChartRow.deleteMany({ where: { sizeChartId: existing.id } });
+		await db.sizeChartColumn.deleteMany({ where: { sizeChartId: existing.id } });
+		await db.sizeChartSubcategory.deleteMany({ where: { sizeChartId: existing.id } });
 
-  for (let rowIndex = 0; rowIndex < templateRows.length; rowIndex++) {
-    const rowData = templateRows[rowIndex];
-    const row = await db.sizeChartRow.create({
-      data: {
-        sizeChartId: chart.id,
-        displayOrder: rowIndex,
-      },
-    });
+		// Update basic info
+		chart = await db.sizeChart.update({
+			where: { id: existing.id },
+			data: {
+				name,
+				description: template.description,
+				isPublished: true,
+			},
+		});
+	} else {
+		// Create new chart
+		chart = await db.sizeChart.create({
+			data: {
+				name,
+				slug,
+				description: template.description,
+				isPublished: true,
+			},
+		});
+	}
 
-    const cellData = columns.map((col, colIndex) => {
-      const cellValue = rowData[col.name];
+	// Create many-to-many relationships with subcategories
+	await Promise.all(
+		subcategoryIds.map((subcategoryId, index) =>
+			db.sizeChartSubcategory.create({
+				data: {
+					sizeChartId: chart.id,
+					subcategoryId,
+					displayOrder: index,
+				},
+			})
+		)
+	);
 
-      let valueText: string | null = null;
-      let valueInches: number | null = null;
-      let valueCm: number | null = null;
-      let valueMinInches: number | null = null;
-      let valueMaxInches: number | null = null;
-      let valueMinCm: number | null = null;
-      let valueMaxCm: number | null = null;
+	const columns = template.columns.map((col) => ({
+		name: col.name,
+		columnType: mapColumnType(col.type),
+	}));
 
-      if (cellValue !== undefined) {
-        if (typeof cellValue === "string") {
-          valueText = cellValue;
-        } else if (isMeasurementRange(cellValue)) {
-          valueMinInches = cellValue.min;
-          valueMaxInches = cellValue.max;
-          valueMinCm = inToCm(cellValue.min);
-          valueMaxCm = inToCm(cellValue.max);
-        } else if (isMeasurementValue(cellValue)) {
-          valueInches = cellValue.value;
-          valueCm = inToCm(cellValue.value);
-        }
-      }
+	const createdColumns = await Promise.all(
+		columns.map((col, index) =>
+			db.sizeChartColumn.create({
+				data: {
+					name: col.name,
+					columnType: col.columnType,
+					displayOrder: index,
+					sizeChartId: chart.id,
+				},
+			})
+		)
+	);
 
-      return {
-        rowId: row.id,
-        columnId: createdColumns[colIndex].id,
-        labelId: null,
-        valueText,
-        valueInches,
-        valueCm,
-        valueMinInches,
-        valueMaxInches,
-        valueMinCm,
-        valueMaxCm,
-      };
-    });
+	const templateRows = rows || template.rows;
 
-    await db.sizeChartCell.createMany({ data: cellData });
-  }
+	for (let rowIndex = 0; rowIndex < templateRows.length; rowIndex++) {
+		const rowData = templateRows[rowIndex];
+		const row = await db.sizeChartRow.create({
+			data: {
+				sizeChartId: chart.id,
+				displayOrder: rowIndex,
+			},
+		});
 
-  // Create measurement instruction links
-  const instructionIds = template.measurementInstructions
-    .map((key) => instructionMap[key])
-    .filter((id): id is string => id !== undefined);
+		const cellData = columns.map((col, colIndex) => {
+			const cellValue = rowData[col.name];
 
-  if (instructionIds.length > 0) {
-    await Promise.all(
-      instructionIds.map((instructionId, index) =>
-        db.sizeChartMeasurementInstruction.create({
-          data: {
-            sizeChartId: chart.id,
-            instructionId,
-            displayOrder: index,
-          },
-        })
-      )
-    );
-  }
+			let valueText: string | null = null;
+			let valueInches: number | null = null;
+			let valueCm: number | null = null;
+			let valueMinInches: number | null = null;
+			let valueMaxInches: number | null = null;
+			let valueMinCm: number | null = null;
+			let valueMaxCm: number | null = null;
 
-  return chart;
+			if (cellValue !== undefined) {
+				if (typeof cellValue === "string") {
+					valueText = cellValue;
+				} else if (isMeasurementRange(cellValue)) {
+					valueMinInches = cellValue.min;
+					valueMaxInches = cellValue.max;
+					valueMinCm = inToCm(cellValue.min);
+					valueMaxCm = inToCm(cellValue.max);
+				} else if (isMeasurementValue(cellValue)) {
+					valueInches = cellValue.value;
+					valueCm = inToCm(cellValue.value);
+				}
+			}
+
+			return {
+				rowId: row.id,
+				columnId: createdColumns[colIndex].id,
+				labelId: null,
+				valueText,
+				valueInches,
+				valueCm,
+				valueMinInches,
+				valueMaxInches,
+				valueMinCm,
+				valueMaxCm,
+			};
+		});
+
+		await db.sizeChartCell.createMany({ data: cellData });
+	}
+
+	// Create measurement instruction links
+	const instructionIds = template.measurementInstructions
+		.map((key) => instructionMap[key])
+		.filter((id): id is string => id !== undefined);
+
+	if (instructionIds.length > 0) {
+		await Promise.all(
+			instructionIds.map((instructionId, index) =>
+				db.sizeChartMeasurementInstruction.create({
+					data: {
+						sizeChartId: chart.id,
+						instructionId,
+						displayOrder: index,
+					},
+				})
+			)
+		);
+	}
+
+	return chart;
+}
+
+// Upsert measurement instruction by key
+async function upsertMeasurementInstruction(
+	key: string,
+	name: string,
+	instruction: string,
+	sortOrder: number
+) {
+	return db.measurementInstruction.upsert({
+		where: { key },
+		update: { name, instruction, sortOrder },
+		create: { key, name, instruction, sortOrder },
+	});
+}
+
+// Upsert size label by key
+async function upsertSizeLabel(
+	key: string,
+	displayValue: string,
+	labelType: LabelType,
+	sortOrder: number,
+	description?: string
+) {
+	return db.sizeLabel.upsert({
+		where: { key },
+		update: { displayValue, labelType, sortOrder, description },
+		create: { key, displayValue, labelType, sortOrder, description },
+	});
 }
 
 export async function POST(request: NextRequest) {
-  // Check if demo mode is enabled via feature flag
-  if (!(await isDemoModeEnabled())) {
-    return NextResponse.json(
-      { error: "Demo mode is not enabled" },
-      { status: 403 }
-    );
-  }
+	// Check if demo mode is enabled via feature flag
+	if (!(await isDemoModeEnabled())) {
+		console.log("Demo reset attempted but demo mode is not enabled");
+		return NextResponse.json(
+			{ error: "Demo mode is not enabled" },
+			{ status: 403 }
+		);
+	}
 
-  // Verify cron secret for scheduled resets
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
+	// Verify cron secret for scheduled resets
+	const authHeader = request.headers.get("authorization");
+	const cronSecret = process.env.CRON_SECRET;
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
-  }
+	if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+		console.log("Demo reset unauthorized - invalid cron secret");
+		return NextResponse.json(
+			{ error: "Unauthorized" },
+			{ status: 401 }
+		);
+	}
 
-  try {
-    console.log("Starting demo database reset...");
+	const startTime = Date.now();
 
-    // Load all templates
-    const templates = getAllTemplates();
-    console.log(`Loaded ${templates.length} templates`);
+	try {
+		console.log("Starting demo database reset (upsert mode)...");
 
-    const templateMap = new Map<string, Template>();
-    templates.forEach((t) => templateMap.set(t.id, t));
+		// Load all templates
+		const templates = getAllTemplates();
+		console.log(`Loaded ${templates.length} templates`);
 
-    function getTemplate(id: string): Template {
-      const template = templateMap.get(id);
-      if (!template) throw new Error(`Template not found: ${id}`);
-      return template;
-    }
+		const templateMap = new Map<string, Template>();
+		templates.forEach((t) => templateMap.set(t.id, t));
 
-    // Clear existing data
-    console.log("Clearing existing data...");
-    await db.sizeChartMeasurementInstruction.deleteMany();
-    await db.sizeChartCell.deleteMany();
-    await db.sizeChartRow.deleteMany();
-    await db.sizeChartColumn.deleteMany();
-    await db.sizeChartSubcategory.deleteMany();
-    await db.sizeChart.deleteMany();
-    await db.subcategory.deleteMany();
-    await db.category.deleteMany();
-    await db.sizeLabel.deleteMany();
-    await db.measurementInstruction.deleteMany();
+		function getTemplate(id: string): Template {
+			const template = templateMap.get(id);
+			if (!template) throw new Error(`Template not found: ${id}`);
+			return template;
+		}
 
-    // Create measurement instructions
-    console.log("Creating measurement instructions...");
-    const measurementInstructions = await Promise.all([
-      db.measurementInstruction.create({
-        data: {
-          key: "chest",
-          name: "Chest/Bust",
-          instruction: "Measure around the fullest part of your chest, keeping the tape parallel to the floor.",
-          sortOrder: 0,
-        },
-      }),
-      db.measurementInstruction.create({
-        data: {
-          key: "waist",
-          name: "Waist",
-          instruction: "Measure around the narrowest part of your natural waistline, typically just above the belly button.",
-          sortOrder: 1,
-        },
-      }),
-      db.measurementInstruction.create({
-        data: {
-          key: "hip",
-          name: "Hip",
-          instruction: "Measure around the fullest part of your hips, about 8 inches below your waist.",
-          sortOrder: 2,
-        },
-      }),
-      db.measurementInstruction.create({
-        data: {
-          key: "inseam",
-          name: "Inseam",
-          instruction: "Measure from the crotch seam to the bottom of the leg along the inner leg.",
-          sortOrder: 3,
-        },
-      }),
-      db.measurementInstruction.create({
-        data: {
-          key: "height",
-          name: "Height",
-          instruction: "Measure from the top of your head to the floor while standing straight without shoes.",
-          sortOrder: 4,
-        },
-      }),
-      db.measurementInstruction.create({
-        data: {
-          key: "foot_length",
-          name: "Foot Length",
-          instruction: "Stand on a piece of paper and trace your foot. Measure from heel to longest toe.",
-          sortOrder: 5,
-        },
-      }),
-      db.measurementInstruction.create({
-        data: {
-          key: "hand_circumference",
-          name: "Hand Circumference",
-          instruction: "Measure around your palm at the widest point, excluding the thumb.",
-          sortOrder: 6,
-        },
-      }),
-      db.measurementInstruction.create({
-        data: {
-          key: "hand_length",
-          name: "Hand Length",
-          instruction: "Measure from the base of your palm to the tip of your middle finger.",
-          sortOrder: 7,
-        },
-      }),
-      db.measurementInstruction.create({
-        data: {
-          key: "head_circumference",
-          name: "Head Circumference",
-          instruction: "Measure around the largest part of your head, about 1 inch above your eyebrows.",
-          sortOrder: 8,
-        },
-      }),
-      db.measurementInstruction.create({
-        data: {
-          key: "band_size",
-          name: "Band Size",
-          instruction: "Measure snugly around your ribcage, directly under your bust. Round to nearest even number.",
-          sortOrder: 9,
-        },
-      }),
-      db.measurementInstruction.create({
-        data: {
-          key: "cup_size",
-          name: "Cup Size",
-          instruction: "Measure around the fullest part of your bust. Subtract band size to determine cup.",
-          sortOrder: 10,
-        },
-      }),
-    ]);
+		// Upsert measurement instructions
+		console.log("Upserting measurement instructions...");
+		const measurementInstructions = await Promise.all([
+			upsertMeasurementInstruction("chest", "Chest/Bust", "Measure around the fullest part of your chest, keeping the tape parallel to the floor.", 0),
+			upsertMeasurementInstruction("waist", "Waist", "Measure around the narrowest part of your natural waistline, typically just above the belly button.", 1),
+			upsertMeasurementInstruction("hip", "Hip", "Measure around the fullest part of your hips, about 8 inches below your waist.", 2),
+			upsertMeasurementInstruction("inseam", "Inseam", "Measure from the crotch seam to the bottom of the leg along the inner leg.", 3),
+			upsertMeasurementInstruction("height", "Height", "Measure from the top of your head to the floor while standing straight without shoes.", 4),
+			upsertMeasurementInstruction("foot_length", "Foot Length", "Stand on a piece of paper and trace your foot. Measure from heel to longest toe.", 5),
+			upsertMeasurementInstruction("hand_circumference", "Hand Circumference", "Measure around your palm at the widest point, excluding the thumb.", 6),
+			upsertMeasurementInstruction("hand_length", "Hand Length", "Measure from the base of your palm to the tip of your middle finger.", 7),
+			upsertMeasurementInstruction("head_circumference", "Head Circumference", "Measure around the largest part of your head, about 1 inch above your eyebrows.", 8),
+			upsertMeasurementInstruction("band_size", "Band Size", "Measure snugly around your ribcage, directly under your bust. Round to nearest even number.", 9),
+			upsertMeasurementInstruction("cup_size", "Cup Size", "Measure around the fullest part of your bust. Subtract band size to determine cup.", 10),
+		]);
 
-    const instructions: Record<string, string> = {};
-    measurementInstructions.forEach((inst) => {
-      instructions[inst.key] = inst.id;
-    });
+		const instructions: Record<string, string> = {};
+		measurementInstructions.forEach((inst) => {
+			instructions[inst.key] = inst.id;
+		});
 
-    // Create size labels
-    console.log("Creating size labels...");
-    await Promise.all([
-      db.sizeLabel.create({ data: { key: "SIZE_XXS", displayValue: "XXS", labelType: LabelType.ALPHA_SIZE, sortOrder: 0 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_XS", displayValue: "XS", labelType: LabelType.ALPHA_SIZE, sortOrder: 1 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_SM", displayValue: "SM", labelType: LabelType.ALPHA_SIZE, sortOrder: 2 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_MD", displayValue: "MD", labelType: LabelType.ALPHA_SIZE, sortOrder: 3 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_LG", displayValue: "LG", labelType: LabelType.ALPHA_SIZE, sortOrder: 4 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_XL", displayValue: "XL", labelType: LabelType.ALPHA_SIZE, sortOrder: 5 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_XXL", displayValue: "XXL", labelType: LabelType.ALPHA_SIZE, sortOrder: 6 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_3XL", displayValue: "3XL", labelType: LabelType.ALPHA_SIZE, sortOrder: 7 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_4XL", displayValue: "4XL", labelType: LabelType.ALPHA_SIZE, sortOrder: 8 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_5XL", displayValue: "5XL", labelType: LabelType.ALPHA_SIZE, sortOrder: 9 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_1X", displayValue: "1X", labelType: LabelType.ALPHA_SIZE, sortOrder: 10 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_2X", displayValue: "2X", labelType: LabelType.ALPHA_SIZE, sortOrder: 11 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_3X", displayValue: "3X", labelType: LabelType.ALPHA_SIZE, sortOrder: 12 } }),
-    ]);
+		// Upsert size labels
+		console.log("Upserting size labels...");
+		await Promise.all([
+			upsertSizeLabel("SIZE_XXS", "XXS", LabelType.ALPHA_SIZE, 0),
+			upsertSizeLabel("SIZE_XS", "XS", LabelType.ALPHA_SIZE, 1),
+			upsertSizeLabel("SIZE_SM", "SM", LabelType.ALPHA_SIZE, 2),
+			upsertSizeLabel("SIZE_MD", "MD", LabelType.ALPHA_SIZE, 3),
+			upsertSizeLabel("SIZE_LG", "LG", LabelType.ALPHA_SIZE, 4),
+			upsertSizeLabel("SIZE_XL", "XL", LabelType.ALPHA_SIZE, 5),
+			upsertSizeLabel("SIZE_XXL", "XXL", LabelType.ALPHA_SIZE, 6),
+			upsertSizeLabel("SIZE_3XL", "3XL", LabelType.ALPHA_SIZE, 7),
+			upsertSizeLabel("SIZE_4XL", "4XL", LabelType.ALPHA_SIZE, 8),
+			upsertSizeLabel("SIZE_5XL", "5XL", LabelType.ALPHA_SIZE, 9),
+			upsertSizeLabel("SIZE_1X", "1X", LabelType.ALPHA_SIZE, 10),
+			upsertSizeLabel("SIZE_2X", "2X", LabelType.ALPHA_SIZE, 11),
+			upsertSizeLabel("SIZE_3X", "3X", LabelType.ALPHA_SIZE, 12),
+		]);
 
-    await Promise.all([
-      db.sizeLabel.create({ data: { key: "SIZE_YXS", displayValue: "YXS", labelType: LabelType.YOUTH_SIZE, sortOrder: 0 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_YSM", displayValue: "YSM", labelType: LabelType.YOUTH_SIZE, sortOrder: 1 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_YMD", displayValue: "YMD", labelType: LabelType.YOUTH_SIZE, sortOrder: 2 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_YLG", displayValue: "YLG", labelType: LabelType.YOUTH_SIZE, sortOrder: 3 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_YXL", displayValue: "YXL", labelType: LabelType.YOUTH_SIZE, sortOrder: 4 } }),
-    ]);
+		await Promise.all([
+			upsertSizeLabel("SIZE_YXS", "YXS", LabelType.YOUTH_SIZE, 0),
+			upsertSizeLabel("SIZE_YSM", "YSM", LabelType.YOUTH_SIZE, 1),
+			upsertSizeLabel("SIZE_YMD", "YMD", LabelType.YOUTH_SIZE, 2),
+			upsertSizeLabel("SIZE_YLG", "YLG", LabelType.YOUTH_SIZE, 3),
+			upsertSizeLabel("SIZE_YXL", "YXL", LabelType.YOUTH_SIZE, 4),
+		]);
 
-    await Promise.all([
-      db.sizeLabel.create({ data: { key: "SIZE_2T", displayValue: "2T", labelType: LabelType.TODDLER_SIZE, sortOrder: 0 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_3T", displayValue: "3T", labelType: LabelType.TODDLER_SIZE, sortOrder: 1 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_4T", displayValue: "4T", labelType: LabelType.TODDLER_SIZE, sortOrder: 2 } }),
-    ]);
+		await Promise.all([
+			upsertSizeLabel("SIZE_2T", "2T", LabelType.TODDLER_SIZE, 0),
+			upsertSizeLabel("SIZE_3T", "3T", LabelType.TODDLER_SIZE, 1),
+			upsertSizeLabel("SIZE_4T", "4T", LabelType.TODDLER_SIZE, 2),
+		]);
 
-    await Promise.all([
-      db.sizeLabel.create({ data: { key: "SIZE_0_3M", displayValue: "0-3M", labelType: LabelType.INFANT_SIZE, sortOrder: 0 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_3_6M", displayValue: "3-6M", labelType: LabelType.INFANT_SIZE, sortOrder: 1 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_6_9M", displayValue: "6-9M", labelType: LabelType.INFANT_SIZE, sortOrder: 2 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_12M", displayValue: "12M", labelType: LabelType.INFANT_SIZE, sortOrder: 3 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_18M", displayValue: "18M", labelType: LabelType.INFANT_SIZE, sortOrder: 4 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_24M", displayValue: "24M", labelType: LabelType.INFANT_SIZE, sortOrder: 5 } }),
-    ]);
+		await Promise.all([
+			upsertSizeLabel("SIZE_0_3M", "0-3M", LabelType.INFANT_SIZE, 0),
+			upsertSizeLabel("SIZE_3_6M", "3-6M", LabelType.INFANT_SIZE, 1),
+			upsertSizeLabel("SIZE_6_9M", "6-9M", LabelType.INFANT_SIZE, 2),
+			upsertSizeLabel("SIZE_12M", "12M", LabelType.INFANT_SIZE, 3),
+			upsertSizeLabel("SIZE_18M", "18M", LabelType.INFANT_SIZE, 4),
+			upsertSizeLabel("SIZE_24M", "24M", LabelType.INFANT_SIZE, 5),
+		]);
 
-    await Promise.all(
-      [4, 5, 6, 7, 8, 10, 12, 14, 16, 18, 20].map((n, i) =>
-        db.sizeLabel.create({ data: { key: `SIZE_${n}`, displayValue: `${n}`, labelType: LabelType.NUMERIC_SIZE, sortOrder: i } })
-      )
-    );
+		await Promise.all(
+			[4, 5, 6, 7, 8, 10, 12, 14, 16, 18, 20].map((n, i) =>
+				upsertSizeLabel(`SIZE_${n}`, `${n}`, LabelType.NUMERIC_SIZE, i)
+			)
+		);
 
-    await Promise.all([
-      db.sizeLabel.create({ data: { key: "SIZE_OSFM", displayValue: "OSFM", labelType: LabelType.CUSTOM, sortOrder: 0, description: "One Size Fits Most" } }),
-      db.sizeLabel.create({ data: { key: "SIZE_S_M", displayValue: "S/M", labelType: LabelType.CUSTOM, sortOrder: 1 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_M_L", displayValue: "M/L", labelType: LabelType.CUSTOM, sortOrder: 2 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_L_XL", displayValue: "L/XL", labelType: LabelType.CUSTOM, sortOrder: 3 } }),
-      db.sizeLabel.create({ data: { key: "SIZE_XL_XXL", displayValue: "XL/XXL", labelType: LabelType.CUSTOM, sortOrder: 4 } }),
-    ]);
+		await Promise.all([
+			upsertSizeLabel("SIZE_OSFM", "OSFM", LabelType.CUSTOM, 0, "One Size Fits Most"),
+			upsertSizeLabel("SIZE_S_M", "S/M", LabelType.CUSTOM, 1),
+			upsertSizeLabel("SIZE_M_L", "M/L", LabelType.CUSTOM, 2),
+			upsertSizeLabel("SIZE_L_XL", "L/XL", LabelType.CUSTOM, 3),
+			upsertSizeLabel("SIZE_XL_XXL", "XL/XXL", LabelType.CUSTOM, 4),
+		]);
 
-    await Promise.all([
-      db.sizeLabel.create({ data: { key: "CUP_A", displayValue: "A", labelType: LabelType.CUP_SIZE, sortOrder: 0 } }),
-      db.sizeLabel.create({ data: { key: "CUP_B", displayValue: "B", labelType: LabelType.CUP_SIZE, sortOrder: 1 } }),
-      db.sizeLabel.create({ data: { key: "CUP_C", displayValue: "C", labelType: LabelType.CUP_SIZE, sortOrder: 2 } }),
-      db.sizeLabel.create({ data: { key: "CUP_D", displayValue: "D", labelType: LabelType.CUP_SIZE, sortOrder: 3 } }),
-      db.sizeLabel.create({ data: { key: "CUP_DD", displayValue: "DD", labelType: LabelType.CUP_SIZE, sortOrder: 4 } }),
-      db.sizeLabel.create({ data: { key: "CUP_DDD", displayValue: "DDD", labelType: LabelType.CUP_SIZE, sortOrder: 5 } }),
-    ]);
+		await Promise.all([
+			upsertSizeLabel("CUP_A", "A", LabelType.CUP_SIZE, 0),
+			upsertSizeLabel("CUP_B", "B", LabelType.CUP_SIZE, 1),
+			upsertSizeLabel("CUP_C", "C", LabelType.CUP_SIZE, 2),
+			upsertSizeLabel("CUP_D", "D", LabelType.CUP_SIZE, 3),
+			upsertSizeLabel("CUP_DD", "DD", LabelType.CUP_SIZE, 4),
+			upsertSizeLabel("CUP_DDD", "DDD", LabelType.CUP_SIZE, 5),
+		]);
 
-    await Promise.all(
-      [30, 32, 34, 36, 38, 40, 42, 44, 46].map((n, i) =>
-        db.sizeLabel.create({ data: { key: `BAND_${n}`, displayValue: `${n}`, labelType: LabelType.BAND_SIZE, sortOrder: i } })
-      )
-    );
+		await Promise.all(
+			[30, 32, 34, 36, 38, 40, 42, 44, 46].map((n, i) =>
+				upsertSizeLabel(`BAND_${n}`, `${n}`, LabelType.BAND_SIZE, i)
+			)
+		);
 
-    // Create categories
-    console.log("Creating categories...");
-    const mens = await db.category.create({ data: { name: "Men's", slug: "mens", displayOrder: 0 } });
-    const womens = await db.category.create({ data: { name: "Women's", slug: "womens", displayOrder: 1 } });
-    const boys = await db.category.create({ data: { name: "Boys", slug: "boys", displayOrder: 2 } });
-    const girls = await db.category.create({ data: { name: "Girls", slug: "girls", displayOrder: 3 } });
+		// Upsert categories
+		console.log("Upserting categories...");
+		const mens = await upsertCategory("Men's", "mens", 0);
+		const womens = await upsertCategory("Women's", "womens", 1);
+		const boys = await upsertCategory("Boys", "boys", 2);
+		const girls = await upsertCategory("Girls", "girls", 3);
 
-    // Create subcategories
-    console.log("Creating subcategories...");
-    const mensTops = await db.subcategory.create({ data: { name: "Tops", slug: "tops", displayOrder: 0, categoryId: mens.id } });
-    const mensBottoms = await db.subcategory.create({ data: { name: "Bottoms", slug: "bottoms", displayOrder: 1, categoryId: mens.id } });
-    const mensFootwear = await db.subcategory.create({ data: { name: "Footwear", slug: "footwear", displayOrder: 2, categoryId: mens.id } });
-    const mensGloves = await db.subcategory.create({ data: { name: "Gloves", slug: "gloves", displayOrder: 3, categoryId: mens.id } });
-    const mensHeadwear = await db.subcategory.create({ data: { name: "Headwear", slug: "headwear", displayOrder: 4, categoryId: mens.id } });
-    const mensSocks = await db.subcategory.create({ data: { name: "Socks", slug: "socks", displayOrder: 5, categoryId: mens.id } });
+		// Upsert subcategories
+		console.log("Upserting subcategories...");
+		const mensTops = await upsertSubcategory("Tops", "tops", mens.id, 0);
+		const mensBottoms = await upsertSubcategory("Bottoms", "bottoms", mens.id, 1);
+		const mensFootwear = await upsertSubcategory("Footwear", "footwear", mens.id, 2);
+		const mensGloves = await upsertSubcategory("Gloves", "gloves", mens.id, 3);
+		const mensHeadwear = await upsertSubcategory("Headwear", "headwear", mens.id, 4);
+		const mensSocks = await upsertSubcategory("Socks", "socks", mens.id, 5);
 
-    const womensTops = await db.subcategory.create({ data: { name: "Tops", slug: "tops", displayOrder: 0, categoryId: womens.id } });
-    const womensBras = await db.subcategory.create({ data: { name: "Bras", slug: "bras", displayOrder: 1, categoryId: womens.id } });
-    const womensBottoms = await db.subcategory.create({ data: { name: "Bottoms", slug: "bottoms", displayOrder: 2, categoryId: womens.id } });
-    const womensFootwear = await db.subcategory.create({ data: { name: "Footwear", slug: "footwear", displayOrder: 3, categoryId: womens.id } });
-    const womensGloves = await db.subcategory.create({ data: { name: "Gloves", slug: "gloves", displayOrder: 4, categoryId: womens.id } });
-    const womensHeadwear = await db.subcategory.create({ data: { name: "Headwear", slug: "headwear", displayOrder: 5, categoryId: womens.id } });
-    const womensSocks = await db.subcategory.create({ data: { name: "Socks", slug: "socks", displayOrder: 6, categoryId: womens.id } });
-    const womensPlus = await db.subcategory.create({ data: { name: "Plus Sizes", slug: "plus-sizes", displayOrder: 7, categoryId: womens.id } });
+		const womensTops = await upsertSubcategory("Tops", "tops", womens.id, 0);
+		const womensBras = await upsertSubcategory("Bras", "bras", womens.id, 1);
+		const womensBottoms = await upsertSubcategory("Bottoms", "bottoms", womens.id, 2);
+		const womensFootwear = await upsertSubcategory("Footwear", "footwear", womens.id, 3);
+		const womensGloves = await upsertSubcategory("Gloves", "gloves", womens.id, 4);
+		const womensHeadwear = await upsertSubcategory("Headwear", "headwear", womens.id, 5);
+		const womensSocks = await upsertSubcategory("Socks", "socks", womens.id, 6);
+		const womensPlus = await upsertSubcategory("Plus Sizes", "plus-sizes", womens.id, 7);
 
-    const boysTops = await db.subcategory.create({ data: { name: "Tops", slug: "tops", displayOrder: 0, categoryId: boys.id } });
-    const boysBottoms = await db.subcategory.create({ data: { name: "Bottoms", slug: "bottoms", displayOrder: 1, categoryId: boys.id } });
-    const boysFootwear = await db.subcategory.create({ data: { name: "Footwear", slug: "footwear", displayOrder: 2, categoryId: boys.id } });
-    const boysGloves = await db.subcategory.create({ data: { name: "Gloves", slug: "gloves", displayOrder: 3, categoryId: boys.id } });
-    const boysHeadwear = await db.subcategory.create({ data: { name: "Headwear", slug: "headwear", displayOrder: 4, categoryId: boys.id } });
-    const boysSocks = await db.subcategory.create({ data: { name: "Socks", slug: "socks", displayOrder: 5, categoryId: boys.id } });
+		const boysTops = await upsertSubcategory("Tops", "tops", boys.id, 0);
+		const boysBottoms = await upsertSubcategory("Bottoms", "bottoms", boys.id, 1);
+		const boysFootwear = await upsertSubcategory("Footwear", "footwear", boys.id, 2);
+		const boysGloves = await upsertSubcategory("Gloves", "gloves", boys.id, 3);
+		const boysHeadwear = await upsertSubcategory("Headwear", "headwear", boys.id, 4);
+		const boysSocks = await upsertSubcategory("Socks", "socks", boys.id, 5);
 
-    const girlsTops = await db.subcategory.create({ data: { name: "Tops", slug: "tops", displayOrder: 0, categoryId: girls.id } });
-    const girlsBottoms = await db.subcategory.create({ data: { name: "Bottoms", slug: "bottoms", displayOrder: 1, categoryId: girls.id } });
-    const girlsFootwear = await db.subcategory.create({ data: { name: "Footwear", slug: "footwear", displayOrder: 2, categoryId: girls.id } });
-    const girlsGloves = await db.subcategory.create({ data: { name: "Gloves", slug: "gloves", displayOrder: 3, categoryId: girls.id } });
-    const girlsHeadwear = await db.subcategory.create({ data: { name: "Headwear", slug: "headwear", displayOrder: 4, categoryId: girls.id } });
-    const girlsSocks = await db.subcategory.create({ data: { name: "Socks", slug: "socks", displayOrder: 5, categoryId: girls.id } });
+		const girlsTops = await upsertSubcategory("Tops", "tops", girls.id, 0);
+		const girlsBottoms = await upsertSubcategory("Bottoms", "bottoms", girls.id, 1);
+		const girlsFootwear = await upsertSubcategory("Footwear", "footwear", girls.id, 2);
+		const girlsGloves = await upsertSubcategory("Gloves", "gloves", girls.id, 3);
+		const girlsHeadwear = await upsertSubcategory("Headwear", "headwear", girls.id, 4);
+		const girlsSocks = await upsertSubcategory("Socks", "socks", girls.id, 5);
 
-    // Create size charts from templates
-    console.log("Creating size charts from templates...");
+		// Upsert size charts from templates
+		console.log("Upserting size charts from templates...");
 
-    // Men's apparel
-    await createSizeChartFromTemplate(getTemplate("apparel-mens-tops"), "Tops", "mens-tops", [mensTops.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("apparel-mens-bottoms"), "Bottoms", "mens-bottoms", [mensBottoms.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("footwear-mens"), "Footwear", "mens-footwear", [mensFootwear.id], instructions);
+		// Men's apparel
+		await upsertSizeChartFromTemplate(getTemplate("apparel-mens-tops"), "Tops", "mens-tops", [mensTops.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("apparel-mens-bottoms"), "Bottoms", "mens-bottoms", [mensBottoms.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("footwear-mens"), "Footwear", "mens-footwear", [mensFootwear.id], instructions);
 
-    const glovesTemplate = getTemplate("accessories-gloves");
-    await createSizeChartFromTemplate(glovesTemplate, "Gloves", "mens-gloves", [mensGloves.id], instructions, glovesTemplate.variants?.mens?.rows);
+		const glovesTemplate = getTemplate("accessories-gloves");
+		await upsertSizeChartFromTemplate(glovesTemplate, "Gloves", "mens-gloves", [mensGloves.id], instructions, glovesTemplate.variants?.mens?.rows);
 
-    const headwearTemplate = getTemplate("accessories-headwear");
-    await createSizeChartFromTemplate(headwearTemplate, "Headwear", "mens-headwear", [mensHeadwear.id], instructions, headwearTemplate.variants?.mens?.rows);
+		const headwearTemplate = getTemplate("accessories-headwear");
+		await upsertSizeChartFromTemplate(headwearTemplate, "Headwear", "mens-headwear", [mensHeadwear.id], instructions, headwearTemplate.variants?.mens?.rows);
 
-    const socksTemplate = getTemplate("accessories-socks");
-    await createSizeChartFromTemplate(socksTemplate, "Socks", "mens-socks", [mensSocks.id], instructions, socksTemplate.variants?.mens?.rows);
+		const socksTemplate = getTemplate("accessories-socks");
+		await upsertSizeChartFromTemplate(socksTemplate, "Socks", "mens-socks", [mensSocks.id], instructions, socksTemplate.variants?.mens?.rows);
 
-    // Women's apparel
-    await createSizeChartFromTemplate(getTemplate("apparel-womens-tops"), "Tops", "womens-tops", [womensTops.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("apparel-womens-sports-bras"), "Sports Bras", "womens-sports-bras", [womensBras.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("apparel-womens-bottoms"), "Bottoms", "womens-bottoms", [womensBottoms.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("apparel-womens-plus-sizes"), "Plus Sizes", "womens-plus-sizes", [womensPlus.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("footwear-womens"), "Footwear", "womens-footwear", [womensFootwear.id], instructions);
-    await createSizeChartFromTemplate(glovesTemplate, "Gloves", "womens-gloves", [womensGloves.id], instructions, glovesTemplate.variants?.womens?.rows);
-    await createSizeChartFromTemplate(headwearTemplate, "Headwear", "womens-headwear", [womensHeadwear.id], instructions, headwearTemplate.variants?.womens?.rows);
-    await createSizeChartFromTemplate(socksTemplate, "Socks", "womens-socks", [womensSocks.id], instructions, socksTemplate.variants?.womens?.rows);
+		// Women's apparel
+		await upsertSizeChartFromTemplate(getTemplate("apparel-womens-tops"), "Tops", "womens-tops", [womensTops.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("apparel-womens-sports-bras"), "Sports Bras", "womens-sports-bras", [womensBras.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("apparel-womens-bottoms"), "Bottoms", "womens-bottoms", [womensBottoms.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("apparel-womens-plus-sizes"), "Plus Sizes", "womens-plus-sizes", [womensPlus.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("footwear-womens"), "Footwear", "womens-footwear", [womensFootwear.id], instructions);
+		await upsertSizeChartFromTemplate(glovesTemplate, "Gloves", "womens-gloves", [womensGloves.id], instructions, glovesTemplate.variants?.womens?.rows);
+		await upsertSizeChartFromTemplate(headwearTemplate, "Headwear", "womens-headwear", [womensHeadwear.id], instructions, headwearTemplate.variants?.womens?.rows);
+		await upsertSizeChartFromTemplate(socksTemplate, "Socks", "womens-socks", [womensSocks.id], instructions, socksTemplate.variants?.womens?.rows);
 
-    // Youth
-    await createSizeChartFromTemplate(getTemplate("youth-big-kids-tops"), "Big Kids (8-20)", "youth-big-kids-tops", [boysTops.id, girlsTops.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("youth-big-kids-bottoms"), "Big Kids (8-20)", "youth-big-kids-bottoms", [boysBottoms.id, girlsBottoms.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("youth-little-kids"), "Little Kids (4-7)", "youth-little-kids", [boysTops.id, girlsTops.id, boysBottoms.id, girlsBottoms.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("youth-toddler"), "Toddler (2T-4T)", "youth-toddler", [boysTops.id, girlsTops.id, boysBottoms.id, girlsBottoms.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("youth-infant"), "Infant (0-24M)", "youth-infant", [boysTops.id, girlsTops.id, boysBottoms.id, girlsBottoms.id], instructions);
-    await createSizeChartFromTemplate(getTemplate("footwear-kids"), "Youth Footwear", "youth-footwear", [boysFootwear.id, girlsFootwear.id], instructions);
-    await createSizeChartFromTemplate(glovesTemplate, "Youth Gloves", "youth-gloves", [boysGloves.id, girlsGloves.id], instructions, glovesTemplate.variants?.youth?.rows);
-    await createSizeChartFromTemplate(headwearTemplate, "Youth Headwear", "youth-headwear", [boysHeadwear.id, girlsHeadwear.id], instructions, headwearTemplate.variants?.youth?.rows);
-    await createSizeChartFromTemplate(socksTemplate, "Youth Socks", "youth-socks", [boysSocks.id, girlsSocks.id], instructions, socksTemplate.variants?.youth?.rows);
+		// Youth
+		await upsertSizeChartFromTemplate(getTemplate("youth-big-kids-tops"), "Big Kids (8-20)", "youth-big-kids-tops", [boysTops.id, girlsTops.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("youth-big-kids-bottoms"), "Big Kids (8-20)", "youth-big-kids-bottoms", [boysBottoms.id, girlsBottoms.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("youth-little-kids"), "Little Kids (4-7)", "youth-little-kids", [boysTops.id, girlsTops.id, boysBottoms.id, girlsBottoms.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("youth-toddler"), "Toddler (2T-4T)", "youth-toddler", [boysTops.id, girlsTops.id, boysBottoms.id, girlsBottoms.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("youth-infant"), "Infant (0-24M)", "youth-infant", [boysTops.id, girlsTops.id, boysBottoms.id, girlsBottoms.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("footwear-kids"), "Youth Footwear", "youth-footwear", [boysFootwear.id, girlsFootwear.id], instructions);
+		await upsertSizeChartFromTemplate(glovesTemplate, "Youth Gloves", "youth-gloves", [boysGloves.id, girlsGloves.id], instructions, glovesTemplate.variants?.youth?.rows);
+		await upsertSizeChartFromTemplate(headwearTemplate, "Youth Headwear", "youth-headwear", [boysHeadwear.id, girlsHeadwear.id], instructions, headwearTemplate.variants?.youth?.rows);
+		await upsertSizeChartFromTemplate(socksTemplate, "Youth Socks", "youth-socks", [boysSocks.id, girlsSocks.id], instructions, socksTemplate.variants?.youth?.rows);
 
-    console.log("Demo database reset completed successfully!");
+		const duration = Date.now() - startTime;
+		console.log(`Demo database reset completed successfully in ${duration}ms!`);
 
-    // Store the reset time
-    lastResetTime = new Date().toISOString();
+		// Store the reset time
+		lastResetTime = new Date().toISOString();
 
-    return NextResponse.json({
-      success: true,
-      message: "Demo database reset completed",
-      timestamp: lastResetTime,
-      data: {
-        categories: 4,
-        subcategories: 24,
-        sizeCharts: 22,
-        templates: templates.length,
-      },
-    });
-  } catch (error) {
-    console.error("Error resetting demo database:", error);
-    return NextResponse.json(
-      { error: "Failed to reset demo database" },
-      { status: 500 }
-    );
-  }
+		// Log success to Sentry
+		Sentry.captureMessage("Demo reset completed successfully", {
+			level: "info",
+			extra: {
+				duration,
+				categories: 4,
+				subcategories: 24,
+				sizeCharts: DEMO_SIZE_CHART_SLUGS.length,
+				templates: templates.length,
+			},
+		});
+
+		return NextResponse.json({
+			success: true,
+			message: "Demo database reset completed",
+			timestamp: lastResetTime,
+			duration,
+			data: {
+				categories: 4,
+				subcategories: 24,
+				sizeCharts: DEMO_SIZE_CHART_SLUGS.length,
+				templates: templates.length,
+			},
+		});
+	} catch (error) {
+		const duration = Date.now() - startTime;
+		console.error("Error resetting demo database:", error);
+
+		// Log error to Sentry
+		Sentry.captureException(error, {
+			extra: {
+				operation: "demo-reset",
+				duration,
+			},
+		});
+
+		return NextResponse.json(
+			{ error: "Failed to reset demo database" },
+			{ status: 500 }
+		);
+	}
 }
 
-// Calculate next reset time based on 6-hour cron schedule (0 */6 * * *)
+// Calculate next reset time based on 12-hour cron schedule (0 0,12 * * *)
 function getNextResetTime(): string {
-  const now = new Date();
-  const hours = now.getUTCHours();
-  const nextResetHour = Math.ceil(hours / 6) * 6;
+	const now = new Date();
+	const hours = now.getUTCHours();
+	const nextResetHour = hours < 12 ? 12 : 24;
 
-  const nextReset = new Date(now);
-  nextReset.setUTCHours(nextResetHour, 0, 0, 0);
+	const nextReset = new Date(now);
+	if (nextResetHour === 24) {
+		nextReset.setUTCDate(nextReset.getUTCDate() + 1);
+		nextReset.setUTCHours(0, 0, 0, 0);
+	} else {
+		nextReset.setUTCHours(nextResetHour, 0, 0, 0);
+	}
 
-  // If we're past the calculated time, add 6 hours
-  if (nextReset <= now) {
-    nextReset.setUTCHours(nextReset.getUTCHours() + 6);
-  }
-
-  return nextReset.toISOString();
+	return nextReset.toISOString();
 }
 
 // Also support GET for health checks and demo status
 export async function GET() {
-  const demoEnabled = await isDemoModeEnabled();
+	const demoEnabled = await isDemoModeEnabled();
 
-  if (!demoEnabled) {
-    return NextResponse.json({ demo_mode: false });
-  }
+	if (!demoEnabled) {
+		return NextResponse.json({ demo_mode: false });
+	}
 
-  return NextResponse.json({
-    demo_mode: true,
-    last_reset: lastResetTime,
-    next_reset: getNextResetTime(),
-    reset_interval_hours: 6,
-  });
+	return NextResponse.json({
+		demo_mode: true,
+		last_reset: lastResetTime,
+		next_reset: getNextResetTime(),
+		reset_interval_hours: 12,
+	});
 }
