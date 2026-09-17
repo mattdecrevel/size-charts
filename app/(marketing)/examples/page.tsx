@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Code2, Wand2, ExternalLink, ArrowRight, ChevronRight } from "lucide-react";
 import { db } from "@/lib/db";
 
+// The size guide section lists categories and live published-chart counts.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
 	title: "Examples",
 	description: "Explore different ways to use the size chart widget. View pre-configured examples, use the live builder, or check out standalone HTML integration.",

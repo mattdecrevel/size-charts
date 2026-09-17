@@ -14,6 +14,9 @@ import { TemplatePreview } from "@/components/templates/template-preview";
 import { SectionHeader } from "@/components/ui/section-header";
 import { FeaturesGrid } from "@/components/ui/features-grid";
 
+// The landing page reads category and published-chart counts from the database.
+export const dynamic = "force-dynamic";
+
 const features = [
 	{
 		iconName: "Layers",
