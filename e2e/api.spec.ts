@@ -7,11 +7,11 @@ test.describe("API Endpoints", () => {
       expect(response.ok()).toBe(true);
 
       const data = await response.json();
-      expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThan(0);
+      expect(Array.isArray(data.templates)).toBe(true);
+      expect(data.templates.length).toBeGreaterThan(0);
 
       // Verify template structure
-      const template = data[0];
+      const template = data.templates[0];
       expect(template).toHaveProperty("id");
       expect(template).toHaveProperty("name");
       expect(template).toHaveProperty("category");
@@ -49,16 +49,29 @@ test.describe("API Endpoints", () => {
       const response = await request.get("/api/size-charts");
       expect(response.ok()).toBe(true);
 
-      const data = await response.json();
-      expect(Array.isArray(data)).toBe(true);
+      const body = await response.json();
+      expect(Array.isArray(body.data)).toBe(true);
+      expect(body).toHaveProperty("pagination");
     });
 
-    test("GET /api/size-charts/public should return public charts", async ({ request }) => {
-      const response = await request.get("/api/size-charts/public");
+    test("GET /api/size-charts/public should return a single published chart", async ({ request }) => {
+      const response = await request.get(
+        "/api/size-charts/public?category=mens&subcategory=tops&chart=mens-tops"
+      );
       expect(response.ok()).toBe(true);
 
-      const data = await response.json();
-      expect(Array.isArray(data)).toBe(true);
+      const chart = await response.json();
+      expect(chart.slug).toBe("mens-tops");
+      expect(chart.isPublished).toBe(true);
+      expect(Array.isArray(chart.columns)).toBe(true);
+      expect(Array.isArray(chart.rows)).toBe(true);
+    });
+
+    test("GET /api/size-charts/public requires category, subcategory and chart", async ({
+      request,
+    }) => {
+      const response = await request.get("/api/size-charts/public");
+      expect(response.status()).toBe(400);
     });
   });
 

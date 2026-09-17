@@ -23,10 +23,11 @@ test.describe("Admin Panel", () => {
     const sidebarExists = await sidebar.isVisible().catch(() => false);
 
     if (sidebarExists) {
-      // Verify navigation items
-      await expect(page.getByRole("link", { name: /size charts/i })).toBeVisible();
-      await expect(page.getByRole("link", { name: /categories/i })).toBeVisible();
-      await expect(page.getByRole("link", { name: /templates/i })).toBeVisible();
+      // Verify navigation items. Scope to the sidebar and match exact link text so
+      // the brand link ("Size Charts / Admin Panel") and page content don't match.
+      await expect(sidebar.getByRole("link", { name: "Size Charts", exact: true })).toBeVisible();
+      await expect(sidebar.getByRole("link", { name: "Categories", exact: true })).toBeVisible();
+      await expect(sidebar.getByRole("link", { name: "Templates", exact: true })).toBeVisible();
     }
   });
 
