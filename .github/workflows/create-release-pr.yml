@@ -60,25 +60,15 @@ jobs:
           latest="${{ steps.version.outputs.current }}"
           next="${{ steps.version.outputs.next }}"
 
-          body="## What's Changed in $next"
-          body="$body
-
-"
           # Get commits between production and main
           commits=$(git log origin/production..origin/main --pretty=format:"- %s (%h)" 2>/dev/null || echo "")
+          [ -n "$commits" ] || commits="- No changes"
 
-          if [ -n "$commits" ]; then
-            body="$body$commits"
-          else
-            body="$body- No changes"
-          fi
-
-          body="$body
-
----
-
-**Previous version:** $latest
-**New version:** $next"
+          # Built with printf, not a multi-line string literal: body lines at
+          # column 0 end this YAML block early, and GitHub then rejects the
+          # whole file (it stops offering the manual "Run workflow" trigger).
+          body=$(printf '## What'"'"'s Changed in %s\n\n%s\n\n---\n\n**Previous version:** %s\n**New version:** %s' \
+            "$next" "$commits" "$latest" "$next")
 
           # Save to output (handle multiline)
           echo "body<<EOF" >> $GITHUB_OUTPUT
@@ -103,6 +93,9 @@ jobs:
         if: steps.check_pr.outputs.exists != 'true'
         id: create_pr
         uses: actions/github-script@v7
+        env:
+          # Passed via env so a backtick in a commit message can't break the script.
+          RELEASE_BODY: ${{ steps.changelog.outputs.body }}
         with:
           script: |
             const { data: pr } = await github.rest.pulls.create({
@@ -111,7 +104,7 @@ jobs:
               title: `Release ${{ steps.version.outputs.next }}`,
               head: 'main',
               base: 'production',
-              body: `${{ steps.changelog.outputs.body }}`
+              body: process.env.RELEASE_BODY
             });
             core.setOutput('url', pr.html_url);
             core.setOutput('number', pr.number);
