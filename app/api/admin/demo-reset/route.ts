@@ -433,8 +433,8 @@ export async function POST(request: NextRequest) {
 		console.log("Upserting size charts from templates...");
 
 		// Men's apparel
-		await upsertSizeChartFromTemplate(getTemplate("apparel-mens-tops"), "Tops", "mens-tops", [mensTops.id], instructions);
-		await upsertSizeChartFromTemplate(getTemplate("apparel-mens-bottoms"), "Bottoms", "mens-bottoms", [mensBottoms.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("mens-tops"), "Tops", "mens-tops", [mensTops.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("mens-bottoms"), "Bottoms", "mens-bottoms", [mensBottoms.id], instructions);
 		await upsertSizeChartFromTemplate(getTemplate("footwear-mens"), "Footwear", "mens-footwear", [mensFootwear.id], instructions);
 
 		const glovesTemplate = getTemplate("accessories-gloves");
@@ -447,10 +447,10 @@ export async function POST(request: NextRequest) {
 		await upsertSizeChartFromTemplate(socksTemplate, "Socks", "mens-socks", [mensSocks.id], instructions, socksTemplate.variants?.mens?.rows);
 
 		// Women's apparel
-		await upsertSizeChartFromTemplate(getTemplate("apparel-womens-tops"), "Tops", "womens-tops", [womensTops.id], instructions);
-		await upsertSizeChartFromTemplate(getTemplate("apparel-womens-sports-bras"), "Sports Bras", "womens-sports-bras", [womensBras.id], instructions);
-		await upsertSizeChartFromTemplate(getTemplate("apparel-womens-bottoms"), "Bottoms", "womens-bottoms", [womensBottoms.id], instructions);
-		await upsertSizeChartFromTemplate(getTemplate("apparel-womens-plus-sizes"), "Plus Sizes", "womens-plus-sizes", [womensPlus.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("womens-tops"), "Tops", "womens-tops", [womensTops.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("womens-sports-bras"), "Sports Bras", "womens-sports-bras", [womensBras.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("womens-bottoms"), "Bottoms", "womens-bottoms", [womensBottoms.id], instructions);
+		await upsertSizeChartFromTemplate(getTemplate("womens-plus-sizes"), "Plus Sizes", "womens-plus-sizes", [womensPlus.id], instructions);
 		await upsertSizeChartFromTemplate(getTemplate("footwear-womens"), "Footwear", "womens-footwear", [womensFootwear.id], instructions);
 		await upsertSizeChartFromTemplate(glovesTemplate, "Gloves", "womens-gloves", [womensGloves.id], instructions, glovesTemplate.variants?.womens?.rows);
 		await upsertSizeChartFromTemplate(headwearTemplate, "Headwear", "womens-headwear", [womensHeadwear.id], instructions, headwearTemplate.variants?.womens?.rows);
