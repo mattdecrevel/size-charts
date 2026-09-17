@@ -147,9 +147,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
-          git checkout main
-          git merge origin/production --no-edit -m "chore: sync main with production after release ${{ steps.get_version.outputs.version }}"
-          git push origin main
+          # A release PR merges main into production, so the two usually hold
+          # identical files and only the merge commit differs. main is
+          # protected (changes need a PR), so pushing that commit fails the
+          # release; skip it when there is nothing to carry back.
+          if git diff --quiet origin/main origin/production; then
+            echo "main already matches production; nothing to sync."
+            exit 0
+          fi
+          echo "::warning::production has changes main lacks. Open a production -> main PR to sync."
 
       - name: Summary
         run: |
