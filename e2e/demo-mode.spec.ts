@@ -28,7 +28,7 @@ test.describe("Demo Mode", () => {
 			if (status.demo_mode) {
 				// Verify demo size charts exist in database
 				const chartsResponse = await request.get("/api/size-charts");
-				const charts = await chartsResponse.json();
+				const { data: charts } = await chartsResponse.json();
 
 				// At least some demo charts should exist
 				const demoCharts = charts.filter((chart: { slug: string }) =>
@@ -69,7 +69,7 @@ test.describe("Demo Mode", () => {
 
 			// Get a demo size chart ID
 			const chartsResponse = await request.get("/api/size-charts");
-			const charts = await chartsResponse.json();
+			const { data: charts } = await chartsResponse.json();
 			const demoChart = charts.find((chart: { slug: string }) =>
 				DEMO_SIZE_CHART_SLUGS.includes(chart.slug as typeof DEMO_SIZE_CHART_SLUGS[number])
 			);

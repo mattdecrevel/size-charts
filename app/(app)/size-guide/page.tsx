@@ -3,6 +3,10 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { ChevronRight } from "lucide-react";
 
+// Category listings and published-chart counts change whenever an admin publishes a
+// chart, so this page is rendered per request rather than baked in at build time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
 	title: "Size Guide",
 	description: "Find the perfect fit with our comprehensive size charts. Browse sizing guides by category for clothing, footwear, and accessories.",

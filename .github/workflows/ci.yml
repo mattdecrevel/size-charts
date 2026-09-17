@@ -107,7 +107,10 @@ jobs:
           DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/size_charts_test"
 
       - name: Run E2E tests
-        run: npm run test:e2e
+        # Only the Chromium browser is installed above, so restrict the run to the
+        # matching project. The other projects in playwright.config.ts stay
+        # available for local cross-browser runs.
+        run: npm run test:e2e -- --project=chromium
         env:
           DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/size_charts_test"
           DEMO_MODE: "true"

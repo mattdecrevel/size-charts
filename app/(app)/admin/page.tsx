@@ -16,6 +16,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
+// The dashboard reports live counts and the most recently updated charts.
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboard() {
 	const [sizeChartCount, categoryCount, publishedCount] = await Promise.all([
 		db.sizeChart.count(),

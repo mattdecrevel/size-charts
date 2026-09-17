@@ -449,7 +449,7 @@ async function main() {
 
   // MEN'S APPAREL
   await createSizeChartFromTemplate(
-    getTemplate("apparel-mens-tops"),
+    getTemplate("mens-tops"),
     "Tops",
     "mens-tops",
     [mensTops.id],
@@ -458,7 +458,7 @@ async function main() {
   console.log("Created Men's Tops");
 
   await createSizeChartFromTemplate(
-    getTemplate("apparel-mens-bottoms"),
+    getTemplate("mens-bottoms"),
     "Bottoms",
     "mens-bottoms",
     [mensBottoms.id],
@@ -512,7 +512,7 @@ async function main() {
 
   // WOMEN'S APPAREL
   await createSizeChartFromTemplate(
-    getTemplate("apparel-womens-tops"),
+    getTemplate("womens-tops"),
     "Tops",
     "womens-tops",
     [womensTops.id],
@@ -521,7 +521,7 @@ async function main() {
   console.log("Created Women's Tops");
 
   await createSizeChartFromTemplate(
-    getTemplate("apparel-womens-sports-bras"),
+    getTemplate("womens-sports-bras"),
     "Sports Bras",
     "womens-sports-bras",
     [womensBras.id],
@@ -530,7 +530,7 @@ async function main() {
   console.log("Created Women's Bras");
 
   await createSizeChartFromTemplate(
-    getTemplate("apparel-womens-bottoms"),
+    getTemplate("womens-bottoms"),
     "Bottoms",
     "womens-bottoms",
     [womensBottoms.id],
@@ -539,7 +539,7 @@ async function main() {
   console.log("Created Women's Bottoms");
 
   await createSizeChartFromTemplate(
-    getTemplate("apparel-womens-plus-sizes"),
+    getTemplate("womens-plus-sizes"),
     "Plus Sizes",
     "womens-plus-sizes",
     [womensPlus.id],
